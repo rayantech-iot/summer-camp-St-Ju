@@ -32,11 +32,17 @@ export const metadata: Metadata = {
     icon: "/images/logo.png",
   },
   openGraph: {
-    title: "Genevois Summer Camp",
+    title: "Genevois Summer Camp — Approche le basket de haut niveau",
     description:
       "Vivre, l'espace d'une semaine, le quotidien d'un basketteur de haut niveau — sans quitter le Genevois.",
     type: "website",
     locale: "fr_FR",
+    images: ["/images/logo.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Genevois Summer Camp",
+    description: "Vivre, l'espace d'une semaine, le quotidien d'un basketteur de haut niveau.",
     images: ["/images/logo.png"],
   },
 }
