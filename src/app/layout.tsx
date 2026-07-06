@@ -15,6 +15,7 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://genevoissummercamp.fr"),
   title: "Genevois Summer Camp — Approche le basket de haut niveau",
   description:
     "Stage de basket et multisport en Haute-Savoie, à 20 min de Genève. Encadrement professionnel avec des coachs du haut niveau. U11-U16.",
@@ -27,12 +28,16 @@ export const metadata: Metadata = {
     "camp multisports Haute-Savoie",
     "basket jeunes Genève",
   ],
+  icons: {
+    icon: "/images/logo.png",
+  },
   openGraph: {
     title: "Genevois Summer Camp",
     description:
       "Vivre, l'espace d'une semaine, le quotidien d'un basketteur de haut niveau — sans quitter le Genevois.",
     type: "website",
     locale: "fr_FR",
+    images: ["/images/logo.png"],
   },
 }
 

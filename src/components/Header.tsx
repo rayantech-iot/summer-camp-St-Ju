@@ -34,10 +34,8 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="font-heading text-2xl sm:text-3xl text-gsc-white tracking-wider">
-              GENEVOIS<span className="text-gsc-red">.</span>
-            </span>
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/images/logo.png" alt="Genevois Summer Camp" className="h-10 sm:h-12 w-auto" />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
