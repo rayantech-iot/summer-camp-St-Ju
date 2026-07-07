@@ -236,21 +236,23 @@ export default function AdminPage() {
                                 <Upload size={14} /> Ajouter photos/vidéos
                                 <input type="file" multiple accept="image/*,video/*" className="hidden"
                                   onChange={async (e) => {
-                                    const files = e.target.files
-                                    if (!files) return
-                                    if (files.length > 20) {
-                                      alert('Maximum 20 fichiers à la fois')
-                                      return
-                                    }
-                                    setUploading(ed.id)
-                                    for (const f of Array.from(files)) {
-                                      await uploadMedia(ed.id, f)
-                                    }
-                                    setUploading(null)
-                                    const updated = await getMediaByEdition(ed.id)
-                                    setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
-                                    e.target.value = ''
-                                  }} />
+                                     const files = e.target.files
+                                     if (!files) return
+                                     if (files.length > 20) {
+                                       alert('Maximum 20 fichiers à la fois')
+                                       return
+                                     }
+                                     setUploading(ed.id)
+                                     try {
+                                       await Promise.all(Array.from(files).map((f) => uploadMedia(ed.id, f)))
+                                     } catch (err) {
+                                       console.error('Upload error:', err)
+                                     }
+                                     setUploading(null)
+                                     const updated = await getMediaByEdition(ed.id)
+                                     setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
+                                     e.target.value = ''
+                                   }} />
                               </label>
                               <button onClick={async () => {
                                 const ok = await askConfirm('Supprimer l\'édition', `Supprimer "${ed.title}" ainsi que toutes ses photos ?`)

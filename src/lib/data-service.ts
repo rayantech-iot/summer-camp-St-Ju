@@ -109,26 +109,7 @@ export async function uploadMedia(editionId: string, file: File): Promise<Memory
   const ext = file.name.split('.').pop()
   const type = file.type.startsWith('video/') ? 'video' : 'image'
 
-  // Try Supabase with a 15s timeout
-  if (SUPABASE_CONFIGURED) {
-    try {
-      const fileName = `${editionId}/${id}.${ext}`
-      const uploadPromise = supabase.storage.from('memories').upload(fileName, file).catch(() => ({ data: null, error: null }))
-      const timeout = new Promise<{ data: null; error: null }>((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000)).catch(() => ({ data: null, error: null }))
-      const { data: uploadData } = await Promise.race([uploadPromise, timeout]) as any
-      if (uploadData) {
-        const { data: urlData } = supabase.storage.from('memories').getPublicUrl(fileName)
-        const media: MemoryMedia = { id, edition_id: editionId, url: urlData.publicUrl, type, created_at: new Date().toISOString() }
-        await supabase.from('memory_media').insert(media)
-        const items = [...getLocalData<MemoryMedia>('media'), media]
-        setLocalData('media', items)
-        return media
-      }
-    } catch (e) {
-      console.warn('Supabase upload failed, falling back to base64:', e)
-    }
-  }
-
+  // Always store in localStorage (base64) — reliable and instant
   const b64 = await new Promise<string>((resolve) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
@@ -137,6 +118,21 @@ export async function uploadMedia(editionId: string, file: File): Promise<Memory
   const media: MemoryMedia = { id, edition_id: editionId, url: b64, type, created_at: new Date().toISOString() }
   const items = [...getLocalData<MemoryMedia>('media'), media]
   setLocalData('media', items)
+
+  // Best-effort: try Supabase in background (don't await)
+  if (SUPABASE_CONFIGURED) {
+    try {
+      const fileName = `${editionId}/${id}.${ext}`
+      await supabase.storage.from('memories').upload(fileName, file)
+      const { data: urlData } = supabase.storage.from('memories').getPublicUrl(fileName)
+      if (urlData) {
+        await supabase.from('memory_media').insert({ ...media, url: urlData.publicUrl })
+      }
+    } catch (e) {
+      console.warn('Supabase upload sync failed (non-blocking):', e)
+    }
+  }
+
   return media
 }
 
