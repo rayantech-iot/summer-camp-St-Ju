@@ -8,6 +8,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
+import InfiniteCoachCarousel from '@/components/InfiniteCoachCarousel'
 import { getCoaches, getTestimonials, getEditions, getAllMedia } from '@/lib/data-service'
 import type { Coach, Testimonial, MemoryMedia } from '@/lib/types'
 
@@ -191,37 +192,20 @@ export default function Home() {
         </AnimatedSection>
 
         {/* Coachs résumé */}
-        <AnimatedSection className="py-24 bg-gsc-gray/20 px-4" delay={0.1}>
-          <div className="max-w-6xl mx-auto">
-            <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-16">
+        <AnimatedSection className="py-24 bg-gsc-gray/20 overflow-hidden" delay={0.1}>
+          <div className="max-w-6xl mx-auto px-4 mb-16">
+            <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center">
               L&apos;encadrement
             </h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {displayCoaches.slice(0, 4).map((coach) => (
-                <div key={coach.id} className="text-center group">
-                  <div className="aspect-[3/4] bg-gsc-gray/40 mb-4 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-gsc-black/60 to-transparent z-10" />
-                    {coach.image_url ? (
-                      <img src={coach.image_url} alt={coach.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/20 font-heading text-6xl">
-                        {coach.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  <h3 className="font-heading text-lg text-gsc-white tracking-wider">{coach.name}</h3>
-                  <p className="text-xs text-gsc-white/50 mt-1">{coach.role}</p>
-                </div>
-              ))}
-            </div>
-            <div className="text-center mt-10">
-              <Link
-                href="/coachs"
-                className="inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider hover:gap-3 transition-all"
-              >
-                Voir tous les coachs <ArrowRight size={14} />
-              </Link>
-            </div>
+          </div>
+          <InfiniteCoachCarousel />
+          <div className="text-center mt-12">
+            <Link
+              href="/coachs"
+              className="inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider hover:gap-3 transition-all"
+            >
+              Voir tous les coachs <ArrowRight size={14} />
+            </Link>
           </div>
         </AnimatedSection>
 
