@@ -53,11 +53,15 @@ export async function getEditions(): Promise<Edition[]> {
 export async function createEdition(edition: Omit<Edition, 'id'>): Promise<Edition> {
   const newEdition: Edition = { ...edition, id: generateId() }
   if (SUPABASE_CONFIGURED) {
-    const { data } = await supabase.from('editions').insert(newEdition).select().single()
-    if (data) {
-      const items = [...getLocalData<Edition>('editions'), data]
-      setLocalData('editions', items)
-      return data
+    try {
+      const { data } = await supabase.from('editions').insert(newEdition).select().single()
+      if (data) {
+        const items = [...getLocalData<Edition>('editions'), data]
+        setLocalData('editions', items)
+        return data
+      }
+    } catch (e) {
+      console.warn('Supabase create edition error, using localStorage:', e)
     }
   }
   const items = [...getLocalData<Edition>('editions'), newEdition]
@@ -109,9 +113,9 @@ export async function uploadMedia(editionId: string, file: File): Promise<Memory
   if (SUPABASE_CONFIGURED) {
     try {
       const fileName = `${editionId}/${id}.${ext}`
-      const uploadPromise = supabase.storage.from('memories').upload(fileName, file)
-      const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Upload timeout')), 15000))
-      const { data: uploadData } = await Promise.race([uploadPromise, timeout])
+      const uploadPromise = supabase.storage.from('memories').upload(fileName, file).catch(() => ({ data: null, error: null }))
+      const timeout = new Promise<{ data: null; error: null }>((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000)).catch(() => ({ data: null, error: null }))
+      const { data: uploadData } = await Promise.race([uploadPromise, timeout]) as any
       if (uploadData) {
         const { data: urlData } = supabase.storage.from('memories').getPublicUrl(fileName)
         const media: MemoryMedia = { id, edition_id: editionId, url: urlData.publicUrl, type, created_at: new Date().toISOString() }
@@ -173,11 +177,15 @@ export async function getCoaches(): Promise<Coach[]> {
 export async function createCoach(coach: Omit<Coach, 'id'>): Promise<Coach> {
   const newCoach: Coach = { ...coach, id: generateId() }
   if (SUPABASE_CONFIGURED) {
-    const { data } = await supabase.from('coaches').insert(newCoach).select().single()
-    if (data) {
-      const items = [...getLocalData<Coach>('coaches'), data]
-      setLocalData('coaches', items)
-      return data
+    try {
+      const { data } = await supabase.from('coaches').insert(newCoach).select().single()
+      if (data) {
+        const items = [...getLocalData<Coach>('coaches'), data]
+        setLocalData('coaches', items)
+        return data
+      }
+    } catch (e) {
+      console.warn('Supabase create coach error, using localStorage:', e)
     }
   }
   const items = [...getLocalData<Coach>('coaches'), newCoach]
@@ -187,14 +195,18 @@ export async function createCoach(coach: Omit<Coach, 'id'>): Promise<Coach> {
 
 export async function updateCoach(id: string, data: Partial<Coach>): Promise<Coach> {
   if (SUPABASE_CONFIGURED) {
-    const { data: updated } = await supabase.from('coaches').update(data).eq('id', id).select().single()
-    if (updated) {
-      const items = getLocalData<Coach>('coaches')
-      const idx = items.findIndex((c) => c.id === id)
-      if (idx !== -1) items[idx] = { ...items[idx], ...updated }
-      else items.push(updated)
-      setLocalData('coaches', items)
-      return updated
+    try {
+      const { data: updated } = await supabase.from('coaches').update(data).eq('id', id).select().single()
+      if (updated) {
+        const items = getLocalData<Coach>('coaches')
+        const idx = items.findIndex((c) => c.id === id)
+        if (idx !== -1) items[idx] = { ...items[idx], ...updated }
+        else items.push(updated)
+        setLocalData('coaches', items)
+        return updated
+      }
+    } catch (e) {
+      console.warn('Supabase update coach error, using localStorage:', e)
     }
   }
   const items = getLocalData<Coach>('coaches')
@@ -238,11 +250,15 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 export async function createTestimonial(t: Omit<Testimonial, 'id'>): Promise<Testimonial> {
   const newItem: Testimonial = { ...t, id: generateId() }
   if (SUPABASE_CONFIGURED) {
-    const { data } = await supabase.from('testimonials').insert(newItem).select().single()
-    if (data) {
-      const items = [...getLocalData<Testimonial>('testimonials'), data]
-      setLocalData('testimonials', items)
-      return data
+    try {
+      const { data } = await supabase.from('testimonials').insert(newItem).select().single()
+      if (data) {
+        const items = [...getLocalData<Testimonial>('testimonials'), data]
+        setLocalData('testimonials', items)
+        return data
+      }
+    } catch (e) {
+      console.warn('Supabase create testimonial error, using localStorage:', e)
     }
   }
   const items = [...getLocalData<Testimonial>('testimonials'), newItem]
@@ -281,11 +297,15 @@ export async function getFAQItems(): Promise<FAQItem[]> {
 export async function createFAQItem(item: Omit<FAQItem, 'id'>): Promise<FAQItem> {
   const newItem: FAQItem = { ...item, id: generateId() }
   if (SUPABASE_CONFIGURED) {
-    const { data } = await supabase.from('faq_items').insert(newItem).select().single()
-    if (data) {
-      const items = [...getLocalData<FAQItem>('faq'), data]
-      setLocalData('faq', items)
-      return data
+    try {
+      const { data } = await supabase.from('faq_items').insert(newItem).select().single()
+      if (data) {
+        const items = [...getLocalData<FAQItem>('faq'), data]
+        setLocalData('faq', items)
+        return data
+      }
+    } catch (e) {
+      console.warn('Supabase create FAQ error, using localStorage:', e)
     }
   }
   const items = [...getLocalData<FAQItem>('faq'), newItem]
@@ -295,14 +315,18 @@ export async function createFAQItem(item: Omit<FAQItem, 'id'>): Promise<FAQItem>
 
 export async function updateFAQItem(id: string, data: Partial<FAQItem>): Promise<FAQItem> {
   if (SUPABASE_CONFIGURED) {
-    const { data: updated } = await supabase.from('faq_items').update(data).eq('id', id).select().single()
-    if (updated) {
-      const items = getLocalData<FAQItem>('faq')
-      const idx = items.findIndex((f) => f.id === id)
-      if (idx !== -1) items[idx] = { ...items[idx], ...updated }
-      else items.push(updated)
-      setLocalData('faq', items)
-      return updated
+    try {
+      const { data: updated } = await supabase.from('faq_items').update(data).eq('id', id).select().single()
+      if (updated) {
+        const items = getLocalData<FAQItem>('faq')
+        const idx = items.findIndex((f) => f.id === id)
+        if (idx !== -1) items[idx] = { ...items[idx], ...updated }
+        else items.push(updated)
+        setLocalData('faq', items)
+        return updated
+      }
+    } catch (e) {
+      console.warn('Supabase update FAQ error, using localStorage:', e)
     }
   }
   const items = getLocalData<FAQItem>('faq')
@@ -345,14 +369,18 @@ export async function getOffers(): Promise<CampOffer[]> {
 
 export async function updateOffer(id: string, data: Partial<CampOffer>): Promise<CampOffer> {
   if (SUPABASE_CONFIGURED) {
-    const { data: updated } = await supabase.from('offers').update(data).eq('id', id).select().single()
-    if (updated) {
-      const items = getLocalData<CampOffer>('offers')
-      const idx = items.findIndex((o) => o.id === id)
-      if (idx !== -1) items[idx] = { ...items[idx], ...updated }
-      else items.push(updated)
-      setLocalData('offers', items)
-      return updated
+    try {
+      const { data: updated } = await supabase.from('offers').update(data).eq('id', id).select().single()
+      if (updated) {
+        const items = getLocalData<CampOffer>('offers')
+        const idx = items.findIndex((o) => o.id === id)
+        if (idx !== -1) items[idx] = { ...items[idx], ...updated }
+        else items.push(updated)
+        setLocalData('offers', items)
+        return updated
+      }
+    } catch (e) {
+      console.warn('Supabase update offer error, using localStorage:', e)
     }
   }
   const items = getLocalData<CampOffer>('offers')

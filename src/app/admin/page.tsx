@@ -699,20 +699,22 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
   const [type, setType] = useState<'basket' | 'multisport'>('basket')
   const [files, setFiles] = useState<File[]>([])
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title || !year) return
     setSaving(true)
+    setError('')
     try {
       const edition = await createEdition({ title, year: Number(year), type, created_at: new Date().toISOString() })
       for (const f of files) {
         await uploadMedia(edition.id, f)
       }
-      setSaving(false)
       onDone()
     } catch (err) {
       console.error('Edition save error:', err)
+      setError('Erreur lors de la création. Vérifie ta connexion et réessaie.')
       setSaving(false)
     }
   }
@@ -776,6 +778,7 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
           </div>
         )}
       </div>
+      {error && <p className="text-gsc-red text-sm">{error}</p>}
       <button type="submit" disabled={saving}
         className="w-full bg-gsc-red hover:bg-gsc-red/90 disabled:opacity-50 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all">
         {saving ? 'Création en cours...' : 'Créer l\'édition'}
