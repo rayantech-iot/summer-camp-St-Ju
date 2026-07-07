@@ -244,7 +244,9 @@ export default function AdminPage() {
                                      }
                                      setUploading(ed.id)
                                      try {
-                                       await Promise.all(Array.from(files).map((f) => uploadMedia(ed.id, f)))
+                                       for (const f of Array.from(files)) {
+                                         await uploadMedia(ed.id, f)
+                                       }
                                      } catch (err) {
                                        console.error('Upload error:', err)
                                      }
@@ -712,8 +714,8 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
       const edition = await createEdition({ title, year: Number(year), type, created_at: new Date().toISOString() })
       // Upload files in background, close dialog immediately
       onDone()
-      if (files.length > 0) {
-        await Promise.all(files.map((f) => uploadMedia(edition.id, f)))
+      for (const f of files) {
+        await uploadMedia(edition.id, f)
       }
     } catch (err) {
       console.error('Edition save error:', err)
