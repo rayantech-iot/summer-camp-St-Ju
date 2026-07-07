@@ -60,6 +60,9 @@ export default function AdminPage() {
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [offers, setOffers] = useState<CampOffer[]>([])
   const [loading, setLoading] = useState(true)
+  const [offerDrafts, setOfferDrafts] = useState<CampOffer[]>([])
+  const [saving, setSaving] = useState(false)
+  const [savedMessage, setSavedMessage] = useState('')
 
   const [dialog, setDialog] = useState<{ open: boolean; type: string; data?: any }>({ open: false, type: '' })
   const [uploading, setUploading] = useState<string | null>(null)
@@ -105,6 +108,7 @@ export default function AdminPage() {
       setInscriptions(ins)
       setMessages(msgs)
       setOffers(offs)
+      setOfferDrafts(offs.map((o) => ({ ...o })))
 
       const mm: Record<string, any[]> = {}
       for (const ed of eds) {
@@ -413,12 +417,42 @@ export default function AdminPage() {
               {/* ─── OFFRES ─── */}
               {activeTab === 'offres' && (
                 <div>
-                  <h2 className="font-heading text-2xl text-gsc-white tracking-wider mb-6">Modifier les offres</h2>
+                  <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Modifier les offres</h2>
+                    <div className="flex items-center gap-3">
+                      {savedMessage && (
+                        <span className="text-green-400 text-sm font-bold animate-pulse">{savedMessage}</span>
+                      )}
+                      <button disabled={saving}
+                        onClick={async () => {
+                          setSaving(true)
+                          setSavedMessage('')
+                          for (const draft of offerDrafts) {
+                            try {
+                              const updated = await updateOffer(draft.id, {
+                                lieu: draft.lieu,
+                                price_externat: draft.price_externat,
+                                price_internat: draft.type === 'basket' ? draft.price_internat : undefined,
+                              })
+                              setOffers((prev) => prev.map((o) => o.id === updated.id ? updated : o))
+                            } catch (e) {
+                              console.error('Save offer error:', e)
+                            }
+                          }
+                          setSavedMessage('Offres enregistrées ✓')
+                          setTimeout(() => setSavedMessage(''), 3000)
+                          setSaving(false)
+                        }}
+                        className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider disabled:opacity-50">
+                        <Save size={16} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
+                      </button>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {offers.length === 0 ? (
+                    {offerDrafts.length === 0 ? (
                       <p className="text-gsc-white/40 text-sm col-span-full">Aucune offre configurée.</p>
                     ) : (
-                      offers.map((offer) => (
+                      offerDrafts.map((offer) => (
                         <div key={offer.id} className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
                           <h3 className="font-heading text-xl text-gsc-white tracking-wider mb-4">
                             {offer.type === 'basket' ? 'Camp Basket' : 'Multisport'}
@@ -426,31 +460,22 @@ export default function AdminPage() {
                           <div className="space-y-3 text-sm">
                             <div>
                               <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Lieu</label>
-                              <input defaultValue={offer.lieu}
-                                className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red"
-                                onBlur={async (e) => {
-                                  const updated = await updateOffer(offer.id, { lieu: e.target.value })
-                                  setOffers(offers.map((o) => o.id === offer.id ? updated : o))
-                                }} />
+                              <input value={offer.lieu}
+                                onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, lieu: e.target.value } : o))}
+                                className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red" />
                             </div>
                             <div>
                               <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Prix externat (€)</label>
-                              <input type="number" defaultValue={offer.price_externat}
-                                className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red"
-                                onBlur={async (e) => {
-                                  const updated = await updateOffer(offer.id, { price_externat: Number(e.target.value) })
-                                  setOffers(offers.map((o) => o.id === offer.id ? updated : o))
-                                }} />
+                              <input type="number" value={offer.price_externat}
+                                onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_externat: Number(e.target.value) } : o))}
+                                className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red" />
                             </div>
                             {offer.type === 'basket' && (
                               <div>
                                 <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Prix internat (€)</label>
-                                <input type="number" defaultValue={offer.price_internat || ''}
-                                  className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red"
-                                  onBlur={async (e) => {
-                                    const updated = await updateOffer(offer.id, { price_internat: Number(e.target.value) })
-                                    setOffers(offers.map((o) => o.id === offer.id ? updated : o))
-                                  }} />
+                                <input type="number" value={offer.price_internat || ''}
+                                  onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_internat: Number(e.target.value) } : o))}
+                                  className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red" />
                               </div>
                             )}
                           </div>
