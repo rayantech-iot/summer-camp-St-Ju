@@ -14,6 +14,7 @@ import {
   getContactMessages, exportMessagesCSV,
   getOffers, updateOffer,
 } from '@/lib/data-service'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import type { Edition, Coach, FAQItem, Testimonial, Inscription, ContactMessage, CampOffer } from '@/lib/types'
 
 type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'inscriptions' | 'messages'
@@ -98,9 +99,18 @@ export default function AdminPage() {
     if (isLoggedIn) loadData()
   }, [isLoggedIn, loadData])
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginError('')
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (!error) {
+        setIsLoggedIn(true)
+        return
+      }
+    }
+
     if (email && password) {
       setIsLoggedIn(true)
     } else {
@@ -152,7 +162,10 @@ export default function AdminPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
             <h1 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider">Administration</h1>
-            <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-2 text-sm text-gsc-white/50 hover:text-gsc-red">
+            <button onClick={() => {
+              if (isSupabaseConfigured) supabase.auth.signOut()
+              setIsLoggedIn(false)
+            }} className="flex items-center gap-2 text-sm text-gsc-white/50 hover:text-gsc-red">
               <LogOut size={16} /> Déconnexion
             </button>
           </div>

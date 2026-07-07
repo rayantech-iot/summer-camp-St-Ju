@@ -40,7 +40,10 @@ function generateId(): string {
 export async function getEditions(): Promise<Edition[]> {
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('editions').select('*').order('year', { ascending: false })
-    if (data) return data
+    if (data && data.length > 0) {
+      setLocalData('editions', data)
+      return data
+    }
   }
   return getLocalData<Edition>('editions')
 }
@@ -133,7 +136,10 @@ export async function deleteMedia(id: string): Promise<void> {
 export async function getCoaches(): Promise<Coach[]> {
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('coaches').select('*').order('order', { ascending: true })
-    if (data && data.length > 0) return data
+    if (data && data.length > 0) {
+      setLocalData('coaches', data)
+      return data
+    }
   }
   const local = getLocalData<Coach>('coaches')
   return local.length > 0 ? local : fallbackCoaches
@@ -179,7 +185,10 @@ export async function deleteCoach(id: string): Promise<void> {
 export async function getTestimonials(): Promise<Testimonial[]> {
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false })
-    if (data && data.length > 0) return data
+    if (data && data.length > 0) {
+      setLocalData('testimonials', data)
+      return data
+    }
   }
   const local = getLocalData<Testimonial>('testimonials')
   return local.length > 0 ? local : fallbackTestimonials
@@ -210,7 +219,10 @@ export async function deleteTestimonial(id: string): Promise<void> {
 export async function getFAQItems(): Promise<FAQItem[]> {
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('faq_items').select('*').order('order', { ascending: true })
-    if (data && data.length > 0) return data
+    if (data && data.length > 0) {
+      setLocalData('faq', data)
+      return data
+    }
   }
   const local = getLocalData<FAQItem>('faq')
   return local.length > 0 ? local : fallbackFAQ
