@@ -60,17 +60,19 @@ export async function createEdition(edition: Omit<Edition, 'id'>): Promise<Editi
       return data
     }
   }
-  const items = getLocalData<Edition>('editions')
-  items.push(newEdition)
+  const items = [...getLocalData<Edition>('editions'), newEdition]
   setLocalData('editions', items)
   return newEdition
 }
 
 export async function deleteEdition(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    const { error } = await supabase.from('editions').delete().eq('id', id)
-    if (!error) return
-    console.warn('Supabase delete failed, falling back to localStorage:', error)
+    try {
+      const { error } = await supabase.from('editions').delete().eq('id', id)
+      if (error) console.warn('Supabase delete edition:', error.message)
+    } catch (e) {
+      console.warn('Supabase delete edition error:', e)
+    }
   }
   const items = getLocalData<Edition>('editions').filter((e) => e.id !== id)
   setLocalData('editions', items)
@@ -88,7 +90,10 @@ export async function getMediaByEdition(editionId: string): Promise<MemoryMedia[
       .eq('edition_id', editionId)
       .order('created_at', { ascending: false })
     if (data) {
-      setLocalData('media', [...getLocalData<MemoryMedia>('media'), ...data])
+      const current = getLocalData<MemoryMedia>('media')
+      const existing = new Set(current.map((m) => m.id))
+      const merged = [...current, ...data.filter((m) => !existing.has(m.id))]
+      setLocalData('media', merged)
       return data
     }
   }
@@ -98,51 +103,47 @@ export async function getMediaByEdition(editionId: string): Promise<MemoryMedia[
 export async function uploadMedia(editionId: string, file: File): Promise<MemoryMedia> {
   const id = generateId()
   const ext = file.name.split('.').pop()
-  const fileName = `${editionId}/${id}.${ext}`
   const type = file.type.startsWith('video/') ? 'video' : 'image'
 
+  // Try Supabase with a 15s timeout
   if (SUPABASE_CONFIGURED) {
-    const { data: uploadData } = await supabase.storage.from('memories').upload(fileName, file)
-    if (uploadData) {
-      const { data: urlData } = supabase.storage.from('memories').getPublicUrl(fileName)
-      const media: MemoryMedia = {
-        id,
-        edition_id: editionId,
-        url: urlData.publicUrl,
-        type,
-        created_at: new Date().toISOString(),
+    try {
+      const fileName = `${editionId}/${id}.${ext}`
+      const uploadPromise = supabase.storage.from('memories').upload(fileName, file)
+      const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Upload timeout')), 15000))
+      const { data: uploadData } = await Promise.race([uploadPromise, timeout])
+      if (uploadData) {
+        const { data: urlData } = supabase.storage.from('memories').getPublicUrl(fileName)
+        const media: MemoryMedia = { id, edition_id: editionId, url: urlData.publicUrl, type, created_at: new Date().toISOString() }
+        await supabase.from('memory_media').insert(media)
+        const items = [...getLocalData<MemoryMedia>('media'), media]
+        setLocalData('media', items)
+        return media
       }
-      await supabase.from('memory_media').insert(media)
-      const items = [...getLocalData<MemoryMedia>('media'), media]
-      setLocalData('media', items)
-      return media
+    } catch (e) {
+      console.warn('Supabase upload failed, falling back to base64:', e)
     }
   }
 
-  // Fallback: store as base64
   const b64 = await new Promise<string>((resolve) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
     reader.readAsDataURL(file)
   })
-  const media: MemoryMedia = {
-    id,
-    edition_id: editionId,
-    url: b64,
-    type,
-    created_at: new Date().toISOString(),
-  }
-  const items = getLocalData<MemoryMedia>('media')
-  items.push(media)
+  const media: MemoryMedia = { id, edition_id: editionId, url: b64, type, created_at: new Date().toISOString() }
+  const items = [...getLocalData<MemoryMedia>('media'), media]
   setLocalData('media', items)
   return media
 }
 
 export async function deleteMedia(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    const { error } = await supabase.from('memory_media').delete().eq('id', id)
-    if (!error) return
-    console.warn('Supabase delete failed, falling back to localStorage:', error)
+    try {
+      const { error } = await supabase.from('memory_media').delete().eq('id', id)
+      if (error) console.warn('Supabase delete media:', error.message)
+    } catch (e) {
+      console.warn('Supabase delete media error:', e)
+    }
   }
   const items = getLocalData<MemoryMedia>('media').filter((m) => m.id !== id)
   setLocalData('media', items)
@@ -179,8 +180,7 @@ export async function createCoach(coach: Omit<Coach, 'id'>): Promise<Coach> {
       return data
     }
   }
-  const items = getLocalData<Coach>('coaches')
-  items.push(newCoach)
+  const items = [...getLocalData<Coach>('coaches'), newCoach]
   setLocalData('coaches', items)
   return newCoach
 }
@@ -209,9 +209,12 @@ export async function updateCoach(id: string, data: Partial<Coach>): Promise<Coa
 
 export async function deleteCoach(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    const { error } = await supabase.from('coaches').delete().eq('id', id)
-    if (!error) return
-    console.warn('Supabase delete failed, falling back to localStorage:', error)
+    try {
+      const { error } = await supabase.from('coaches').delete().eq('id', id)
+      if (error) console.warn('Supabase delete coach:', error.message)
+    } catch (e) {
+      console.warn('Supabase delete coach error:', e)
+    }
   }
   const items = getLocalData<Coach>('coaches').filter((c) => c.id !== id)
   setLocalData('coaches', items)
@@ -242,17 +245,19 @@ export async function createTestimonial(t: Omit<Testimonial, 'id'>): Promise<Tes
       return data
     }
   }
-  const items = getLocalData<Testimonial>('testimonials')
-  items.push(newItem)
+  const items = [...getLocalData<Testimonial>('testimonials'), newItem]
   setLocalData('testimonials', items)
   return newItem
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    const { error } = await supabase.from('testimonials').delete().eq('id', id)
-    if (!error) return
-    console.warn('Supabase delete failed, falling back to localStorage:', error)
+    try {
+      const { error } = await supabase.from('testimonials').delete().eq('id', id)
+      if (error) console.warn('Supabase delete testimonial:', error.message)
+    } catch (e) {
+      console.warn('Supabase delete testimonial error:', e)
+    }
   }
   const items = getLocalData<Testimonial>('testimonials').filter((t) => t.id !== id)
   setLocalData('testimonials', items)
@@ -283,8 +288,7 @@ export async function createFAQItem(item: Omit<FAQItem, 'id'>): Promise<FAQItem>
       return data
     }
   }
-  const items = getLocalData<FAQItem>('faq')
-  items.push(newItem)
+  const items = [...getLocalData<FAQItem>('faq'), newItem]
   setLocalData('faq', items)
   return newItem
 }
@@ -313,9 +317,12 @@ export async function updateFAQItem(id: string, data: Partial<FAQItem>): Promise
 
 export async function deleteFAQItem(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    const { error } = await supabase.from('faq_items').delete().eq('id', id)
-    if (!error) return
-    console.warn('Supabase delete failed, falling back to localStorage:', error)
+    try {
+      const { error } = await supabase.from('faq_items').delete().eq('id', id)
+      if (error) console.warn('Supabase delete FAQ:', error.message)
+    } catch (e) {
+      console.warn('Supabase delete FAQ error:', e)
+    }
   }
   const items = getLocalData<FAQItem>('faq').filter((f) => f.id !== id)
   setLocalData('faq', items)
