@@ -15,7 +15,7 @@ export default function MentionsLegalesPage() {
               <h2 className="font-heading text-xl text-gsc-white tracking-wider mb-3">1. Éditeur du site</h2>
               <p>Le site Genevois Summer Camp est édité par :</p>
               <p className="mt-2">Association Genevois Summer Camp<br />Valleiry (74520)<br />Haute-Savoie, France</p>
-              <p className="mt-2">Contact : Dodzi — +33 6 58 15 29 27</p>
+              <p className="mt-2">Contact : Dodzi +33 6 58 15 29 27</p>
             </section>
             <section>
               <h2 className="font-heading text-xl text-gsc-white tracking-wider mb-3">2. Directeur de la publication</h2>

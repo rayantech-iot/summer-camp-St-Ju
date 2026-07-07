@@ -26,7 +26,7 @@ export default function CoachsPage() {
           </div>
         </section>
 
-        {/* Dodzi — Featured */}
+        {/* Dodzi - Featured */}
         <AnimatedSection className="py-20 px-4">
           <div className="max-w-5xl mx-auto">
             <div className="bg-gradient-to-r from-gsc-gray/30 to-gsc-red/10 border border-gsc-red/20 p-8 sm:p-12 lg:p-16">
@@ -51,7 +51,7 @@ export default function CoachsPage() {
                     {dodzi.name}
                   </h2>
                   <p className="text-gsc-red font-bold uppercase text-sm tracking-wider mt-3">
-                    Éducateur Sportif — Responsable BCSJ
+                    Éducateur Sportif Responsable BCSJ
                   </p>
                   <p className="text-gsc-white/50 text-sm mt-1">
                     {dodzi.role}
@@ -73,7 +73,7 @@ export default function CoachsPage() {
           </div>
         </AnimatedSection>
 
-        {/* Mike Alard — Featured */}
+        {/* Mike Alard - Featured */}
         <AnimatedSection className="py-20 px-4 bg-gsc-gray/20" delay={0.1}>
           <div className="max-w-5xl mx-auto">
             <div className="bg-gradient-to-r from-gsc-gray/30 to-gsc-red/10 border border-gsc-red/20 p-8 sm:p-12 lg:p-16">
@@ -101,7 +101,7 @@ export default function CoachsPage() {
                     Ex-entraîneur de Victor Wembanyama
                   </p>
                   <p className="text-gsc-white/50 text-sm mt-1">
-                    Directeur du centre de formation — Nanterre 92 (Pro A)
+                    Directeur du centre de formation Nanterre 92 (Pro A)
                   </p>
                   <div className="w-12 h-0.5 bg-gsc-red mt-6 mb-6" />
                   <p className="text-gsc-white/70 leading-relaxed">{mike.bio}</p>

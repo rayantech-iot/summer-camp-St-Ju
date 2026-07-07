@@ -4,7 +4,7 @@ export const coaches: Coach[] = [
   {
     id: 'dodzi',
     name: 'Dodzi',
-    role: 'Responsable — Basket Club Saint Julien en Genevois',
+    role: 'Responsable Basket Club Saint Julien en Genevois',
     bio: 'Éducateur sportif et organisateur du Genevois Summer Camp, Dodzi est le moteur du camp depuis sa création. Son engagement pour la transmission et sa connaissance du territoire genevois font de lui le pilier de cette aventure.',
     diplomas: ['Éducateur Sportif'],
     citation: 'Mon objectif est simple : offrir aux jeunes du Genevois ce que je n\'ai pas eu à leur âge — un encadrement de qualité, près de chez eux.',
@@ -15,7 +15,7 @@ export const coaches: Coach[] = [
   {
     id: 'mike-alard',
     name: 'Mike Alard',
-    role: 'Directeur technique — Centre de formation Nanterre 92 (Pro A)',
+    role: 'Directeur technique Centre de formation Nanterre 92 (Pro A)',
     bio: 'Ancien entraîneur de Victor Wembanyama, Mike Alard est aujourd\'hui directeur du centre de formation de la JSF Nanterre 92, club de Pro A. Son expertise du haut niveau et sa capacité à faire progresser les jeunes talents en font la pierre angulaire du Genevois Summer Camp.',
     diplomas: ['DEJEPS'],
     citation: 'Ce qui fait la différence, ce n\'est pas le talent brut, c\'est la rigueur quotidienne et l\'envie d\'apprendre.',
@@ -26,7 +26,7 @@ export const coaches: Coach[] = [
   {
     id: 'allan-perricaud',
     name: 'Allan Perricaud',
-    role: 'Entraîneur individuel — Paris',
+    role: 'Entraîneur individuel Paris',
     bio: 'Spécialiste du développement individuel, Allan Perricaud accompagne les joueurs dans l\'acquisition des fondamentaux techniques et la construction de leur palette offensive.',
     diplomas: ['DETB', 'BPJEPS'],
     citation: 'Chaque geste compte. La technique, c\'est ce qui te permet d\'exprimer ton talent dans les moments qui comptent.',
@@ -37,7 +37,7 @@ export const coaches: Coach[] = [
   {
     id: 'baptiste-nivet',
     name: 'Baptiste Nivet',
-    role: 'Entraîneur — BCSJ',
+    role: 'Entraîneur BCSJ',
     bio: 'Entraîneur au BCSJ, Baptiste Nivet allie compétences techniques et pédagogie pour permettre à chaque jeune de progresser à son rythme.',
     diplomas: ['DETB', 'BPJEPS'],
     citation: 'Le basket, c\'est d\'abord du plaisir. La progression vient naturellement quand on aime ce qu\'on fait.',
@@ -59,7 +59,7 @@ export const coaches: Coach[] = [
   {
     id: 'clea-grandchamp',
     name: 'Cléa GRANDCHAMP',
-    role: 'Coach — Encadrement sportif',
+    role: 'Coach Encadrement sportif',
     bio: 'Cléa Grandchamp apporte son dynamisme et sa passion du sport à l\'encadrement du Genevois Summer Camp. Son approche bienveillante et motivante aide chaque jeune à donner le meilleur de lui-même.',
     diplomas: ['BPJEPS'],
     citation: 'Le sport est une école de la vie. Transmettre, c\'est donner aux autres les clés pour se dépasser.',
@@ -70,7 +70,7 @@ export const coaches: Coach[] = [
   {
     id: 'thais-grandchamp',
     name: 'Thaïs GRANDCHAMP',
-    role: 'Coach — Encadrement sportif',
+    role: 'Coach Encadrement sportif',
     bio: 'Thaïs Grandchamp complète l\'équipe d\'encadrement avec son énergie et son sens du collectif. Elle veille à ce que chaque participant trouve sa place et progresse dans une ambiance positive.',
     diplomas: ['BPJEPS'],
     citation: 'Ce qui compte, ce n\'est pas d\'être le meilleur, mais de donner le meilleur de soi-même.',

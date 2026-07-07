@@ -99,7 +99,7 @@ export default function MemoriesPage() {
                       {currentEdition.title}
                     </h2>
                     <p className="text-sm text-gsc-white/40 mt-3">
-                      {currentEdition.year} — {currentEdition.type === 'basket' ? 'Camp Basket' : 'Multisport'}
+                      {currentEdition.year} - {currentEdition.type === 'basket' ? 'Camp Basket' : 'Multisport'}
                       {currentMedia.length > 0 && (
                         <span className="ml-2">· {currentMedia.length} {currentMedia.length > 1 ? 'photos' : 'photo'}</span>
                       )}

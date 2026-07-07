@@ -229,7 +229,7 @@ export default function AdminPage() {
                           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                             <div>
                               <span className="font-heading text-xl text-gsc-white tracking-wider">{ed.title}</span>
-                              <span className="ml-3 text-xs text-gsc-white/40">{ed.year} — {ed.type === 'basket' ? 'Basket' : 'Multisport'}</span>
+                              <span className="ml-3 text-xs text-gsc-white/40">{ed.year} - {ed.type === 'basket' ? 'Basket' : 'Multisport'}</span>
                             </div>
                             <div className="flex gap-2">
                               <label className="flex items-center gap-1 text-xs text-gsc-white/50 hover:text-gsc-red cursor-pointer transition-colors">
@@ -871,7 +871,7 @@ function CoachForm({ coach, onDone }: { coach?: Coach; onDone: () => void }) {
       <div>
         <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Rôle / Titre</label>
         <input required value={role} onChange={(e) => setRole(e.target.value)}
-          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" placeholder="Entraîneur — Club" />
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" placeholder="Entraîneur Club" />
       </div>
       <div>
         <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Biographie</label>

@@ -39,7 +39,7 @@ export default function Footer() {
           <div>
             <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">Contact</h3>
             <ul className="space-y-2 text-sm text-gsc-white/60">
-              <li>Dodzi — +33 6 58 15 29 27</li>
+              <li>Dodzi +33 6 58 15 29 27</li>
               <li>Valleiry (74520) &amp; Vulbens (74520)</li>
               <li>Haute-Savoie, France</li>
               <li>À 20 minutes de Genève</li>

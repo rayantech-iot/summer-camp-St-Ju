@@ -75,7 +75,7 @@ export default function ContactPage() {
                     <p className="text-sm text-gsc-white/50">Valleiry (74520)</p>
                     <p className="font-bold text-sm text-gsc-white/80 mt-2">Édition Multisport</p>
                     <p className="text-sm text-gsc-white/50">Vulbens (74520)</p>
-                    <p className="text-sm text-gsc-white/50 mt-2">Haute-Savoie, France — À 20 min de Genève</p>
+                    <p className="text-sm text-gsc-white/50 mt-2">Haute-Savoie, France - À 20 min de Genève</p>
                   </div>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export default function ContactPage() {
               <div className="mt-10 aspect-video bg-gsc-gray/20 border border-gsc-gray/30 flex items-center justify-center">
                 <div className="text-center">
                   <MapPin className="text-gsc-red mx-auto mb-2" size={24} />
-                  <p className="text-sm text-gsc-white/40">Carte — Valleiry / Vulbens (74520)</p>
+                  <p className="text-sm text-gsc-white/40">Carte - Valleiry / Vulbens (74520)</p>
                 </div>
               </div>
             </div>

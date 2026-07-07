@@ -250,7 +250,7 @@ export default function Home() {
                     &ldquo;{t.content}&rdquo;
                   </p>
                   <p className="text-xs text-gsc-white/40 mt-4 font-bold uppercase tracking-wider">
-                    {t.author} — {t.role === 'parent' ? 'Parent' : t.role === 'jeune' ? 'Jeune' : 'Coach'}
+                    {t.author} - {t.role === 'parent' ? 'Parent' : t.role === 'jeune' ? 'Jeune' : 'Coach'}
                   </p>
                 </div>
               ))}
