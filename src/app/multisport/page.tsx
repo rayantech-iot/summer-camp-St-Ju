@@ -1,10 +1,13 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
+import { getOffers } from '@/lib/data-service'
+import type { CampOffer } from '@/lib/types'
 
 const activities = [
   'Basketball',
@@ -25,6 +28,12 @@ const included = [
 ]
 
 export default function MultisportPage() {
+  const [offers, setOffers] = useState<CampOffer[]>([])
+  const multiOffer = offers.find((o) => o.type === 'multisport')
+
+  useEffect(() => {
+    getOffers().then(setOffers)
+  }, [])
   return (
     <>
       <Header />
@@ -92,7 +101,7 @@ export default function MultisportPage() {
               </h2>
               <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30 mb-6">
                 <div className="font-heading text-2xl text-gsc-white tracking-wider">Externat uniquement</div>
-                <div className="font-heading text-5xl text-gsc-red mt-4">300€</div>
+                <div className="font-heading text-5xl text-gsc-red mt-4">{multiOffer?.price_externat || 300}€</div>
                 <p className="text-sm text-gsc-white/50 mt-2">/ semaine</p>
               </div>
               <ul className="space-y-3">

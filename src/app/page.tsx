@@ -9,8 +9,8 @@ import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
 import InfiniteCoachCarousel from '@/components/InfiniteCoachCarousel'
-import { getCoaches, getTestimonials, getEditions, getAllMedia } from '@/lib/data-service'
-import type { Coach, Testimonial, MemoryMedia } from '@/lib/types'
+import { getCoaches, getTestimonials, getEditions, getAllMedia, getOffers } from '@/lib/data-service'
+import type { Coach, Testimonial, MemoryMedia, CampOffer } from '@/lib/types'
 
 const stats = [
   { value: '3', label: 'Années d\'existence', icon: Clock },
@@ -46,18 +46,23 @@ export default function Home() {
   const [dynamicCoaches, setDynamicCoaches] = useState<Coach[]>([])
   const [dynamicTestimonials, setDynamicTestimonials] = useState<Testimonial[]>([])
   const [previewMedia, setPreviewMedia] = useState<MemoryMedia[]>([])
+  const [offers, setOffers] = useState<CampOffer[]>([])
+  const basketOffer = offers.find((o) => o.type === 'basket')
+  const multiOffer = offers.find((o) => o.type === 'multisport')
 
   useEffect(() => {
     const load = async () => {
-      const [cos, tms, eds, allMedia] = await Promise.all([
+      const [cos, tms, eds, allMedia, offs] = await Promise.all([
         getCoaches(),
         getTestimonials(),
         getEditions(),
         getAllMedia(),
+        getOffers(),
       ])
       setDynamicCoaches(cos)
       setDynamicTestimonials(tms)
       setPreviewMedia(allMedia.slice(0, 4))
+      setOffers(offs)
     }
     load()
   }, [])
@@ -164,7 +169,7 @@ export default function Home() {
                   <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
                     <span>U11-U16</span>
                     <span>Valleiry</span>
-                    <span>À partir de 300€</span>
+                    <span>À partir de {basketOffer?.price_externat || 300}€</span>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
                     Découvrir <ArrowRight size={14} />
@@ -180,7 +185,7 @@ export default function Home() {
                   <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
                     <span>U11-U16</span>
                     <span>Vulbens</span>
-                    <span>300€</span>
+                    <span>{multiOffer?.price_externat || 300}€</span>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
                     Découvrir <ArrowRight size={14} />

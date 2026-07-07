@@ -1,14 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Check, Loader } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
-import { createInscription } from '@/lib/data-service'
+import { createInscription, getOffers } from '@/lib/data-service'
+import type { CampOffer } from '@/lib/types'
 
 export default function InscriptionPage() {
+  const [offers, setOffers] = useState<CampOffer[]>([])
+  const basketOffer = offers.find((o) => o.type === 'basket')
+  const multiOffer = offers.find((o) => o.type === 'multisport')
+
+  useEffect(() => {
+    getOffers().then(setOffers)
+  }, [])
   const [submitted, setSubmitted] = useState(false)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
@@ -93,13 +101,13 @@ export default function InscriptionPage() {
                 <h3 className="font-heading text-xl text-gsc-white tracking-wider">Camp Basket</h3>
                 <p className="text-sm text-gsc-white/60 mt-2">4-11 juillet / 11-18 juillet</p>
                 <p className="text-sm text-gsc-white/60">Valleiry</p>
-                <p className="text-sm text-gsc-white/60">Externat 300€ / Internat 490€</p>
+                <p className="text-sm text-gsc-white/60">Externat {basketOffer?.price_externat || 300}€ / Internat {basketOffer?.price_internat || 490}€</p>
               </div>
               <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
                 <h3 className="font-heading text-xl text-gsc-white tracking-wider">Multisport</h3>
                 <p className="text-sm text-gsc-white/60 mt-2">6-13 juillet / 13-17 juillet</p>
                 <p className="text-sm text-gsc-white/60">Vulbens</p>
-                <p className="text-sm text-gsc-white/60">Externat 300€</p>
+                <p className="text-sm text-gsc-white/60">Externat {multiOffer?.price_externat || 300}€</p>
               </div>
             </div>
 
@@ -230,8 +238,8 @@ export default function InscriptionPage() {
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { value: 'externat', label: 'Externat (300€)' },
-                      { value: 'internat', label: 'Internat (490€)' },
+                      { value: 'externat', label: `Externat (${basketOffer?.price_externat || 300}€)` },
+                      { value: 'internat', label: `Internat (${basketOffer?.price_internat || 490}€)` },
                     ].map((opt) => (
                       <button
                         key={opt.value}

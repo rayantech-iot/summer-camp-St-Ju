@@ -1,11 +1,14 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
+import { getOffers } from '@/lib/data-service'
+import type { CampOffer } from '@/lib/types'
 import { coaches } from '@/lib/data'
 
 const included = [
@@ -19,6 +22,12 @@ const included = [
 ]
 
 export default function CampBasketPage() {
+  const [offers, setOffers] = useState<CampOffer[]>([])
+  const basketOffer = offers.find((o) => o.type === 'basket')
+
+  useEffect(() => {
+    getOffers().then(setOffers)
+  }, [])
   return (
     <>
       <Header />
@@ -80,7 +89,7 @@ export default function CampBasketPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30">
                   <div className="font-heading text-2xl text-gsc-white tracking-wider">Externat</div>
-                  <div className="font-heading text-5xl text-gsc-red mt-4">300€</div>
+                  <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_externat || 300}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">/ semaine</p>
                   <p className="text-xs text-gsc-white/40 mt-4">Le jeune rentre chaque soir chez lui</p>
                 </div>
@@ -89,7 +98,7 @@ export default function CampBasketPage() {
                     Recommandé
                   </div>
                   <div className="font-heading text-2xl text-gsc-white tracking-wider">Internat</div>
-                  <div className="font-heading text-5xl text-gsc-red mt-4">490€</div>
+                  <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_internat || 490}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">/ semaine</p>
                   <p className="text-xs text-gsc-white/40 mt-4">Hébergement + pension complète</p>
                 </div>
