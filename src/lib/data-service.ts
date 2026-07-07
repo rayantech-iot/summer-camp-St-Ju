@@ -54,7 +54,11 @@ export async function createEdition(edition: Omit<Edition, 'id'>): Promise<Editi
   const newEdition: Edition = { ...edition, id: generateId() }
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('editions').insert(newEdition).select().single()
-    if (data) return data
+    if (data) {
+      const items = [...getLocalData<Edition>('editions'), data]
+      setLocalData('editions', items)
+      return data
+    }
   }
   const items = getLocalData<Edition>('editions')
   items.push(newEdition)
@@ -75,15 +79,20 @@ export async function deleteEdition(id: string): Promise<void> {
 // ─── Memories / Media ───
 
 export async function getMediaByEdition(editionId: string): Promise<MemoryMedia[]> {
+  const local = getLocalData<MemoryMedia>('media').filter((m) => m.edition_id === editionId)
+  if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase
       .from('memory_media')
       .select('*')
       .eq('edition_id', editionId)
       .order('created_at', { ascending: false })
-    if (data) return data
+    if (data) {
+      setLocalData('media', [...getLocalData<MemoryMedia>('media'), ...data])
+      return data
+    }
   }
-  return getLocalData<MemoryMedia>('media').filter((m) => m.edition_id === editionId)
+  return local
 }
 
 export async function uploadMedia(editionId: string, file: File): Promise<MemoryMedia> {
@@ -104,6 +113,8 @@ export async function uploadMedia(editionId: string, file: File): Promise<Memory
         created_at: new Date().toISOString(),
       }
       await supabase.from('memory_media').insert(media)
+      const items = [...getLocalData<MemoryMedia>('media'), media]
+      setLocalData('media', items)
       return media
     }
   }
@@ -162,7 +173,11 @@ export async function createCoach(coach: Omit<Coach, 'id'>): Promise<Coach> {
   const newCoach: Coach = { ...coach, id: generateId() }
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('coaches').insert(newCoach).select().single()
-    if (data) return data
+    if (data) {
+      const items = [...getLocalData<Coach>('coaches'), data]
+      setLocalData('coaches', items)
+      return data
+    }
   }
   const items = getLocalData<Coach>('coaches')
   items.push(newCoach)
@@ -173,7 +188,14 @@ export async function createCoach(coach: Omit<Coach, 'id'>): Promise<Coach> {
 export async function updateCoach(id: string, data: Partial<Coach>): Promise<Coach> {
   if (SUPABASE_CONFIGURED) {
     const { data: updated } = await supabase.from('coaches').update(data).eq('id', id).select().single()
-    if (updated) return updated
+    if (updated) {
+      const items = getLocalData<Coach>('coaches')
+      const idx = items.findIndex((c) => c.id === id)
+      if (idx !== -1) items[idx] = { ...items[idx], ...updated }
+      else items.push(updated)
+      setLocalData('coaches', items)
+      return updated
+    }
   }
   const items = getLocalData<Coach>('coaches')
   const idx = items.findIndex((c) => c.id === id)
@@ -214,7 +236,11 @@ export async function createTestimonial(t: Omit<Testimonial, 'id'>): Promise<Tes
   const newItem: Testimonial = { ...t, id: generateId() }
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('testimonials').insert(newItem).select().single()
-    if (data) return data
+    if (data) {
+      const items = [...getLocalData<Testimonial>('testimonials'), data]
+      setLocalData('testimonials', items)
+      return data
+    }
   }
   const items = getLocalData<Testimonial>('testimonials')
   items.push(newItem)
@@ -251,7 +277,11 @@ export async function createFAQItem(item: Omit<FAQItem, 'id'>): Promise<FAQItem>
   const newItem: FAQItem = { ...item, id: generateId() }
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('faq_items').insert(newItem).select().single()
-    if (data) return data
+    if (data) {
+      const items = [...getLocalData<FAQItem>('faq'), data]
+      setLocalData('faq', items)
+      return data
+    }
   }
   const items = getLocalData<FAQItem>('faq')
   items.push(newItem)
@@ -262,7 +292,14 @@ export async function createFAQItem(item: Omit<FAQItem, 'id'>): Promise<FAQItem>
 export async function updateFAQItem(id: string, data: Partial<FAQItem>): Promise<FAQItem> {
   if (SUPABASE_CONFIGURED) {
     const { data: updated } = await supabase.from('faq_items').update(data).eq('id', id).select().single()
-    if (updated) return updated
+    if (updated) {
+      const items = getLocalData<FAQItem>('faq')
+      const idx = items.findIndex((f) => f.id === id)
+      if (idx !== -1) items[idx] = { ...items[idx], ...updated }
+      else items.push(updated)
+      setLocalData('faq', items)
+      return updated
+    }
   }
   const items = getLocalData<FAQItem>('faq')
   const idx = items.findIndex((f) => f.id === id)
@@ -302,7 +339,14 @@ export async function getOffers(): Promise<CampOffer[]> {
 export async function updateOffer(id: string, data: Partial<CampOffer>): Promise<CampOffer> {
   if (SUPABASE_CONFIGURED) {
     const { data: updated } = await supabase.from('offers').update(data).eq('id', id).select().single()
-    if (updated) return updated
+    if (updated) {
+      const items = getLocalData<CampOffer>('offers')
+      const idx = items.findIndex((o) => o.id === id)
+      if (idx !== -1) items[idx] = { ...items[idx], ...updated }
+      else items.push(updated)
+      setLocalData('offers', items)
+      return updated
+    }
   }
   const items = getLocalData<CampOffer>('offers')
   const idx = items.findIndex((o) => o.id === id)
@@ -317,11 +361,16 @@ export async function updateOffer(id: string, data: Partial<CampOffer>): Promise
 // ─── Inscriptions ───
 
 export async function getInscriptions(): Promise<Inscription[]> {
+  const local = getLocalData<Inscription>('inscriptions')
+  if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('inscriptions').select('*').order('created_at', { ascending: false })
-    if (data) return data
+    if (data) {
+      setLocalData('inscriptions', data)
+      return data
+    }
   }
-  return getLocalData<Inscription>('inscriptions')
+  return local
 }
 
 export async function createInscription(inscription: Omit<Inscription, 'id'>): Promise<Inscription> {
@@ -348,11 +397,16 @@ export function exportInscriptionsCSV(inscriptions: Inscription[]): string {
 // ─── Contact Messages ───
 
 export async function getContactMessages(): Promise<ContactMessage[]> {
+  const local = getLocalData<ContactMessage>('messages')
+  if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false })
-    if (data) return data
+    if (data) {
+      setLocalData('messages', data)
+      return data
+    }
   }
-  return getLocalData<ContactMessage>('messages')
+  return local
 }
 
 export async function createContactMessage(msg: Omit<ContactMessage, 'id'>): Promise<ContactMessage> {
@@ -381,9 +435,14 @@ export async function getEditionById(id: string): Promise<Edition | null> {
 }
 
 export async function getAllMedia(): Promise<MemoryMedia[]> {
+  const local = getLocalData<MemoryMedia>('media')
+  if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('memory_media').select('*').order('created_at', { ascending: false })
-    if (data) return data
+    if (data) {
+      setLocalData('media', data)
+      return data
+    }
   }
-  return getLocalData<MemoryMedia>('media')
+  return local
 }
