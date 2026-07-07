@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Shield, LogOut, Upload, Plus, Edit, Trash2, Download, X, Save, Check } from 'lucide-react'
+import { Shield, LogOut, Upload, Plus, Edit, Trash2, Download, X, Save, ImageIcon } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import {
@@ -28,7 +28,6 @@ const tabs: { id: AdminTab; label: string }[] = [
   { id: 'messages', label: 'Messages' },
 ]
 
-// ─── Inline Dialog ───
 function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   if (!open) return null
   return (
@@ -51,7 +50,6 @@ export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
 
-  // Data states
   const [editions, setEditions] = useState<Edition[]>([])
   const [mediaMap, setMediaMap] = useState<Record<string, any[]>>({})
   const [coaches, setCoaches] = useState<Coach[]>([])
@@ -62,7 +60,6 @@ export default function AdminPage() {
   const [offers, setOffers] = useState<CampOffer[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Dialogs
   const [dialog, setDialog] = useState<{ open: boolean; type: string; data?: any }>({ open: false, type: '' })
   const [uploading, setUploading] = useState<string | null>(null)
 
@@ -86,7 +83,6 @@ export default function AdminPage() {
       setMessages(msgs)
       setOffers(offs)
 
-      // Load media for each edition
       const mm: Record<string, any[]> = {}
       for (const ed of eds) {
         mm[ed.id] = await getMediaByEdition(ed.id)
@@ -203,6 +199,10 @@ export default function AdminPage() {
                                   onChange={async (e) => {
                                     const files = e.target.files
                                     if (!files) return
+                                    if (files.length > 20) {
+                                      alert('Maximum 20 fichiers à la fois')
+                                      return
+                                    }
                                     setUploading(ed.id)
                                     for (const f of Array.from(files)) {
                                       await uploadMedia(ed.id, f)
@@ -226,7 +226,6 @@ export default function AdminPage() {
                             <p className="text-xs text-gsc-orange mb-3 animate-pulse">Upload en cours...</p>
                           )}
 
-                          {/* Media grid */}
                           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
                             {(mediaMap[ed.id] || []).length === 0 ? (
                               <p className="col-span-full text-xs text-gsc-white/30 py-4">Aucun média. Clique sur &quot;Ajouter photos/vidéos&quot;</p>
@@ -265,7 +264,7 @@ export default function AdminPage() {
               {activeTab === 'coachs' && (
                 <div>
                   <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Gérer les coachs</h2>
+                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Gérer les coachs ({coaches.length})</h2>
                     <button onClick={() => setDialog({ open: true, type: 'new-coach' })}
                       className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider">
                       <Plus size={16} /> Ajouter un coach
@@ -274,16 +273,19 @@ export default function AdminPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {coaches.map((c) => (
                       <div key={c.id} className="flex items-center gap-4 bg-gsc-gray/30 p-4 border border-gsc-gray/30">
-                        <div className="w-12 h-12 bg-gsc-gray/40 flex items-center justify-center text-gsc-white/20 font-heading text-xl shrink-0 rounded-full overflow-hidden">
-                          {c.image_url && c.image_url.startsWith('data:') ? (
+                        <div className="w-14 h-14 bg-gsc-gray/40 rounded-full overflow-hidden shrink-0">
+                          {c.image_url ? (
                             <img src={c.image_url} alt={c.name} className="w-full h-full object-cover" />
                           ) : (
-                            c.name.charAt(0)
+                            <div className="w-full h-full flex items-center justify-center text-gsc-white/20 font-heading text-xl">
+                              {c.name.charAt(0)}
+                            </div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-gsc-white truncate">{c.name}</p>
                           <p className="text-xs text-gsc-white/40 truncate">{c.role}</p>
+                          {c.featured && <span className="text-[10px] text-gsc-orange uppercase tracking-wider">À la une</span>}
                         </div>
                         <div className="flex gap-2 shrink-0">
                           <button onClick={() => setDialog({ open: true, type: 'edit-coach', data: c })}
@@ -303,26 +305,30 @@ export default function AdminPage() {
               {activeTab === 'faq' && (
                 <div>
                   <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Gérer la FAQ</h2>
+                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Gérer la FAQ ({faqItems.length})</h2>
                     <button onClick={() => setDialog({ open: true, type: 'new-faq' })}
                       className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider">
                       <Plus size={16} /> Ajouter une question
                     </button>
                   </div>
                   <div className="space-y-2">
-                    {faqItems.map((f) => (
-                      <div key={f.id} className="flex items-center justify-between bg-gsc-gray/30 p-4 border border-gsc-gray/30">
-                        <p className="text-sm text-gsc-white/70 flex-1 mr-4">{f.question}</p>
-                        <div className="flex gap-2 shrink-0">
-                          <button onClick={() => setDialog({ open: true, type: 'edit-faq', data: f })}
-                            className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Edit size={16} /></button>
-                          <button onClick={async () => {
-                            await deleteFAQItem(f.id)
-                            setFAQItems(await getFAQItems())
-                          }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
+                    {faqItems.length === 0 ? (
+                      <p className="text-gsc-white/40 text-sm">Aucune question FAQ.</p>
+                    ) : (
+                      faqItems.map((f) => (
+                        <div key={f.id} className="flex items-center justify-between bg-gsc-gray/30 p-4 border border-gsc-gray/30">
+                          <p className="text-sm text-gsc-white/70 flex-1 mr-4">{f.question}</p>
+                          <div className="flex gap-2 shrink-0">
+                            <button onClick={() => setDialog({ open: true, type: 'edit-faq', data: f })}
+                              className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Edit size={16} /></button>
+                            <button onClick={async () => {
+                              await deleteFAQItem(f.id)
+                              setFAQItems(await getFAQItems())
+                            }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -331,26 +337,30 @@ export default function AdminPage() {
               {activeTab === 'temoignages' && (
                 <div>
                   <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Gérer les témoignages</h2>
+                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Gérer les témoignages ({testimonials.length})</h2>
                     <button onClick={() => setDialog({ open: true, type: 'new-testimonial' })}
                       className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider">
                       <Plus size={16} /> Ajouter
                     </button>
                   </div>
                   <div className="space-y-3">
-                    {testimonials.map((t) => (
-                      <div key={t.id} className="bg-gsc-gray/30 p-4 border border-gsc-gray/30">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-bold text-gsc-white">{t.author}</p>
-                          <button onClick={async () => {
-                            await deleteTestimonial(t.id)
-                            setTestimonials(await getTestimonials())
-                          }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
+                    {testimonials.length === 0 ? (
+                      <p className="text-gsc-white/40 text-sm">Aucun témoignage.</p>
+                    ) : (
+                      testimonials.map((t) => (
+                        <div key={t.id} className="bg-gsc-gray/30 p-4 border border-gsc-gray/30">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-sm font-bold text-gsc-white">{t.author}</p>
+                            <button onClick={async () => {
+                              await deleteTestimonial(t.id)
+                              setTestimonials(await getTestimonials())
+                            }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
+                          </div>
+                          <p className="text-xs text-gsc-white/50">{t.role === 'parent' ? 'Parent' : t.role === 'jeune' ? 'Jeune' : 'Coach'}</p>
+                          <p className="text-xs text-gsc-white/40 mt-2 italic line-clamp-2">{t.content}</p>
                         </div>
-                        <p className="text-xs text-gsc-white/50">{t.role === 'parent' ? 'Parent' : t.role === 'jeune' ? 'Jeune' : 'Coach'}</p>
-                        <p className="text-xs text-gsc-white/40 mt-2 italic line-clamp-2">{t.content}</p>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -495,63 +505,35 @@ export default function AdminPage() {
 
       {/* ─── DIALOGS ─── */}
 
-      {/* New Edition */}
+      {/* New Edition + upload images */}
       <Dialog open={dialog.type === 'new-edition'} onClose={() => setDialog({ open: false, type: '' })} title="Nouvelle édition">
-        <Form onSubmit={async (data) => {
-          await createEdition(data as any)
-          setEditions(await getEditions())
-          setDialog({ open: false, type: '' })
-        }}>
-          <FormInput name="title" label="Titre (ex: Été 2026)" required />
-          <FormInput name="year" label="Année" type="number" required />
-          <FormSelect name="type" label="Type" options={[
-            { value: 'basket', label: 'Basket' },
-            { value: 'multisport', label: 'Multisport' },
-          ]} required />
-        </Form>
+        <NewEditionDialog
+          onDone={() => {
+            setDialog({ open: false, type: '' })
+            loadData()
+          }}
+        />
       </Dialog>
 
       {/* New Coach */}
       <Dialog open={dialog.type === 'new-coach'} onClose={() => setDialog({ open: false, type: '' })} title="Ajouter un coach">
-        <Form onSubmit={async (data) => {
-          await createCoach({
-            ...data as any,
-            diplomas: (data.diplomas as string || '').split(',').map((d: string) => d.trim()),
-            featured: false,
-            order: coaches.length,
-            image_url: '',
-          })
-          setCoaches(await getCoaches())
-          setDialog({ open: false, type: '' })
-        }}>
-          <FormInput name="name" label="Nom complet" required />
-          <FormInput name="role" label="Rôle / Titre" required />
-          <FormInput name="bio" label="Biographie" textarea required />
-          <FormInput name="diplomas" label="Diplômes (séparés par des virgules)" />
-          <FormInput name="citation" label="Citation" textarea />
-        </Form>
+        <CoachForm
+          onDone={() => {
+            setDialog({ open: false, type: '' })
+            loadData()
+          }}
+        />
       </Dialog>
 
       {/* Edit Coach */}
       <Dialog open={dialog.type === 'edit-coach'} onClose={() => setDialog({ open: false, type: '' })} title="Modifier un coach">
-        <Form
-          initialData={{
-            name: (dialog.data as Coach)?.name || '',
-            role: (dialog.data as Coach)?.role || '',
-            bio: (dialog.data as Coach)?.bio || '',
-            citation: (dialog.data as Coach)?.citation || '',
-          }}
-          onSubmit={async (data) => {
-            await updateCoach((dialog.data as Coach).id, data as any)
-            setCoaches(await getCoaches())
+        <CoachForm
+          coach={dialog.data as Coach}
+          onDone={() => {
             setDialog({ open: false, type: '' })
+            loadData()
           }}
-        >
-          <FormInput name="name" label="Nom complet" required />
-          <FormInput name="role" label="Rôle / Titre" required />
-          <FormInput name="bio" label="Biographie" textarea required />
-          <FormInput name="citation" label="Citation" textarea />
-        </Form>
+        />
       </Dialog>
 
       {/* New FAQ */}
@@ -604,6 +586,198 @@ export default function AdminPage() {
 
       <Footer />
     </>
+  )
+}
+
+// ─── New Edition Dialog with image upload ───
+
+function NewEditionDialog({ onDone }: { onDone: () => void }) {
+  const [title, setTitle] = useState('')
+  const [year, setYear] = useState(new Date().getFullYear())
+  const [type, setType] = useState<'basket' | 'multisport'>('basket')
+  const [files, setFiles] = useState<File[]>([])
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!title || !year) return
+    setSaving(true)
+    const edition = await createEdition({ title, year: Number(year), type, created_at: new Date().toISOString() })
+    for (const f of files) {
+      await uploadMedia(edition.id, f)
+    }
+    setSaving(false)
+    onDone()
+  }
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || [])
+    if (selected.length > 20) {
+      alert('Maximum 20 images')
+      return
+    }
+    setFiles(selected)
+    e.target.value = ''
+  }
+
+  const removeFile = (idx: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Titre (ex: Été 2026)</label>
+        <input required value={title} onChange={(e) => setTitle(e.target.value)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" placeholder="Été 2026" />
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Année</label>
+        <input type="number" required value={year} onChange={(e) => setYear(Number(e.target.value))}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white focus:outline-none focus:border-gsc-red mt-1" />
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Type</label>
+        <select value={type} onChange={(e) => setType(e.target.value as any)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white focus:outline-none focus:border-gsc-red mt-1">
+          <option value="basket">Basket</option>
+          <option value="multisport">Multisport</option>
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-2">
+          Photos (max 20)
+        </label>
+        <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gsc-gray/40 hover:border-gsc-red/50 px-4 py-6 cursor-pointer transition-colors">
+          <ImageIcon size={20} className="text-gsc-white/40" />
+          <span className="text-sm text-gsc-white/40">
+            {files.length > 0 ? `${files.length} fichier(s) sélectionné(s)` : 'Clique pour choisir les photos'}
+          </span>
+          <input type="file" multiple accept="image/*" onChange={handleFiles} className="hidden" />
+        </label>
+        {files.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {files.map((f, i) => (
+              <div key={i} className="relative w-16 h-16 bg-gsc-gray/30 overflow-hidden group">
+                <img src={URL.createObjectURL(f)} alt="" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => removeFile(i)}
+                  className="absolute top-0 right-0 bg-gsc-red/80 text-white p-0.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <button type="submit" disabled={saving}
+        className="w-full bg-gsc-red hover:bg-gsc-red/90 disabled:opacity-50 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all">
+        {saving ? 'Création en cours...' : 'Créer l\'édition'}
+      </button>
+    </form>
+  )
+}
+
+// ─── Coach Form with image upload ───
+
+function CoachForm({ coach, onDone }: { coach?: Coach; onDone: () => void }) {
+  const [name, setName] = useState(coach?.name || '')
+  const [role, setRole] = useState(coach?.role || '')
+  const [bio, setBio] = useState(coach?.bio || '')
+  const [diplomas, setDiplomas] = useState(coach?.diplomas.join(', ') || '')
+  const [citation, setCitation] = useState(coach?.citation || '')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState(coach?.image_url || '')
+  const [saving, setSaving] = useState(false)
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    e.target.value = ''
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!name || !role || !bio) return
+    setSaving(true)
+
+    let image_url = coach?.image_url || ''
+    if (imageFile) {
+      image_url = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.readAsDataURL(imageFile)
+      })
+    }
+
+    const data: any = {
+      name, role, bio,
+      diplomas: diplomas.split(',').map((d) => d.trim()).filter(Boolean),
+      citation,
+      image_url,
+    }
+
+    if (coach) {
+      await updateCoach(coach.id, data)
+    } else {
+      await createCoach({ ...data, featured: false, order: Date.now() })
+    }
+
+    setSaving(false)
+    onDone()
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Photo du coach</label>
+        <div className="flex items-center gap-4 mt-1">
+          <div className="w-16 h-16 bg-gsc-gray/40 rounded-full overflow-hidden shrink-0">
+            {imagePreview ? (
+              <img src={imagePreview} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gsc-white/20 font-heading text-2xl">
+                ?
+              </div>
+            )}
+          </div>
+          <label className="flex items-center gap-2 text-xs text-gsc-white/50 hover:text-gsc-red cursor-pointer transition-colors">
+            <Upload size={14} /> {imagePreview ? 'Changer la photo' : 'Importer une photo'}
+            <input type="file" accept="image/*" onChange={handleImage} className="hidden" />
+          </label>
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Nom complet</label>
+        <input required value={name} onChange={(e) => setName(e.target.value)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" placeholder="Prénom NOM" />
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Rôle / Titre</label>
+        <input required value={role} onChange={(e) => setRole(e.target.value)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" placeholder="Entraîneur — Club" />
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Biographie</label>
+        <textarea required rows={3} value={bio} onChange={(e) => setBio(e.target.value)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" />
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Diplômes (séparés par des virgules)</label>
+        <input value={diplomas} onChange={(e) => setDiplomas(e.target.value)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" placeholder="DEJEPS, BPJEPS" />
+      </div>
+      <div>
+        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider">Citation</label>
+        <textarea rows={2} value={citation} onChange={(e) => setCitation(e.target.value)}
+          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" />
+      </div>
+      <button type="submit" disabled={saving}
+        className="w-full bg-gsc-red hover:bg-gsc-red/90 disabled:opacity-50 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all">
+        {saving ? 'Enregistrement...' : coach ? 'Enregistrer les modifications' : 'Ajouter le coach'}
+      </button>
+    </form>
   )
 }
 

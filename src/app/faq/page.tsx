@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
-import { faqItems } from '@/lib/data'
+import { getFAQItems } from '@/lib/data-service'
+import type { FAQItem } from '@/lib/types'
 
 function AccordionItem({
   question,
@@ -46,6 +47,17 @@ function AccordionItem({
 
 export default function FAQPage() {
   const [openId, setOpenId] = useState<string | null>(null)
+  const [faqItems, setFAQItems] = useState<FAQItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const items = await getFAQItems()
+      setFAQItems(items)
+      setLoading(false)
+    }
+    load()
+  }, [])
 
   return (
     <>
@@ -65,20 +77,26 @@ export default function FAQPage() {
 
         <AnimatedSection className="py-20 px-4">
           <div className="max-w-3xl mx-auto">
-            {faqItems.map((item) => (
-              <AccordionItem
-                key={item.id}
-                question={item.question}
-                answer={item.answer}
-                isOpen={openId === item.id}
-                onClick={() => setOpenId(openId === item.id ? null : item.id)}
-              />
-            ))}
+            {loading ? (
+              <p className="text-center text-gsc-white/30 text-sm">Chargement...</p>
+            ) : faqItems.length === 0 ? (
+              <p className="text-center text-gsc-white/30 text-sm">Aucune question pour le moment.</p>
+            ) : (
+              faqItems.map((item) => (
+                <AccordionItem
+                  key={item.id}
+                  question={item.question}
+                  answer={item.answer}
+                  isOpen={openId === item.id}
+                  onClick={() => setOpenId(openId === item.id ? null : item.id)}
+                />
+              ))
+            )}
           </div>
         </AnimatedSection>
 
         <CTASection
-          title="Encore une question&nbsp;?"
+          title="Encore une question ?"
           subtitle="On est là pour te répondre."
           primaryLabel="Contacte-nous"
           primaryHref="/contact"

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, ChevronLeft, ChevronRight, Loader } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Loader, Camera, Play } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
@@ -20,10 +20,10 @@ export default function MemoriesPage() {
       const eds = await getEditions()
       setEditions(eds)
       if (eds.length > 0) {
-        setActiveEdition(`${eds[0].year}-${eds[0].type}`)
+        setActiveEdition(eds[0].id)
         const mm: Record<string, MemoryMedia[]> = {}
         for (const ed of eds) {
-          mm[`${ed.year}-${ed.type}`] = await getMediaByEdition(ed.id)
+          mm[ed.id] = await getMediaByEdition(ed.id)
         }
         setMediaMap(mm)
       }
@@ -32,6 +32,7 @@ export default function MemoriesPage() {
     load()
   }, [])
 
+  const currentEdition = editions.find((e) => e.id === activeEdition)
   const currentMedia = mediaMap[activeEdition] || []
 
   return (
@@ -58,67 +59,93 @@ export default function MemoriesPage() {
               </div>
             ) : editions.length === 0 ? (
               <div className="text-center py-20">
+                <Camera size={48} className="text-gsc-white/10 mx-auto mb-4" />
                 <p className="text-gsc-white/30 font-heading text-3xl">Aucun souvenir pour le moment</p>
                 <p className="text-gsc-white/20 text-sm mt-4">Les photos arrivent bientôt !</p>
               </div>
             ) : (
               <>
                 {/* Éditions tabs */}
-                <div className="flex flex-wrap gap-2 mb-12 justify-center">
+                <div className="flex flex-wrap gap-3 mb-16 justify-center">
                   {editions.map((ed) => {
-                    const key = `${ed.year}-${ed.type}`
-                    const count = mediaMap[key]?.length || 0
+                    const count = mediaMap[ed.id]?.length || 0
+                    const isActive = activeEdition === ed.id
                     return (
                       <button
-                        key={key}
-                        onClick={() => setActiveEdition(key)}
-                        className={`px-5 py-2.5 text-sm font-bold uppercase tracking-wider transition-all ${
-                          activeEdition === key
-                            ? 'bg-gsc-red text-white'
-                            : 'bg-gsc-gray/30 text-gsc-white/60 hover:text-gsc-white border border-gsc-gray/30'
+                        key={ed.id}
+                        onClick={() => setActiveEdition(ed.id)}
+                        className={`group relative px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all ${
+                          isActive
+                            ? 'bg-gsc-red text-white shadow-lg shadow-gsc-red/20'
+                            : 'bg-gsc-gray/20 text-gsc-white/50 border border-gsc-gray/30 hover:border-gsc-red/40 hover:text-gsc-white'
                         }`}
                       >
-                        {ed.title || `${ed.year} ${ed.type === 'basket' ? 'Basket' : 'Multisport'}`}
+                        <span>{ed.title || `${ed.year} ${ed.type === 'basket' ? 'Basket' : 'Multisport'}`}</span>
                         {count > 0 && (
-                          <span className="ml-2 text-xs opacity-60">({count})</span>
+                          <span className={`ml-2 text-xs ${isActive ? 'text-white/60' : 'text-gsc-white/30'}`}>
+                            {count}
+                          </span>
                         )}
                       </button>
                     )
                   })}
                 </div>
 
+                {/* Album header */}
+                {currentEdition && (
+                  <div className="mb-12 text-center">
+                    <div className="w-16 h-1 bg-gsc-red mx-auto mb-6" />
+                    <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider">
+                      {currentEdition.title}
+                    </h2>
+                    <p className="text-sm text-gsc-white/40 mt-3">
+                      {currentEdition.year} — {currentEdition.type === 'basket' ? 'Camp Basket' : 'Multisport'}
+                      {currentMedia.length > 0 && (
+                        <span className="ml-2">· {currentMedia.length} {currentMedia.length > 1 ? 'photos' : 'photo'}</span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
                 {/* Gallery grid */}
                 {currentMedia.length === 0 ? (
-                  <p className="text-center text-gsc-white/30 text-sm py-12">
-                    Aucune photo ou vidéo dans cette édition pour le moment.
-                  </p>
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 bg-gsc-gray/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Camera size={28} className="text-gsc-white/20" />
+                    </div>
+                    <p className="text-gsc-white/30 text-sm">
+                      Aucune photo dans cette édition pour le moment.
+                    </p>
+                  </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {currentMedia.map((media, idx) => (
                       <button
                         key={media.id}
                         onClick={() => setLightboxIndex(idx)}
-                        className="aspect-square bg-gsc-gray/30 overflow-hidden hover:opacity-80 transition-opacity group relative"
+                        className="group aspect-square bg-gsc-gray/30 overflow-hidden relative"
                       >
                         {media.url ? (
                           media.type === 'image' ? (
                             <img
                               src={media.url}
                               alt={media.alt || ''}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                               loading="lazy"
                             />
                           ) : (
-                            <div className="w-full h-full bg-gsc-gray/40 flex items-center justify-center relative">
+                            <div className="w-full h-full relative">
                               <img
                                 src={media.thumbnail_url || media.url}
                                 alt=""
-                                className="w-full h-full object-cover opacity-60"
+                                className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
                                 loading="lazy"
                               />
-                              <span className="absolute inset-0 flex items-center justify-center text-white text-4xl font-heading">
-                                ▶
-                              </span>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-14 h-14 rounded-full bg-gsc-red/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                  <Play size={22} className="text-white ml-0.5" />
+                                </div>
+                              </div>
                             </div>
                           )
                         ) : (
@@ -126,6 +153,7 @@ export default function MemoriesPage() {
                             ?
                           </div>
                         )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     ))}
                   </div>
@@ -140,41 +168,43 @@ export default function MemoriesPage() {
           <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
             <button
               onClick={() => setLightboxIndex(null)}
-              className="absolute top-4 right-4 text-white/80 hover:text-white z-10"
+              className="absolute top-4 right-4 text-white/80 hover:text-white z-10 transition-colors"
             >
               <X size={32} />
             </button>
-            <button
-              onClick={() => setLightboxIndex(Math.max(0, lightboxIndex - 1))}
-              className="absolute left-4 text-white/80 hover:text-white disabled:opacity-30"
-              disabled={lightboxIndex === 0}
-            >
-              <ChevronLeft size={40} />
-            </button>
-            <div className="max-w-4xl max-h-[80vh] flex items-center justify-center">
+            {currentMedia.length > 1 && (
+              <>
+                <button
+                  onClick={() => setLightboxIndex(lightboxIndex === 0 ? currentMedia.length - 1 : lightboxIndex - 1)}
+                  className="absolute left-4 text-white/60 hover:text-white transition-colors z-10"
+                >
+                  <ChevronLeft size={40} />
+                </button>
+                <button
+                  onClick={() => setLightboxIndex(lightboxIndex === currentMedia.length - 1 ? 0 : lightboxIndex + 1)}
+                  className="absolute right-4 text-white/60 hover:text-white transition-colors z-10"
+                >
+                  <ChevronRight size={40} />
+                </button>
+              </>
+            )}
+            <div className="max-w-5xl max-h-[85vh] flex items-center justify-center">
               {currentMedia[lightboxIndex].type === 'image' ? (
                 <img
                   src={currentMedia[lightboxIndex].url}
                   alt=""
-                  className="max-w-full max-h-[80vh] object-contain"
+                  className="max-w-full max-h-[85vh] object-contain"
                 />
               ) : (
                 <video
                   src={currentMedia[lightboxIndex].url}
                   controls
-                  className="max-w-full max-h-[80vh]"
+                  className="max-w-full max-h-[85vh]"
                   autoPlay
                 />
               )}
             </div>
-            <button
-              onClick={() => setLightboxIndex(Math.min(currentMedia.length - 1, lightboxIndex + 1))}
-              className="absolute right-4 text-white/80 hover:text-white disabled:opacity-30"
-              disabled={lightboxIndex === currentMedia.length - 1}
-            >
-              <ChevronRight size={40} />
-            </button>
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/40">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/40 bg-black/60 px-3 py-1.5 rounded-full">
               {lightboxIndex + 1} / {currentMedia.length}
             </div>
           </div>
