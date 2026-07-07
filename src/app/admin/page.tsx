@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { Shield, LogOut, Upload, Plus, Edit, Trash2, Download, X, Save, ImageIcon } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { Shield, LogOut, Upload, Plus, Edit, Trash2, Download, X, Save, ImageIcon, AlertTriangle } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import {
@@ -63,6 +63,28 @@ export default function AdminPage() {
 
   const [dialog, setDialog] = useState<{ open: boolean; type: string; data?: any }>({ open: false, type: '' })
   const [uploading, setUploading] = useState<string | null>(null)
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; message: string }>({ open: false, title: '', message: '' })
+  const confirmResolveRef = useRef<((value: boolean) => void) | null>(null)
+
+  const askConfirm = useCallback((title: string, message: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      confirmResolveRef.current = resolve
+      setDialog({ open: false, type: '' })
+      setConfirmModal({ open: true, title, message })
+    })
+  }, [])
+
+  const handleConfirmYes = useCallback(() => {
+    setConfirmModal((prev) => ({ ...prev, open: false }))
+    confirmResolveRef.current?.(true)
+    confirmResolveRef.current = null
+  }, [])
+
+  const handleConfirmNo = useCallback(() => {
+    setConfirmModal((prev) => ({ ...prev, open: false }))
+    confirmResolveRef.current?.(false)
+    confirmResolveRef.current = null
+  }, [])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -227,7 +249,8 @@ export default function AdminPage() {
                                   }} />
                               </label>
                               <button onClick={async () => {
-                                if (!confirm(`Supprimer l'édition "${ed.title}" ainsi que toutes ses photos ?`)) return
+                                const ok = await askConfirm('Supprimer l\'édition', `Supprimer "${ed.title}" ainsi que toutes ses photos ?`)
+                                if (!ok) return
                                 await deleteEdition(ed.id)
                                 setEditions(await getEditions())
                               }} className="text-gsc-white/40 hover:text-gsc-red transition-colors">
@@ -255,7 +278,8 @@ export default function AdminPage() {
                                   )}
                                   <button
                                     onClick={async () => {
-                                      if (!confirm('Supprimer ce média ?')) return
+                                      const ok = await askConfirm('Supprimer le média', 'Cette action est irréversible.')
+                                      if (!ok) return
                                       await deleteMedia(media.id)
                                       const updated = await getMediaByEdition(ed.id)
                                       setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
@@ -306,7 +330,8 @@ export default function AdminPage() {
                           <button onClick={() => setDialog({ open: true, type: 'edit-coach', data: c })}
                             className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Edit size={16} /></button>
                           <button onClick={async () => {
-                            if (!confirm(`Supprimer le coach "${c.name}" ?`)) return
+                            const ok = await askConfirm('Supprimer le coach', `Supprimer "${c.name}" de l'équipe ?`)
+                            if (!ok) return
                             await deleteCoach(c.id)
                             setCoaches(await getCoaches())
                           }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
@@ -338,7 +363,8 @@ export default function AdminPage() {
                             <button onClick={() => setDialog({ open: true, type: 'edit-faq', data: f })}
                               className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Edit size={16} /></button>
                             <button onClick={async () => {
-                              if (!confirm(`Supprimer la question "${f.question}" ?`)) return
+                              const ok = await askConfirm('Supprimer la question', `Supprimer "${f.question}" ?`)
+                              if (!ok) return
                               await deleteFAQItem(f.id)
                               setFAQItems(await getFAQItems())
                             }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
@@ -369,7 +395,8 @@ export default function AdminPage() {
                           <div className="flex items-center justify-between mb-1">
                             <p className="text-sm font-bold text-gsc-white">{t.author}</p>
                             <button onClick={async () => {
-                              if (!confirm(`Supprimer le témoignage de "${t.author}" ?`)) return
+                              const ok = await askConfirm('Supprimer le témoignage', `Supprimer le témoignage de "${t.author}" ?`)
+                              if (!ok) return
                               await deleteTestimonial(t.id)
                               setTestimonials(await getTestimonials())
                             }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
@@ -601,6 +628,38 @@ export default function AdminPage() {
           <FormInput name="rating" label="Note (1-5)" type="number" min={1} max={5} required />
         </Form>
       </Dialog>
+
+      {/* ─── Confirmation Modal ─── */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-gsc-gray/90 border border-gsc-gray/30 w-full max-w-sm p-6 sm:p-8">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="p-2 bg-gsc-red/20 shrink-0">
+                <AlertTriangle size={24} className="text-gsc-red" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-heading text-xl text-gsc-white tracking-wider">{confirmModal.title}</h3>
+                  <button onClick={handleConfirmNo} className="text-gsc-white/40 hover:text-gsc-white transition-colors">
+                    <X size={18} />
+                  </button>
+                </div>
+                <p className="text-sm text-gsc-white/60 leading-relaxed">{confirmModal.message}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={handleConfirmNo}
+                className="flex-1 border border-gsc-gray/40 text-gsc-white/70 hover:text-gsc-white hover:border-gsc-gray/30 px-4 py-3 text-sm font-bold uppercase tracking-wider transition-all">
+                Annuler
+              </button>
+              <button onClick={handleConfirmYes}
+                className="flex-1 bg-gsc-red hover:bg-gsc-red/90 text-white px-4 py-3 text-sm font-bold uppercase tracking-wider transition-all">
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

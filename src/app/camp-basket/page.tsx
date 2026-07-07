@@ -142,12 +142,17 @@ export default function CampBasketPage() {
               {coaches.map((coach) => (
                 <Link key={coach.id} href="/coachs" className="text-center group">
                   <div className="aspect-[3/4] bg-gsc-gray/40 mb-4 overflow-hidden relative">
-                    <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/20 font-heading text-6xl">
-                      {coach.name.charAt(0)}
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-gsc-black/60 to-transparent z-10" />
+                    {coach.image_url ? (
+                      <img src={coach.image_url} alt={coach.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/20 font-heading text-6xl">
+                        {coach.name.charAt(0)}
+                      </div>
+                    )}
                   </div>
-                  <h3 className="font-heading text-lg text-gsc-white tracking-wider">{coach.name}</h3>
-                  <p className="text-xs text-gsc-white/50 mt-1">{coach.role.split(',')[0]}</p>
+                  <h3 className="font-heading text-lg text-gsc-white tracking-wider group-hover:text-gsc-red transition-colors">{coach.name}</h3>
+                  <p className="text-xs text-gsc-white/50 mt-1 truncate">{coach.role}</p>
                 </Link>
               ))}
             </div>

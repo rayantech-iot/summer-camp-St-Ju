@@ -62,10 +62,12 @@ export async function createEdition(edition: Omit<Edition, 'id'>): Promise<Editi
 
 export async function deleteEdition(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    await supabase.from('editions').delete().eq('id', id)
-    return
+    const { error } = await supabase.from('editions').delete().eq('id', id)
+    if (!error) return
+    console.warn('Supabase delete failed, falling back to localStorage:', error)
   }
-  setLocalData('editions', getLocalData<Edition>('editions').filter((e) => e.id !== id))
+  const items = getLocalData<Edition>('editions').filter((e) => e.id !== id)
+  setLocalData('editions', items)
 }
 
 // ─── Memories / Media ───
@@ -125,10 +127,12 @@ export async function uploadMedia(editionId: string, file: File): Promise<Memory
 
 export async function deleteMedia(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    await supabase.from('memory_media').delete().eq('id', id)
-    return
+    const { error } = await supabase.from('memory_media').delete().eq('id', id)
+    if (!error) return
+    console.warn('Supabase delete failed, falling back to localStorage:', error)
   }
-  setLocalData('media', getLocalData<MemoryMedia>('media').filter((m) => m.id !== id))
+  const items = getLocalData<MemoryMedia>('media').filter((m) => m.id !== id)
+  setLocalData('media', items)
 }
 
 // ─── Coachs ───
@@ -180,10 +184,12 @@ export async function updateCoach(id: string, data: Partial<Coach>): Promise<Coa
 
 export async function deleteCoach(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    await supabase.from('coaches').delete().eq('id', id)
-    return
+    const { error } = await supabase.from('coaches').delete().eq('id', id)
+    if (!error) return
+    console.warn('Supabase delete failed, falling back to localStorage:', error)
   }
-  setLocalData('coaches', getLocalData<Coach>('coaches').filter((c) => c.id !== id))
+  const items = getLocalData<Coach>('coaches').filter((c) => c.id !== id)
+  setLocalData('coaches', items)
 }
 
 // ─── Testimonials ───
@@ -214,10 +220,12 @@ export async function createTestimonial(t: Omit<Testimonial, 'id'>): Promise<Tes
 
 export async function deleteTestimonial(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    await supabase.from('testimonials').delete().eq('id', id)
-    return
+    const { error } = await supabase.from('testimonials').delete().eq('id', id)
+    if (!error) return
+    console.warn('Supabase delete failed, falling back to localStorage:', error)
   }
-  setLocalData('testimonials', getLocalData<Testimonial>('testimonials').filter((t) => t.id !== id))
+  const items = getLocalData<Testimonial>('testimonials').filter((t) => t.id !== id)
+  setLocalData('testimonials', items)
 }
 
 // ─── FAQ ───
@@ -263,10 +271,12 @@ export async function updateFAQItem(id: string, data: Partial<FAQItem>): Promise
 
 export async function deleteFAQItem(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    await supabase.from('faq_items').delete().eq('id', id)
-    return
+    const { error } = await supabase.from('faq_items').delete().eq('id', id)
+    if (!error) return
+    console.warn('Supabase delete failed, falling back to localStorage:', error)
   }
-  setLocalData('faq', getLocalData<FAQItem>('faq').filter((f) => f.id !== id))
+  const items = getLocalData<FAQItem>('faq').filter((f) => f.id !== id)
+  setLocalData('faq', items)
 }
 
 // ─── Offers ───
