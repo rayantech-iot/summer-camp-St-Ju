@@ -602,12 +602,17 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
     e.preventDefault()
     if (!title || !year) return
     setSaving(true)
-    const edition = await createEdition({ title, year: Number(year), type, created_at: new Date().toISOString() })
-    for (const f of files) {
-      await uploadMedia(edition.id, f)
+    try {
+      const edition = await createEdition({ title, year: Number(year), type, created_at: new Date().toISOString() })
+      for (const f of files) {
+        await uploadMedia(edition.id, f)
+      }
+      setSaving(false)
+      onDone()
+    } catch (err) {
+      console.error('Edition save error:', err)
+      setSaving(false)
     }
-    setSaving(false)
-    onDone()
   }
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -688,6 +693,7 @@ function CoachForm({ coach, onDone }: { coach?: Coach; onDone: () => void }) {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState(coach?.image_url || '')
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -699,33 +705,40 @@ function CoachForm({ coach, onDone }: { coach?: Coach; onDone: () => void }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     if (!name || !role || !bio) return
     setSaving(true)
 
-    let image_url = coach?.image_url || ''
-    if (imageFile) {
-      image_url = await new Promise<string>((resolve) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.readAsDataURL(imageFile)
-      })
-    }
+    try {
+      let image_url = coach?.image_url || ''
+      if (imageFile) {
+        image_url = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.readAsDataURL(imageFile)
+        })
+      }
 
-    const data: any = {
-      name, role, bio,
-      diplomas: diplomas.split(',').map((d) => d.trim()).filter(Boolean),
-      citation,
-      image_url,
-    }
+      const data: any = {
+        name, role, bio,
+        diplomas: diplomas.split(',').map((d) => d.trim()).filter(Boolean),
+        citation,
+        image_url,
+      }
 
-    if (coach) {
-      await updateCoach(coach.id, data)
-    } else {
-      await createCoach({ ...data, featured: false, order: Date.now() })
-    }
+      if (coach) {
+        await updateCoach(coach.id, data)
+      } else {
+        await createCoach({ ...data, featured: false, order: Date.now() })
+      }
 
-    setSaving(false)
-    onDone()
+      setSaving(false)
+      onDone()
+    } catch (err) {
+      console.error('Coach save error:', err)
+      setError("Erreur lors de l'enregistrement. Vérifie les champs et réessaie.")
+      setSaving(false)
+    }
   }
 
   return (
@@ -773,6 +786,7 @@ function CoachForm({ coach, onDone }: { coach?: Coach; onDone: () => void }) {
         <textarea rows={2} value={citation} onChange={(e) => setCitation(e.target.value)}
           className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red mt-1" />
       </div>
+      {error && <p className="text-sm text-gsc-red">{error}</p>}
       <button type="submit" disabled={saving}
         className="w-full bg-gsc-red hover:bg-gsc-red/90 disabled:opacity-50 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all">
         {saving ? 'Enregistrement...' : coach ? 'Enregistrer les modifications' : 'Ajouter le coach'}
