@@ -137,8 +137,14 @@ export async function getCoaches(): Promise<Coach[]> {
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('coaches').select('*').order('order', { ascending: true })
     if (data && data.length > 0) {
-      setLocalData('coaches', data)
-      return data
+      const existingIds = new Set(data.map((c) => c.id))
+      const merged = [...data]
+      for (const fb of fallbackCoaches) {
+        if (!existingIds.has(fb.id)) merged.push(fb)
+      }
+      merged.sort((a, b) => a.order - b.order)
+      setLocalData('coaches', merged)
+      return merged
     }
   }
   const local = getLocalData<Coach>('coaches')

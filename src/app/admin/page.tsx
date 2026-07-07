@@ -227,6 +227,7 @@ export default function AdminPage() {
                                   }} />
                               </label>
                               <button onClick={async () => {
+                                if (!confirm(`Supprimer l'édition "${ed.title}" ainsi que toutes ses photos ?`)) return
                                 await deleteEdition(ed.id)
                                 setEditions(await getEditions())
                               }} className="text-gsc-white/40 hover:text-gsc-red transition-colors">
@@ -254,6 +255,7 @@ export default function AdminPage() {
                                   )}
                                   <button
                                     onClick={async () => {
+                                      if (!confirm('Supprimer ce média ?')) return
                                       await deleteMedia(media.id)
                                       const updated = await getMediaByEdition(ed.id)
                                       setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
@@ -304,6 +306,7 @@ export default function AdminPage() {
                           <button onClick={() => setDialog({ open: true, type: 'edit-coach', data: c })}
                             className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Edit size={16} /></button>
                           <button onClick={async () => {
+                            if (!confirm(`Supprimer le coach "${c.name}" ?`)) return
                             await deleteCoach(c.id)
                             setCoaches(await getCoaches())
                           }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
@@ -335,6 +338,7 @@ export default function AdminPage() {
                             <button onClick={() => setDialog({ open: true, type: 'edit-faq', data: f })}
                               className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Edit size={16} /></button>
                             <button onClick={async () => {
+                              if (!confirm(`Supprimer la question "${f.question}" ?`)) return
                               await deleteFAQItem(f.id)
                               setFAQItems(await getFAQItems())
                             }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
@@ -365,6 +369,7 @@ export default function AdminPage() {
                           <div className="flex items-center justify-between mb-1">
                             <p className="text-sm font-bold text-gsc-white">{t.author}</p>
                             <button onClick={async () => {
+                              if (!confirm(`Supprimer le témoignage de "${t.author}" ?`)) return
                               await deleteTestimonial(t.id)
                               setTestimonials(await getTestimonials())
                             }} className="text-gsc-white/40 hover:text-gsc-red transition-colors"><Trash2 size={16} /></button>
