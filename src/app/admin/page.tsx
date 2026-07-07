@@ -708,10 +708,11 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
     setError('')
     try {
       const edition = await createEdition({ title, year: Number(year), type, created_at: new Date().toISOString() })
-      for (const f of files) {
-        await uploadMedia(edition.id, f)
-      }
+      // Upload files in background, close dialog immediately
       onDone()
+      if (files.length > 0) {
+        await Promise.all(files.map((f) => uploadMedia(edition.id, f)))
+      }
     } catch (err) {
       console.error('Edition save error:', err)
       setError('Erreur lors de la création. Vérifie ta connexion et réessaie.')
