@@ -135,48 +135,53 @@ export default function AdminPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginError('')
+    try {
+      const admin = await findAdminByEmail(email)
 
-    const admin = await findAdminByEmail(email)
+      if (!admin) {
+        if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
+          console.log('Auto-creating super admin:', email)
+          const created = await createAdminUser(email)
+          console.log('Super admin created:', created)
+          setNeedsPasswordSetup(true)
+          return
+        }
+        setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
+        return
+      }
 
-    if (!admin) {
-      if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
-        await createAdminUser(email)
+      // First login: no password check
+      if (!admin.password_set) {
         setNeedsPasswordSetup(true)
         return
       }
-      setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
-      return
-    }
 
-    // First login: no password check
-    if (!admin.password_set) {
-      setNeedsPasswordSetup(true)
-      return
-    }
-
-    // Admin with local password hash: verify locally
-    if (admin.password_hash) {
-      const valid = await verifyAdminPassword(email, password)
-      if (valid) {
-        setIsLoggedIn(true)
+      // Admin with local password hash: verify locally
+      if (admin.password_hash) {
+        const valid = await verifyAdminPassword(email, password)
+        if (valid) {
+          setIsLoggedIn(true)
+          return
+        }
+        setLoginError('Mot de passe incorrect')
         return
       }
-      setLoginError('Mot de passe incorrect')
-      return
-    }
 
-    // Legacy admin (password_set=true but no hash, used Supabase Auth before)
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (!error) {
-        // Migrate: store hash for future logins
-        if (password) await setAdminPassword(admin.id, password)
-        setIsLoggedIn(true)
-        return
+      // Legacy admin (password_set=true but no hash, used Supabase Auth before)
+      if (isSupabaseConfigured) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (!error) {
+          if (password) await setAdminPassword(admin.id, password)
+          setIsLoggedIn(true)
+          return
+        }
       }
-    }
 
-    setLoginError('Email ou mot de passe incorrect')
+      setLoginError('Email ou mot de passe incorrect')
+    } catch (err) {
+      console.error('Login error:', err)
+      setLoginError('Erreur technique: ' + (err instanceof Error ? err.message : String(err)))
+    }
   }
 
   const downloadCSV = (csv: string, filename: string) => {
