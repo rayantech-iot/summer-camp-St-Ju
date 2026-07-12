@@ -619,7 +619,8 @@ export default function AdminPage() {
                           className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
                       </div>
                       <button onClick={async () => {
-                        if (!adminEmailInput || !adminEmailInput.includes('@')) { alert('Email invalide'); return }
+                        console.log('adminEmailInput value:', JSON.stringify(adminEmailInput))
+                        if (!adminEmailInput || !adminEmailInput.includes('@')) { alert('Email invalide: ' + adminEmailInput); return }
                         const existing = await findAdminByEmail(adminEmailInput)
                         if (existing) { alert('Cet admin existe déjà'); return }
                         await createAdminUser(adminEmailInput)
