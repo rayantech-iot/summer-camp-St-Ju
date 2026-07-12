@@ -139,6 +139,11 @@ export default function AdminPage() {
     const admin = await findAdminByEmail(email)
 
     if (!admin) {
+      if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
+        await createAdminUser(email)
+        setNeedsPasswordSetup(true)
+        return
+      }
       setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
       return
     }
