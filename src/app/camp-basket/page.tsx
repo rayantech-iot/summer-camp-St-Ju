@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { ArrowRight, Check } from 'lucide-react'
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
-import CTASection from '@/components/CTASection'
 import { getOffers } from '@/lib/data-service'
 import type { CampOffer } from '@/lib/types'
 import { coaches } from '@/lib/data'
+
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
+const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
 
 const included = [
   '5h d\'entraînement basket par jour',
@@ -153,7 +156,7 @@ export default function CampBasketPage() {
                   <div className="aspect-[3/4] bg-gsc-gray/40 mb-4 overflow-hidden relative">
                     <div className="absolute inset-0 bg-gradient-to-t from-gsc-black/60 to-transparent z-10" />
                     {coach.image_url ? (
-                      <img src={coach.image_url} alt={coach.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <Image src={coach.image_url} alt={coach.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/20 font-heading text-6xl">
                         {coach.name.charAt(0)}

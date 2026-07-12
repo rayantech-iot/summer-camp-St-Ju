@@ -1,11 +1,14 @@
 'use client'
 
+import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { Star, Quote } from 'lucide-react'
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
-import CTASection from '@/components/CTASection'
 import { coaches } from '@/lib/data'
+
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
+const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
 
 export default function CoachsPage() {
   const [dodzi, mike, ...others] = coaches
@@ -33,7 +36,7 @@ export default function CoachsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div className="aspect-[3/4] bg-gsc-gray/40 overflow-hidden relative">
                   {dodzi.image_url ? (
-                    <img src={dodzi.image_url} alt={dodzi.name} className="w-full h-full object-cover" />
+                    <Image src={dodzi.image_url} alt={dodzi.name} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">D</div>
                   )}
@@ -80,7 +83,7 @@ export default function CoachsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div className="aspect-[3/4] bg-gsc-gray/40 overflow-hidden relative">
                   {mike.image_url ? (
-                    <img src={mike.image_url} alt={mike.name} className="w-full h-full object-cover" />
+                    <Image src={mike.image_url} alt={mike.name} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">MA</div>
                   )}
@@ -128,7 +131,7 @@ export default function CoachsPage() {
                 <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
                   <div className="aspect-[3/4] bg-gsc-gray/30 overflow-hidden">
                     {coach.image_url ? (
-                      <img src={coach.image_url} alt={coach.name} className="w-full h-full object-cover" />
+                      <Image src={coach.image_url} alt={coach.name} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-gsc-gray/40 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">
                         {coach.name.split(' ').map(n => n[0]).join('')}

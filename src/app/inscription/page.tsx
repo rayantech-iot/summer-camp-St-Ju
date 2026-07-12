@@ -5,7 +5,6 @@ import { ExternalLink } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
-import CTASection from '@/components/CTASection'
 import { getOffers } from '@/lib/data-service'
 import type { CampOffer } from '@/lib/types'
 

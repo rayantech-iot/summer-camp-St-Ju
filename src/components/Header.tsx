@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 
@@ -34,8 +35,15 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link href="/" className="flex items-center gap-3">
-            <img src="/images/logo.png" alt="Genevois Summer Camp" className="h-10 sm:h-12 w-auto" />
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <Image
+              src="/images/logo.png"
+              alt="Genevois Summer Camp"
+              width={111}
+              height={48}
+              className="h-10 sm:h-12 w-auto"
+              priority
+            />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">

@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { ArrowRight, Star, Users, Clock, Shield, Camera } from 'lucide-react'
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
-import CTASection from '@/components/CTASection'
-import InfiniteCoachCarousel from '@/components/InfiniteCoachCarousel'
+
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
+const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
+const InfiniteCoachCarousel = dynamic(() => import('@/components/InfiniteCoachCarousel'), { ssr: false })
 import { getCoaches, getTestimonials, getEditions, getAllMedia, getOffers } from '@/lib/data-service'
 import type { Coach, Testimonial, Edition, MemoryMedia, CampOffer } from '@/lib/types'
 
@@ -86,8 +89,15 @@ export default function Home() {
       <main>
         {/* Hero */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          <Image
+            src="/images/hero-bg.png"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-gsc-black/70 via-gsc-black/50 to-gsc-black z-10" />
-          <div className="absolute inset-0 bg-[url('/images/hero-bg.png')] bg-cover bg-center" />
           <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -294,11 +304,12 @@ export default function Home() {
                     className="group relative aspect-[3/4] overflow-hidden bg-gsc-gray/30 block"
                   >
                     {preview.cover ? (
-                      <img
+                      <Image
                         src={preview.cover.url}
                         alt=""
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-all duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

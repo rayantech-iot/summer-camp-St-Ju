@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { X, ChevronLeft, ChevronRight, Loader, Camera, Play, ArrowLeft } from 'lucide-react'
+import Image from 'next/image'
+import { X, ChevronLeft, ChevronRight, Loader, Camera, Play } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -104,11 +105,12 @@ export default function MemoriesPage() {
                         }`}
                       >
                         {cover ? (
-                          <img
+                          <Image
                             src={cover.url}
                             alt=""
-                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
-                            loading="lazy"
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                            className="object-cover transition-all duration-700 group-hover:scale-105"
                           />
                         ) : (
                           <div className="w-full h-full bg-gsc-gray/30 flex items-center justify-center">
@@ -170,19 +172,21 @@ export default function MemoriesPage() {
                           >
                             {media.url ? (
                               media.type === 'image' ? (
-                                <img
+                                <Image
                                   src={media.url}
                                   alt={media.alt || ''}
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                  loading="lazy"
+                                  fill
+                                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                  className="object-cover group-hover:scale-110 transition-transform duration-700"
                                 />
                               ) : (
                                 <div className="w-full h-full relative">
-                                  <img
+                                  <Image
                                     src={media.thumbnail_url || media.url}
                                     alt=""
-                                    className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
-                                    loading="lazy"
+                                    fill
+                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                    className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
                                   />
                                   <div className="absolute inset-0 flex items-center justify-center">
                                     <div className="w-14 h-14 rounded-full bg-gsc-red/90 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -235,10 +239,14 @@ export default function MemoriesPage() {
             )}
             <div className="max-w-5xl max-h-[85vh] flex items-center justify-center">
               {currentMedia[lightboxIndex].type === 'image' ? (
-                <img
+                <Image
                   src={currentMedia[lightboxIndex].url}
                   alt=""
+                  width={1920}
+                  height={1080}
                   className="max-w-full max-h-[85vh] object-contain"
+                  style={{ width: 'auto', height: 'auto' }}
+                  sizes="(max-width: 1200px) 100vw, 80vw"
                 />
               ) : (
                 <video

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ExternalLink } from 'lucide-react'
 
 export default function Footer() {
@@ -7,7 +8,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
-            <img src="/images/logo.png" alt="Genevois Summer Camp" className="h-12 w-auto mb-4" />
+            <Image src="/images/logo.png" alt="Genevois Summer Camp" width={111} height={48} className="h-12 w-auto mb-4" />
             <p className="text-sm text-gsc-white/60 leading-relaxed">
               Une semaine dans la peau d&apos;un basketteur de haut niveau — sans quitter le Genevois.
             </p>

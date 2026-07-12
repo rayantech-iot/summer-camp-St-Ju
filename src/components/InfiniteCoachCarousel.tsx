@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { coaches } from '@/lib/data'
 
 export default function InfiniteCoachCarousel() {
@@ -18,10 +19,12 @@ export default function InfiniteCoachCarousel() {
             <div className="aspect-[3/4] bg-gsc-gray/40 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-t from-gsc-black/80 via-transparent to-transparent z-10 transition-opacity group-hover:opacity-70" />
               {coach.image_url ? (
-                <img
+                <Image
                   src={coach.image_url}
                   alt={coach.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  sizes="(max-width: 640px) 180px, 220px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
                 <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-5xl">
