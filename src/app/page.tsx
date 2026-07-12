@@ -12,40 +12,26 @@ import AnimatedSection from '@/components/AnimatedSection'
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
 const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
 const InfiniteCoachCarousel = dynamic(() => import('@/components/InfiniteCoachCarousel'), { ssr: false })
+import { useLanguage } from '@/contexts/LanguageContext'
 import { getCoaches, getTestimonials, getEditions, getAllMedia, getOffers } from '@/lib/data-service'
 import type { Coach, Testimonial, Edition, MemoryMedia, CampOffer } from '@/lib/types'
 
-const stats = [
-  { value: '3', label: 'Années d\'existence', icon: Clock },
-  { value: '60+', label: 'Participants', icon: Users },
-  { value: '35+', label: 'Heures d\'entraînement/semaine', icon: Star },
-  { value: '1/5', label: 'Ratio encadrants', icon: Shield },
+const stats: { value: string; labelKey: string; icon: any }[] = [
+  { value: '3', labelKey: 'stats.years', icon: Clock },
+  { value: '60+', labelKey: 'stats.participants', icon: Users },
+  { value: '35+', labelKey: 'stats.hours', icon: Star },
+  { value: '1/5', labelKey: 'stats.ratio', icon: Shield },
 ]
 
-const whyCards = [
-  {
-    title: 'Encadrement professionnel',
-    desc: 'Coachs issus du haut niveau, diplômés DEJEPS, DETB, BPJEPS.',
-    icon: Shield,
-  },
-  {
-    title: '+5h de basket par jour',
-    desc: 'Une progression garantie par le volume et la qualité des entraînements.',
-    icon: Clock,
-  },
-  {
-    title: 'Joueurs pros invités',
-    desc: 'Une heure d\'échange exclusive avec un joueur professionnel chaque semaine.',
-    icon: Star,
-  },
-  {
-    title: 'Taille humaine',
-    desc: 'Une vingtaine de jeunes maximum, un suivi individuel pour chacun.',
-    icon: Users,
-  },
+const whyCards: { titleKey: string; descKey: string; icon: any }[] = [
+  { titleKey: 'why.proCoaching.title', descKey: 'why.proCoaching.desc', icon: Shield },
+  { titleKey: 'why.hours.title', descKey: 'why.hours.desc', icon: Clock },
+  { titleKey: 'why.pros.title', descKey: 'why.pros.desc', icon: Star },
+  { titleKey: 'why.small.title', descKey: 'why.small.desc', icon: Users },
 ]
 
 export default function Home() {
+  const { t } = useLanguage()
   const [dynamicCoaches, setDynamicCoaches] = useState<Coach[]>([])
   const [dynamicTestimonials, setDynamicTestimonials] = useState<Testimonial[]>([])
   const [editionPreviews, setEditionPreviews] = useState<{edition: Edition; cover: MemoryMedia | null; count: number}[]>([])
@@ -105,27 +91,27 @@ export default function Home() {
               transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <h1 className="font-heading text-6xl sm:text-7xl lg:text-8xl text-gsc-white tracking-wider leading-none">
-                GENEVOIS
+                {t('hero.title1')}
                 <br />
-                SUMMER CAMP
+                {t('hero.title2')}
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-gsc-white/80 font-sans max-w-2xl mx-auto leading-relaxed">
-                Approche le basket de haut niveau.
+                {t('hero.subtitle1')}
                 <br />
-                Vis ton été autrement.
+                {t('hero.subtitle2')}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/camp-basket"
                   className="bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-4 font-bold uppercase tracking-wider text-sm transition-all hover:scale-105 inline-flex items-center gap-2"
                 >
-                  Découvrir le camp <ArrowRight size={16} />
+                  {t('hero.ctaDiscover')} <ArrowRight size={16} />
                 </Link>
                 <Link
                   href="/inscription"
                   className="border border-gsc-white/30 hover:border-gsc-white/60 text-gsc-white px-8 py-4 font-bold uppercase tracking-wider text-sm transition-all inline-flex items-center gap-2"
                 >
-                  Je m&rsquo;inscris <ArrowRight size={16} />
+                  {t('hero.ctaRegister')} <ArrowRight size={16} />
                 </Link>
               </div>
             </motion.div>
@@ -136,15 +122,11 @@ export default function Home() {
         <AnimatedSection className="py-24 sm:py-32 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider mb-8">
-              Notre histoire
+              {t('story.title')}
             </h2>
             <div className="w-16 h-1 bg-gsc-red mx-auto mb-8" />
             <p className="text-base sm:text-lg text-gsc-white/70 leading-relaxed max-w-3xl mx-auto">
-              Le Genevois Summer Camp est né d&apos;une conviction simple : permettre aux jeunes
-              passionnés de basket de bénéficier d&apos;un encadrement de qualité sans devoir
-              quitter la région genevoise. Ici, aux pieds du Vuache, nous transmettons chaque
-              été bien plus que des techniques de jeu — nous partageons des valeurs : discipline,
-              travail, respect, partage et dépassement de soi.
+              {t('story.text')}
             </p>
           </div>
         </AnimatedSection>
@@ -153,20 +135,20 @@ export default function Home() {
         <AnimatedSection className="py-24 bg-gsc-gray/20 px-4" delay={0.1}>
           <div className="max-w-6xl mx-auto">
             <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-16">
-              Pourquoi choisir le Genevois Summer Camp&nbsp;?
+              {t('why.title')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {whyCards.map((card) => (
                 <motion.div
-                  key={card.title}
+                  key={card.titleKey}
                   whileHover={{ y: -5 }}
                   className="bg-gsc-gray/30 p-8 border border-gsc-gray/30 hover:border-gsc-red/50 transition-colors"
                 >
                   <card.icon className="text-gsc-red mb-4" size={28} />
                   <h3 className="font-heading text-xl text-gsc-white tracking-wider mb-3">
-                    {card.title}
+                    {t(card.titleKey)}
                   </h3>
-                  <p className="text-sm text-gsc-white/60 leading-relaxed">{card.desc}</p>
+                  <p className="text-sm text-gsc-white/60 leading-relaxed">{t(card.descKey)}</p>
                 </motion.div>
               ))}
             </div>
@@ -177,30 +159,30 @@ export default function Home() {
         <AnimatedSection className="py-24 px-4" delay={0.2}>
           <div className="max-w-5xl mx-auto">
             <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-16">
-              Nos offres
+              {t('offers.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <Link href="/camp-basket" className="group block">
                 <div className="bg-gsc-gray/20 p-8 sm:p-12 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full">
-                  <h3 className="font-heading text-3xl text-gsc-white tracking-wider">Camp Basket</h3>
+                  <h3 className="font-heading text-3xl text-gsc-white tracking-wider">{t('offers.basket.title')}</h3>
                   <p className="mt-4 text-gsc-white/60 text-sm leading-relaxed">
-                    +5h d&apos;entraînement par jour, coachs professionnels, échange avec un joueur pro.
+                    {t('offers.basket.desc')}
                   </p>
                   <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
                     <span>U11-U16</span>
                     <span>Valleiry</span>
-                    <span>À partir de {basketOffer?.price_externat || 300}€</span>
+                    <span>{t('offers.basket.from')} {basketOffer?.price_externat || 300}€</span>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
-                    Découvrir <ArrowRight size={14} />
+                    {t('offers.basket.cta')} <ArrowRight size={14} />
                   </span>
                 </div>
               </Link>
               <Link href="/multisport" className="group block">
                 <div className="bg-gsc-gray/20 p-8 sm:p-12 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full">
-                  <h3 className="font-heading text-3xl text-gsc-white tracking-wider">Multisport</h3>
+                  <h3 className="font-heading text-3xl text-gsc-white tracking-wider">{t('offers.multi.title')}</h3>
                   <p className="mt-4 text-gsc-white/60 text-sm leading-relaxed">
-                    Foot en salle, VTT, tennis de table, sports collectifs — encadrement BPJEPS/BAFA.
+                    {t('offers.multi.desc')}
                   </p>
                   <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
                     <span>U11-U16</span>
@@ -208,7 +190,7 @@ export default function Home() {
                     <span>{multiOffer?.price_externat || 300}€</span>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
-                    Découvrir <ArrowRight size={14} />
+                    {t('offers.multi.cta')} <ArrowRight size={14} />
                   </span>
                 </div>
               </Link>
@@ -220,7 +202,7 @@ export default function Home() {
         <AnimatedSection className="py-24 bg-gsc-gray/20 overflow-hidden" delay={0.1}>
           <div className="max-w-6xl mx-auto px-4 mb-16">
             <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center">
-              L&apos;encadrement
+              {t('coaching.title')}
             </h2>
           </div>
           <InfiniteCoachCarousel />
@@ -229,7 +211,7 @@ export default function Home() {
               href="/coachs"
               className="inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider hover:gap-3 transition-all"
             >
-              Voir tous les coachs <ArrowRight size={14} />
+              {t('coaching.viewAll')} <ArrowRight size={14} />
             </Link>
           </div>
         </AnimatedSection>
@@ -239,10 +221,10 @@ export default function Home() {
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
+                <div key={stat.labelKey} className="text-center">
                   <stat.icon className="text-gsc-red mx-auto mb-3" size={24} />
                   <div className="font-heading text-5xl text-gsc-white tracking-wider">{stat.value}</div>
-                  <div className="text-sm text-gsc-white/50 mt-2">{stat.label}</div>
+                  <div className="text-sm text-gsc-white/50 mt-2">{t(stat.labelKey)}</div>
                 </div>
               ))}
             </div>
@@ -253,24 +235,24 @@ export default function Home() {
         <AnimatedSection className="py-24 bg-gsc-gray/20 px-4" delay={0.1}>
           <div className="max-w-4xl mx-auto">
             <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-16">
-              Ils nous ont fait confiance
+              {t('testimonials.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(displayTestimonials.length > 0 ? displayTestimonials : []).slice(0, 3).map((t) => (
+              {(displayTestimonials.length > 0 ? displayTestimonials : []).slice(0, 3).map((test) => (
                 <div
-                  key={t.id}
+                  key={test.id}
                   className="bg-gsc-gray/30 p-6 border border-gsc-gray/30"
                 >
                   <div className="flex gap-1 mb-3">
-                    {Array.from({ length: t.rating }).map((_, i) => (
+                    {Array.from({ length: test.rating }).map((_, i) => (
                       <Star key={i} size={14} className="text-gsc-orange fill-gsc-orange" />
                     ))}
                   </div>
                   <p className="text-sm text-gsc-white/70 leading-relaxed italic">
-                    &ldquo;{t.content}&rdquo;
+                    &ldquo;{test.content}&rdquo;
                   </p>
                   <p className="text-xs text-gsc-white/40 mt-4 font-bold uppercase tracking-wider">
-                    {t.author} - {t.role === 'parent' ? 'Parent' : t.role === 'jeune' ? 'Jeune' : 'Coach'}
+                    {test.author} - {test.role === 'parent' ? t('testimonials.parent') : test.role === 'jeune' ? t('testimonials.jeune') : t('testimonials.coach')}
                   </p>
                 </div>
               ))}
@@ -280,7 +262,7 @@ export default function Home() {
                 href="/temoignages"
                 className="inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider hover:gap-3 transition-all"
               >
-                Voir tous les témoignages <ArrowRight size={14} />
+                {t('testimonials.viewAll')} <ArrowRight size={14} />
               </Link>
             </div>
           </div>
@@ -293,7 +275,7 @@ export default function Home() {
               Memories
             </h2>
             <p className="text-center text-gsc-white/40 text-sm mb-16 max-w-xl mx-auto">
-              Chaque édition, un album. Plonge dans les souvenirs.
+              {t('memories.subtitle')}
             </p>
             {editionPreviews.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -323,7 +305,7 @@ export default function Home() {
                           ? 'bg-gsc-red text-white'
                           : 'bg-gsc-orange text-white'
                       }`}>
-                        {preview.edition.type === 'basket' ? 'BASKET' : 'MULTISPORT'}
+                        {preview.edition.type === 'basket' ? t('memories.badge.basket') : t('memories.badge.multisport')}
                       </span>
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -338,7 +320,7 @@ export default function Home() {
                       <div className="flex items-center gap-2 mt-3">
                         <Camera size={12} className="text-gsc-white/40" />
                         <span className="text-xs text-gsc-white/40">
-                          {preview.count} {preview.count > 1 ? 'photos' : 'photo'}
+                          {preview.count} {preview.count > 1 ? t('memories.photos') : t('memories.photo')}
                         </span>
                       </div>
                     </div>
@@ -350,8 +332,8 @@ export default function Home() {
             ) : (
               <div className="text-center py-16">
                 <Camera size={48} className="text-gsc-white/10 mx-auto mb-4" />
-                <p className="text-gsc-white/30 font-heading text-3xl">Aucun souvenir pour le moment</p>
-                <p className="text-gsc-white/20 text-sm mt-4">Les photos arrivent bientôt !</p>
+                <p className="text-gsc-white/30 font-heading text-3xl">{t('memories.empty')}</p>
+                <p className="text-gsc-white/20 text-sm mt-4">{t('memories.emptyDesc')}</p>
               </div>
             )}
             <div className="text-center mt-12">
@@ -359,7 +341,7 @@ export default function Home() {
                 href="/memories"
                 className="inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider hover:gap-3 transition-all"
               >
-                Voir tous les souvenirs <ArrowRight size={14} />
+                {t('memories.viewAll')} <ArrowRight size={14} />
               </Link>
             </div>
           </div>
@@ -367,11 +349,11 @@ export default function Home() {
 
         {/* CTA final */}
         <CTASection
-          title="Prêt à vivre l'été autrement&nbsp;?"
-          subtitle="Rejoins-nous pour une semaine d'immersion basket inoubliable."
-          primaryLabel="Je m'inscris"
+          title={t('cta.final.title')}
+          subtitle={t('cta.final.subtitle')}
+          primaryLabel={t('cta.final.register')}
           primaryHref="/inscription"
-          secondaryLabel="Contacte-nous"
+          secondaryLabel={t('cta.final.contact')}
           secondaryHref="/contact"
         />
       </main>

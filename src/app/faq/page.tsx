@@ -8,6 +8,7 @@ import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
 import { getFAQItems } from '@/lib/data-service'
 import type { FAQItem } from '@/lib/types'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 function AccordionItem({
   question,
@@ -46,6 +47,7 @@ function AccordionItem({
 }
 
 export default function FAQPage() {
+  const { t } = useLanguage()
   const [openId, setOpenId] = useState<string | null>(null)
   const [faqItems, setFAQItems] = useState<FAQItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -67,10 +69,10 @@ export default function FAQPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gsc-black via-gsc-red/5 to-gsc-black" />
           <div className="relative max-w-5xl mx-auto px-4 text-center">
             <h1 className="font-heading text-5xl sm:text-7xl lg:text-8xl text-gsc-white tracking-wider leading-none">
-              FAQ
+              {t('faq.hero.title')}
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gsc-white/70 max-w-2xl mx-auto">
-              Toutes les réponses à vos questions.
+              {t('faq.hero.subtitle')}
             </p>
           </div>
         </section>
@@ -78,9 +80,9 @@ export default function FAQPage() {
         <AnimatedSection className="py-20 px-4">
           <div className="max-w-3xl mx-auto">
             {loading ? (
-              <p className="text-center text-gsc-white/30 text-sm">Chargement...</p>
+              <p className="text-center text-gsc-white/30 text-sm">{t('faq.loading')}</p>
             ) : faqItems.length === 0 ? (
-              <p className="text-center text-gsc-white/30 text-sm">Aucune question pour le moment.</p>
+              <p className="text-center text-gsc-white/30 text-sm">{t('faq.empty')}</p>
             ) : (
               faqItems.map((item) => (
                 <AccordionItem
@@ -96,9 +98,9 @@ export default function FAQPage() {
         </AnimatedSection>
 
         <CTASection
-          title="Encore une question ?"
-          subtitle="On est là pour te répondre."
-          primaryLabel="Contacte-nous"
+          title={t('faq.cta.title')}
+          subtitle={t('faq.cta.subtitle')}
+          primaryLabel={t('faq.cta.contact')}
           primaryHref="/contact"
         />
       </main>

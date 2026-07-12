@@ -1,8 +1,13 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { ExternalLink } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function Footer() {
+  const { t } = useLanguage()
+
   return (
     <footer className="bg-gsc-black border-t border-gsc-gray/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -10,27 +15,27 @@ export default function Footer() {
           <div>
             <Image src="/images/logo.png" alt="Genevois Summer Camp" width={111} height={48} className="h-12 w-auto mb-4" />
             <p className="text-sm text-gsc-white/60 leading-relaxed">
-              Une semaine dans la peau d&apos;un basketteur de haut niveau — sans quitter le Genevois.
+              {t('footer.tagline')}
             </p>
           </div>
 
           <div>
-            <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">Liens</h3>
+            <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">{t('footer.links')}</h3>
             <ul className="space-y-2">
               {[
-                { href: '/camp-basket', label: 'Camp Basket' },
-                { href: '/multisport', label: 'Multisport' },
-                { href: '/coachs', label: 'Les Coachs' },
-                { href: '/memories', label: 'Memories' },
-                { href: '/faq', label: 'FAQ' },
-                { href: '/inscription', label: 'Inscription' },
+                { href: '/camp-basket', key: 'footer.campBasket' },
+                { href: '/multisport', key: 'footer.multisport' },
+                { href: '/coachs', key: 'footer.coaches' },
+                { href: '/memories', key: 'footer.memories' },
+                { href: '/faq', key: 'footer.faq' },
+                { href: '/inscription', key: 'footer.register' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
                   >
-                    {link.label}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -38,17 +43,17 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">Contact</h3>
+            <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">{t('footer.contactTitle')}</h3>
             <ul className="space-y-2 text-sm text-gsc-white/60">
               <li>Dodzi +33 6 58 15 29 27</li>
-              <li>Valleiry (74520) &amp; Vulbens (74520)</li>
-              <li>Haute-Savoie, France</li>
-              <li>À 20 minutes de Genève</li>
+              <li>{t('footer.location')}</li>
+              <li>{t('footer.region')}</li>
+              <li>{t('footer.distance')}</li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">Réseaux</h3>
+            <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">{t('footer.social')}</h3>
             <div className="flex flex-col gap-2">
               <a
                 href="https://www.instagram.com/genevoissummercamp?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
@@ -61,20 +66,20 @@ export default function Footer() {
             </div>
             <div className="mt-6 space-y-1">
               <Link href="/mentions-legales" className="block text-xs text-gsc-white/40 hover:text-gsc-red transition-colors">
-                Mentions légales
+                {t('footer.legal')}
               </Link>
               <Link href="/cgv" className="block text-xs text-gsc-white/40 hover:text-gsc-red transition-colors">
-                CGV
+                {t('footer.cgv')}
               </Link>
               <Link href="/confidentialite" className="block text-xs text-gsc-white/40 hover:text-gsc-red transition-colors">
-                Politique de confidentialité
+                {t('footer.privacy')}
               </Link>
             </div>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-gsc-gray/20 text-center text-xs text-gsc-white/30">
-          &copy; {new Date().getFullYear()} Genevois Summer Camp. Tous droits réservés.
+          &copy; {new Date().getFullYear()} Genevois Summer Camp. {t('footer.rights')}
         </div>
       </div>
     </footer>

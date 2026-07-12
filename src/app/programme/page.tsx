@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
 import { timelineSteps } from '@/lib/data'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const iconMap: Record<string, React.ReactNode> = {
   sun: <Sun size={24} />,
@@ -18,6 +19,8 @@ const iconMap: Record<string, React.ReactNode> = {
 }
 
 export default function ProgrammePage() {
+  const { t } = useLanguage()
+
   return (
     <>
       <Header />
@@ -26,11 +29,10 @@ export default function ProgrammePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gsc-black via-gsc-red/5 to-gsc-black" />
           <div className="relative max-w-5xl mx-auto px-4 text-center">
             <h1 className="font-heading text-5xl sm:text-7xl lg:text-8xl text-gsc-white tracking-wider leading-none">
-              Une journée au camp
+              {t('programme.hero.title')}
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gsc-white/70 max-w-2xl mx-auto">
-              De 8h30 à 18h, chaque minute compte. Découvre le quotidien d&apos;un basketteur
-              en immersion.
+              {t('programme.hero.subtitle')}
             </p>
           </div>
         </section>
@@ -54,17 +56,11 @@ export default function ProgrammePage() {
                           {step.time}
                         </span>
                         <span className="font-heading text-lg sm:text-xl text-gsc-white tracking-wider">
-                          {step.label}
+                          {t(`programme.step${idx}`)}
                         </span>
                       </div>
                       <p className="text-sm text-gsc-white/50">
-                        {idx === 0 && 'Accueil des participants, briefing de la journée.'}
-                        {idx === 1 && 'Échauffement, travail collectif, systèmes de jeu — plus de 2h de pratique intensive.'}
-                        {idx === 2 && 'Repas équilibré préparé sur place, temps de repos et d\'échange.'}
-                        {idx === 3 && 'Développement des fondamentaux : dribble, tir, passe, défense individuelle.'}
-                        {idx === 4 && 'Mise en application en conditions de match, coaching en direct.'}
-                        {idx === 5 && 'Moment fort de la journée : échange privilégié, questions-réponses, démonstrations.'}
-                        {idx === 6 && 'Retour au calme, étirements, debrief individuel.'}
+                        {t(`programme.step${idx}desc`)}
                       </p>
                     </div>
                   </div>
@@ -75,9 +71,9 @@ export default function ProgrammePage() {
         </AnimatedSection>
 
         <CTASection
-          title="Vis cette expérience"
-          subtitle="Chaque jour est une nouvelle opportunité de progresser."
-          primaryLabel="Je m'inscris"
+          title={t('programme.cta.title')}
+          subtitle={t('programme.cta.subtitle')}
+          primaryLabel={t('programme.cta.register')}
           primaryHref="/inscription"
         />
       </main>

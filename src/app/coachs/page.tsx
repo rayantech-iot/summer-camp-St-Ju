@@ -6,11 +6,13 @@ import { Star, Quote } from 'lucide-react'
 import Header from '@/components/Header'
 import AnimatedSection from '@/components/AnimatedSection'
 import { coaches } from '@/lib/data'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
 const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
 
 export default function CoachsPage() {
+  const { t } = useLanguage()
   const [dodzi, mike, ...others] = coaches
 
   return (
@@ -21,10 +23,10 @@ export default function CoachsPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gsc-black via-gsc-red/5 to-gsc-black" />
           <div className="relative max-w-5xl mx-auto px-4 text-center">
             <h1 className="font-heading text-5xl sm:text-7xl lg:text-8xl text-gsc-white tracking-wider leading-none">
-              Les Coachs
+              {t('coachs.hero.title')}
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gsc-white/70 max-w-2xl mx-auto">
-              La qualité de l&apos;encadrement fait la différence. Rencontre nos coachs.
+              {t('coachs.hero.subtitle')}
             </p>
           </div>
         </section>
@@ -41,7 +43,7 @@ export default function CoachsPage() {
                     <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">D</div>
                   )}
                   <div className="absolute top-4 left-4 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                    Organisateur
+                    {t('coachs.badge.organizer')}
                   </div>
                 </div>
                 <div>
@@ -88,7 +90,7 @@ export default function CoachsPage() {
                     <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">MA</div>
                   )}
                   <div className="absolute top-4 left-4 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                    Coach vedette
+                    {t('coachs.badge.star')}
                   </div>
                 </div>
                 <div>
@@ -160,9 +162,9 @@ export default function CoachsPage() {
         </AnimatedSection>
 
         <CTASection
-          title="Prêt à t'entraîner avec les meilleurs&nbsp;?"
-          subtitle="Rejoins-nous cet été et progresse aux côtés de coachs d'exception."
-          primaryLabel="Je m'inscris"
+          title={t('coachs.cta.title')}
+          subtitle={t('coachs.cta.subtitle')}
+          primaryLabel={t('coachs.cta.register')}
           primaryHref="/inscription"
         />
       </main>

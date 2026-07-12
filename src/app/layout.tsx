@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { Bebas_Neue, Montserrat } from "next/font/google"
 import "./globals.css"
 import AuthRedirect from "@/components/AuthRedirect"
+import { LanguageProvider } from "@/contexts/LanguageContext"
+import HtmlLangSetter from "@/components/HtmlLangSetter"
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-heading",
@@ -57,7 +59,10 @@ export default function RootLayout({
     <html lang="fr" className={`${bebasNeue.variable} ${montserrat.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-gsc-black text-gsc-white font-sans antialiased">
         <AuthRedirect />
-        {children}
+        <LanguageProvider>
+          <HtmlLangSetter />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   )

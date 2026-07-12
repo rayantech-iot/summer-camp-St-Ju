@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { getEditions, getMediaByEdition } from '@/lib/data-service'
 import type { Edition, MemoryMedia } from '@/lib/types'
 
 export default function MemoriesPage() {
+  const { t } = useLanguage()
   const [editions, setEditions] = useState<Edition[]>([])
   const [mediaMap, setMediaMap] = useState<Record<string, MemoryMedia[]>>({})
   const [activeEdition, setActiveEdition] = useState('')
@@ -66,10 +68,10 @@ export default function MemoriesPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gsc-black via-gsc-red/5 to-gsc-black" />
           <div className="relative max-w-5xl mx-auto px-4 text-center">
             <h1 className="font-heading text-5xl sm:text-7xl lg:text-8xl text-gsc-white tracking-wider leading-none">
-              Memories
+              {t('memories.title')}
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-gsc-white/70 max-w-2xl mx-auto">
-              Les souvenirs de chaque édition, en photos et en vidéos.
+              {t('memories.pageSubtitle')}
             </p>
           </div>
         </section>
@@ -83,8 +85,8 @@ export default function MemoriesPage() {
             ) : editions.length === 0 ? (
               <div className="text-center py-20">
                 <Camera size={48} className="text-gsc-white/10 mx-auto mb-4" />
-                <p className="text-gsc-white/30 font-heading text-3xl">Aucun souvenir pour le moment</p>
-                <p className="text-gsc-white/20 text-sm mt-4">Les photos arrivent bientôt !</p>
+                <p className="text-gsc-white/30 font-heading text-3xl">{t('memories.empty')}</p>
+                <p className="text-gsc-white/20 text-sm mt-4">{t('memories.emptyDesc')}</p>
               </div>
             ) : (
               <>
@@ -122,7 +124,7 @@ export default function MemoriesPage() {
                           <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 ${
                             ed.type === 'basket' ? 'bg-gsc-red' : 'bg-gsc-orange'
                           } text-white`}>
-                            {ed.type === 'basket' ? 'BASKET' : 'MULTI'}
+                            {ed.type === 'basket' ? t('memories.badge.basket') : t('memories.badge.multisport')}
                           </span>
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -131,7 +133,7 @@ export default function MemoriesPage() {
                           </span>
                           {count > 0 && (
                             <span className="text-[10px] text-gsc-white/40 mt-1 block">
-                              {count} {count > 1 ? 'photos' : 'photo'}
+                              {count} {count > 1 ? t('memories.photos') : t('memories.photo')}
                             </span>
                           )}
                         </div>
@@ -157,8 +159,8 @@ export default function MemoriesPage() {
                           {currentEdition.title}
                         </h2>
                         <p className="text-sm text-gsc-white/40 mt-3">
-                          {currentEdition.year} - {currentEdition.type === 'basket' ? 'Camp Basket' : 'Multisport'}
-                          <span className="ml-2">· {currentMedia.length} {currentMedia.length > 1 ? 'photos' : 'photo'}</span>
+                          {currentEdition.year} - {currentEdition.type === 'basket' ? t('memories.campBasket') : t('memories.multisport')}
+                          <span className="ml-2">· {currentMedia.length} {currentMedia.length > 1 ? t('memories.photos') : t('memories.photo')}</span>
                         </p>
                       </div>
 

@@ -4,22 +4,24 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Globe } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const navLinks = [
-  { href: '/', label: 'Accueil' },
-  { href: '/camp-basket', label: 'Camp Basket' },
-  { href: '/multisport', label: 'Multisport' },
-  { href: '/coachs', label: 'Coachs' },
-  { href: '/programme', label: 'Programme' },
-  { href: '/memories', label: 'Memories' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/', key: 'nav.home' },
+  { href: '/camp-basket', key: 'nav.campBasket' },
+  { href: '/multisport', key: 'nav.multisport' },
+  { href: '/coachs', key: 'nav.coaches' },
+  { href: '/programme', key: 'nav.programme' },
+  { href: '/memories', key: 'nav.memories' },
+  { href: '/faq', key: 'nav.faq' },
+  { href: '/contact', key: 'nav.contact' },
 ]
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { t, toggleLang, lang } = useLanguage()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -46,28 +48,36 @@ export default function Header() {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className="text-sm font-medium text-gsc-white/80 hover:text-gsc-red transition-colors uppercase tracking-wider"
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             ))}
+            <button
+              onClick={toggleLang}
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gsc-white/50 hover:text-gsc-red transition-colors px-2"
+              aria-label={lang === 'fr' ? 'Switch to English' : 'Passer en français'}
+            >
+              <Globe size={14} />
+              {lang === 'fr' ? 'EN' : 'FR'}
+            </button>
             <Link
               href="/inscription"
               className="bg-gsc-red hover:bg-gsc-red/90 text-white px-5 py-2.5 text-sm font-bold uppercase tracking-wider transition-all hover:scale-105"
             >
-              Je m&rsquo;inscris
+              {t('nav.register')}
             </Link>
           </nav>
 
           <button
             className="lg:hidden text-gsc-white p-2"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Menu"
+            aria-label={t('nav.menu')}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -90,16 +100,25 @@ export default function Header() {
                   onClick={() => setIsOpen(false)}
                   className="block py-3 text-base font-medium text-gsc-white/80 hover:text-gsc-red transition-colors uppercase tracking-wider"
                 >
-                  {link.label}
+                  {t(link.key)}
                 </Link>
               ))}
-              <Link
-                href="/inscription"
-                onClick={() => setIsOpen(false)}
-                className="block text-center bg-gsc-red text-white px-5 py-3 mt-4 font-bold uppercase tracking-wider"
-              >
-                Je m&rsquo;inscris
-              </Link>
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={() => { toggleLang(); setIsOpen(false) }}
+                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gsc-white/50 hover:text-gsc-red transition-colors"
+                >
+                  <Globe size={14} />
+                  {lang === 'fr' ? 'EN' : 'FR'}
+                </button>
+                <Link
+                  href="/inscription"
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 text-center bg-gsc-red text-white px-5 py-3 font-bold uppercase tracking-wider"
+                >
+                  {t('nav.register')}
+                </Link>
+              </div>
             </div>
           </motion.div>
         )}
