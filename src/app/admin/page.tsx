@@ -135,53 +135,42 @@ export default function AdminPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginError('')
-    try {
-      const admin = await findAdminByEmail(email)
+    if (!email) { setLoginError('Entre ton email'); return }
 
-      if (!admin) {
-        if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
-          console.log('Auto-creating super admin:', email)
-          const created = await createAdminUser(email)
-          console.log('Super admin created:', created)
-          setNeedsPasswordSetup(true)
-          return
-        }
-        setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
-        return
-      }
+    const admin = await findAdminByEmail(email)
 
-      // First login: no password check
-      if (!admin.password_set) {
+    if (!admin) {
+      if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
+        const created = await createAdminUser(email)
         setNeedsPasswordSetup(true)
         return
       }
+      setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
+      return
+    }
 
-      // Admin with local password hash: verify locally
-      if (admin.password_hash) {
-        const valid = await verifyAdminPassword(email, password)
-        if (valid) {
-          setIsLoggedIn(true)
-          return
-        }
-        setLoginError('Mot de passe incorrect')
+    if (!admin.password_set) {
+      setNeedsPasswordSetup(true)
+      return
+    }
+
+    if (admin.password_hash) {
+      const valid = await verifyAdminPassword(email, password)
+      if (valid) { setIsLoggedIn(true); return }
+      setLoginError('Mot de passe incorrect')
+      return
+    }
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (!error) {
+        if (password) await setAdminPassword(admin.id, password)
+        setIsLoggedIn(true)
         return
       }
-
-      // Legacy admin (password_set=true but no hash, used Supabase Auth before)
-      if (isSupabaseConfigured) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (!error) {
-          if (password) await setAdminPassword(admin.id, password)
-          setIsLoggedIn(true)
-          return
-        }
-      }
-
-      setLoginError('Email ou mot de passe incorrect')
-    } catch (err) {
-      console.error('Login error:', err)
-      setLoginError('Erreur technique: ' + (err instanceof Error ? err.message : String(err)))
     }
+
+    setLoginError('Email ou mot de passe incorrect')
   }
 
   const downloadCSV = (csv: string, filename: string) => {
@@ -193,36 +182,6 @@ export default function AdminPage() {
     URL.revokeObjectURL(link.href)
   }
 
-  if (!isLoggedIn) {
-    return (
-      <>
-        <Header />
-        <main className="flex-1 flex items-center justify-center px-4 py-32">
-          <div className="w-full max-w-sm">
-            <div className="text-center mb-10">
-              <Shield size={40} className="text-gsc-red mx-auto mb-4" />
-              <h1 className="font-heading text-3xl text-gsc-white tracking-wider">Administration</h1>
-              <p className="text-sm text-gsc-white/50 mt-2">Connecte-toi pour gérer le site</p>
-            </div>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <input type="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-gsc-gray/20 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
-              <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gsc-gray/20 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
-              {loginError && <p className="text-sm text-gsc-red">{loginError}</p>}
-              <button type="submit" className="w-full bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-3 font-bold uppercase tracking-wider text-sm">
-                Se connecter
-              </button>
-              <p className="text-xs text-gsc-white/30 text-center">Première connexion ? Entre ton email (mot de passe vide) et clique sur "Se connecter".</p>
-            </form>
-          </div>
-        </main>
-        <Footer />
-      </>
-    )
-  }
-
-  /* ─── PASSWORD SETUP (first login) ─── */
   if (needsPasswordSetup) {
     return (
       <>
@@ -264,6 +223,35 @@ export default function AdminPage() {
                 Enregistrer le mot de passe
               </button>
             </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <>
+        <Header />
+        <main className="flex-1 flex items-center justify-center px-4 py-32">
+          <div className="w-full max-w-sm">
+            <div className="text-center mb-10">
+              <Shield size={40} className="text-gsc-red mx-auto mb-4" />
+              <h1 className="font-heading text-3xl text-gsc-white tracking-wider">Administration</h1>
+              <p className="text-sm text-gsc-white/50 mt-2">Connecte-toi pour gérer le site</p>
+            </div>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <input type="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-gsc-gray/20 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
+              <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-gsc-gray/20 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
+              {loginError && <p className="text-sm text-gsc-red">{loginError}</p>}
+              <button type="submit" className="w-full bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-3 font-bold uppercase tracking-wider text-sm">
+                Se connecter
+              </button>
+              <p className="text-xs text-gsc-white/30 text-center">Première connexion ? Entre ton email (mot de passe vide) et clique sur "Se connecter".</p>
+            </form>
           </div>
         </main>
         <Footer />
