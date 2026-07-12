@@ -46,11 +46,20 @@ function Dialog({ open, onClose, title, children }: { open: boolean; onClose: ()
 }
 
 export default function AdminPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn_] = useState(false)
   const [activeTab, setActiveTab] = useState<AdminTab>('editions')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
+
+  const setIsLoggedIn = (v: boolean) => {
+    setIsLoggedIn_(v)
+    if (v) {
+      try { localStorage.setItem('gsc_admin', '1') } catch { /* ignore */ }
+    } else {
+      try { localStorage.removeItem('gsc_admin') } catch { /* ignore */ }
+    }
+  }
 
   const [editions, setEditions] = useState<Edition[]>([])
   const [mediaMap, setMediaMap] = useState<Record<string, any[]>>({})
@@ -126,6 +135,11 @@ export default function AdminPage() {
       console.error('Load data error:', e)
     }
     setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' && localStorage.getItem('gsc_admin')
+    if (saved === '1') setIsLoggedIn_(true)
   }, [])
 
   useEffect(() => {
