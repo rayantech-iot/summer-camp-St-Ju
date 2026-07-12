@@ -100,6 +100,21 @@ CREATE TABLE contact_messages (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- 9. Admin users
+CREATE TABLE IF NOT EXISTS admin_users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password_set BOOLEAN DEFAULT FALSE,
+  password_hash TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+
+-- Lecture publique pour admin_users (nécessaire car on n'utilise plus Supabase Auth)
+CREATE POLICY "Lecture publique admin_users" ON admin_users FOR SELECT USING (true);
+CREATE POLICY "Admin full access admin_users" ON admin_users FOR ALL USING (auth.role() = 'authenticated');
+
 -- =============================================
 -- Row Level Security (RLS)
 -- =============================================
