@@ -233,10 +233,6 @@ export default function AdminPage() {
                                   onChange={async (e) => {
                                      const files = e.target.files
                                      if (!files) return
-                                     if (files.length > 20) {
-                                       alert('Maximum 20 fichiers à la fois')
-                                       return
-                                     }
                                      const valid = Array.from(files).filter(f => f.size <= 20 * 1024 * 1024)
                                      const oversize = files.length - valid.length
                                      if (oversize > 0) alert(`${oversize} fichier(s) ignorés ( > 20 Mo)`)
@@ -685,10 +681,6 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || [])
-    if (selected.length > 20) {
-      alert('Maximum 20 images')
-      return
-    }
     const valid = selected.filter(f => f.size <= 20 * 1024 * 1024)
     const oversize = selected.length - valid.length
     if (oversize > 0) alert(`${oversize} fichier(s) trop volumineux (> 20 Mo) ont été ignorés`)
@@ -722,7 +714,7 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
       </div>
       <div>
         <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-2">
-          Photos (max 20)
+          Photos
         </label>
         <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gsc-gray/40 hover:border-gsc-red/50 px-4 py-6 cursor-pointer transition-colors">
           <ImageIcon size={20} className="text-gsc-white/40" />
