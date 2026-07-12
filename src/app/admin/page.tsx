@@ -10,14 +10,13 @@ import {
   getCoaches, createCoach, updateCoach, deleteCoach,
   getFAQItems, createFAQItem, updateFAQItem, deleteFAQItem,
   getTestimonials, createTestimonial, deleteTestimonial,
-  getInscriptions, exportInscriptionsCSV,
   getContactMessages, exportMessagesCSV,
   getOffers, updateOffer,
 } from '@/lib/data-service'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
-import type { Edition, Coach, FAQItem, Testimonial, Inscription, ContactMessage, CampOffer } from '@/lib/types'
+import type { Edition, Coach, FAQItem, Testimonial, ContactMessage, CampOffer } from '@/lib/types'
 
-type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'inscriptions' | 'messages'
+type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'messages'
 
 const tabs: { id: AdminTab; label: string }[] = [
   { id: 'editions', label: 'Memories' },
@@ -25,7 +24,6 @@ const tabs: { id: AdminTab; label: string }[] = [
   { id: 'faq', label: 'FAQ' },
   { id: 'temoignages', label: 'Témoignages' },
   { id: 'offres', label: 'Offres' },
-  { id: 'inscriptions', label: 'Inscriptions' },
   { id: 'messages', label: 'Messages' },
 ]
 
@@ -56,7 +54,6 @@ export default function AdminPage() {
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [faqItems, setFAQItems] = useState<FAQItem[]>([])
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
-  const [inscriptions, setInscriptions] = useState<Inscription[]>([])
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [offers, setOffers] = useState<CampOffer[]>([])
   const [loading, setLoading] = useState(true)
@@ -92,12 +89,11 @@ export default function AdminPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [eds, cos, faq, tms, ins, msgs, offs] = await Promise.all([
+      const [eds, cos, faq, tms, msgs, offs] = await Promise.all([
         getEditions(),
         getCoaches(),
         getFAQItems(),
         getTestimonials(),
-        getInscriptions(),
         getContactMessages(),
         getOffers(),
       ])
@@ -105,7 +101,6 @@ export default function AdminPage() {
       setCoaches(cos)
       setFAQItems(faq)
       setTestimonials(tms)
-      setInscriptions(ins)
       setMessages(msgs)
       setOffers(offs)
       setOfferDrafts(offs.map((o) => ({ ...o })))
@@ -487,55 +482,6 @@ export default function AdminPage() {
                       ))
                     )}
                   </div>
-                </div>
-              )}
-
-              {/* ─── INSCRIPTIONS ─── */}
-              {activeTab === 'inscriptions' && (
-                <div>
-                  <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Inscriptions reçues ({inscriptions.length})</h2>
-                    {inscriptions.length > 0 && (
-                      <button onClick={() => downloadCSV(exportInscriptionsCSV(inscriptions), 'inscriptions.csv')}
-                        className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider">
-                        <Download size={16} /> Exporter CSV
-                      </button>
-                    )}
-                  </div>
-                  {inscriptions.length === 0 ? (
-                    <p className="text-gsc-white/40 text-sm">Aucune inscription pour le moment.</p>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gsc-gray/30 text-left">
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Enfant</th>
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Âge</th>
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Parent</th>
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Email</th>
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Tél.</th>
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Camp</th>
-                            <th className="pb-3 pr-4 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Session</th>
-                            <th className="pb-3 text-gsc-white/60 font-bold uppercase tracking-wider text-xs">Formule</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {inscriptions.map((ins) => (
-                            <tr key={ins.id} className="border-b border-gsc-gray/20">
-                              <td className="py-3 pr-4 text-gsc-white/80 whitespace-nowrap">{ins.child_name}</td>
-                              <td className="py-3 pr-4 text-gsc-white/60">{ins.child_age}</td>
-                              <td className="py-3 pr-4 text-gsc-white/80 whitespace-nowrap">{ins.parent_name}</td>
-                              <td className="py-3 pr-4 text-gsc-white/60">{ins.email}</td>
-                              <td className="py-3 pr-4 text-gsc-white/60 whitespace-nowrap">{ins.phone}</td>
-                              <td className="py-3 pr-4 text-gsc-white/60">{ins.camp_type === 'basket' ? 'Basket' : 'Multisport'}</td>
-                              <td className="py-3 pr-4 text-gsc-white/60 whitespace-nowrap">{ins.session}</td>
-                              <td className="py-3 text-gsc-white/60">{ins.formule}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
                 </div>
               )}
 

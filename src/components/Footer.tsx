@@ -50,28 +50,12 @@ export default function Footer() {
             <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">Réseaux</h3>
             <div className="flex flex-col gap-2">
               <a
-                href="https://instagram.com/genevoissummercamp"
+                href="https://www.instagram.com/genevoissummercamp?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
               >
                 <ExternalLink size={16} /> Instagram
-              </a>
-              <a
-                href="https://facebook.com/genevoissummercamp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
-              >
-                <ExternalLink size={16} /> Facebook
-              </a>
-              <a
-                href="https://tiktok.com/@genevoissummercamp"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
-              >
-                <ExternalLink size={16} /> TikTok
               </a>
             </div>
             <div className="mt-6 space-y-1">

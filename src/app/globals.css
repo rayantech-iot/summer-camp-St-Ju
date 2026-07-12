@@ -28,7 +28,7 @@ body {
 }
 
 .animate-scroll {
-  animation: scroll 50s linear infinite;
+  animation: scroll 25s linear infinite;
 }
 
 @keyframes scroll {
