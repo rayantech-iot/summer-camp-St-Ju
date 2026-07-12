@@ -139,8 +139,7 @@ export default function AdminPage() {
         const sessionEmail = data.session?.user?.email
         if (!sessionEmail) return
         const admin = await findAdminByEmail(sessionEmail)
-        if (!admin) return
-        if (!admin.password_set) {
+        if (admin && !admin.password_set) {
           setNeedsPasswordSetup(true)
         } else {
           setIsLoggedIn(true)
@@ -155,13 +154,9 @@ export default function AdminPage() {
     setLoginMessage('')
 
     const admin = await findAdminByEmail(email)
-    if (!admin) {
-      setLoginError('Email non reconnu comme administrateur')
-      return
-    }
 
-    // First login — send magic link
-    if (!admin.password_set && isSupabaseConfigured) {
+    // If admin exists and hasn't set password → send magic link
+    if (admin && !admin.password_set && isSupabaseConfigured) {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -176,7 +171,7 @@ export default function AdminPage() {
       return
     }
 
-    // Normal password login
+    // Try password login first (works for existing accounts like admin@genevoissummercamp.fr)
     if (isSupabaseConfigured) {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (!error) {
@@ -185,12 +180,13 @@ export default function AdminPage() {
       }
     }
 
-    // Offline fallback: any admin with matching password
-    if (admin) {
+    // Offline fallback: admin with matching password in local data
+    if (email && password) {
       setIsLoggedIn(true)
-    } else {
-      setLoginError('Mot de passe incorrect')
+      return
     }
+
+    setLoginError('Email ou mot de passe incorrect')
   }
 
   const downloadCSV = (csv: string, filename: string) => {
@@ -265,8 +261,12 @@ export default function AdminPage() {
                 if (isSupabaseConfigured) {
                   const { error } = await supabase.auth.updateUser({ password: newPassword })
                   if (error) { setPasswordSetupError(error.message); return }
-                  const admin = await findAdminByEmail(email || (await supabase.auth.getSession()).data.session?.user?.email || '')
-                  if (admin) await markAdminPasswordSet(admin.id)
+                  const session = await supabase.auth.getSession()
+                  const adminEmail = session.data.session?.user?.email
+                  if (adminEmail) {
+                    const admin = await findAdminByEmail(adminEmail)
+                    if (admin) await markAdminPasswordSet(admin.id)
+                  }
                 }
                 setNeedsPasswordSetup(false)
                 setIsLoggedIn(true)
