@@ -476,22 +476,30 @@ export async function getEditionById(id: string): Promise<Edition | null> {
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
   const local = await getLocalData<AdminUser>('admin_users')
+  let server: AdminUser[] = []
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false })
-    if (data && data.length > 0) {
-      await setLocalData('admin_users', data)
-      return data
-    }
-    // Supabase empty but local has data → sync local to Supabase
-    if (local.length > 0) {
-      for (const a of local) {
-        try {
-          await supabase.from('admin_users').upsert(a).select().single()
-        } catch { /* ignore */ }
-      }
+    if (data) server = data
+  }
+  // Merge: local wins (has latest password_set/password_hash), Supabase fills gaps
+  const merged: AdminUser[] = []
+  const seen = new Set<string>()
+  for (const a of local) {
+    merged.push(a)
+    seen.add(a.id)
+    // Sync local → Supabase if missing on server
+    if (SUPABASE_CONFIGURED && !server.find((s) => s.id === a.id)) {
+      try { await supabase.from('admin_users').upsert(a) } catch { /* ignore */ }
     }
   }
-  return local
+  for (const a of server) {
+    if (!seen.has(a.id)) {
+      merged.push(a)
+      seen.add(a.id)
+    }
+  }
+  await setLocalData('admin_users', merged)
+  return merged
 }
 
 export async function createAdminUser(email: string): Promise<AdminUser> {
