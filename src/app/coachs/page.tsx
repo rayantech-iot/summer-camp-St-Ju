@@ -19,7 +19,7 @@ export default function CoachsPage() {
       <main>
         <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-gsc-black via-gsc-red/5 to-gsc-black" />
-          <div className="relative max-w-5xl mx auto px-4 text-center">
+          <div className="relative max-w-5xl mx-auto px-4 text-center">
             <h1 className="font-heading text-5xl sm:text-7xl lg:text-8xl text-gsc-white tracking-wider leading-none">
               Les Coachs
             </h1>
@@ -125,11 +125,11 @@ export default function CoachsPage() {
 
         {/* Other coaches */}
         <AnimatedSection className="py-20 bg-gsc-gray/20 px-4" delay={0.15}>
-          <div className="max-w-5xl mx-auto space-y-20">
+          <div className="max-w-5xl mx-auto">
             {others.map((coach, i) => (
               <div key={coach.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? '' : ''}`}>
                 <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
-                  <div className="aspect-[3/4] bg-gsc-gray/30 overflow-hidden">
+                  <div className="aspect-[3/4] bg-gsc-gray/30 overflow-hidden relative">
                     {coach.image_url ? (
                       <Image src={coach.image_url} alt={coach.name} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
                     ) : (
