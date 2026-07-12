@@ -79,3 +79,10 @@ export interface CampOffer {
   public: string
   description: string
 }
+
+export interface AdminUser {
+  id: string
+  email: string
+  password_set: boolean
+  created_at: string
+}

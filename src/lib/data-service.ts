@@ -10,6 +10,7 @@ import type {
   CampOffer,
   Inscription,
   ContactMessage,
+  AdminUser,
 } from './types'
 import { coaches as fallbackCoaches, testimonials as fallbackTestimonials, faqItems as fallbackFAQ } from './data'
 
@@ -462,6 +463,74 @@ export function exportMessagesCSV(messages: ContactMessage[]): string {
 export async function getEditionById(id: string): Promise<Edition | null> {
   const editions = await getEditions()
   return editions.find((e) => e.id === id) || null
+}
+
+// ─── Admin Users ───
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const local = await getLocalData<AdminUser>('admin_users')
+  if (local.length > 0) return local
+  if (SUPABASE_CONFIGURED) {
+    const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false })
+    if (data && data.length > 0) {
+      await setLocalData('admin_users', data)
+      return data
+    }
+  }
+  return local
+}
+
+export async function createAdminUser(email: string): Promise<AdminUser> {
+  const newItem: AdminUser = { id: generateId(), email, password_set: false, created_at: new Date().toISOString() }
+  if (SUPABASE_CONFIGURED) {
+    try {
+      const { data } = await supabase.from('admin_users').insert(newItem).select().single()
+      if (data) {
+        const items = [...await getLocalData<AdminUser>('admin_users'), data]
+        await setLocalData('admin_users', items)
+        return data
+      }
+    } catch (e) {
+      console.warn('Supabase create admin error, using local storage:', e)
+    }
+  }
+  const items = [...await getLocalData<AdminUser>('admin_users'), newItem]
+  await setLocalData('admin_users', items)
+  return newItem
+}
+
+export async function deleteAdminUser(id: string): Promise<void> {
+  if (SUPABASE_CONFIGURED) {
+    try {
+      const { error } = await supabase.from('admin_users').delete().eq('id', id)
+      if (error) console.warn('Supabase delete admin:', error.message)
+    } catch (e) {
+      console.warn('Supabase delete admin error:', e)
+    }
+  }
+  const items = (await getLocalData<AdminUser>('admin_users')).filter((a) => a.id !== id)
+  await setLocalData('admin_users', items)
+}
+
+export async function markAdminPasswordSet(id: string): Promise<void> {
+  if (SUPABASE_CONFIGURED) {
+    try {
+      await supabase.from('admin_users').update({ password_set: true }).eq('id', id)
+    } catch (e) {
+      console.warn('Supabase update admin error:', e)
+    }
+  }
+  const items = await getLocalData<AdminUser>('admin_users')
+  const idx = items.findIndex((a) => a.id === id)
+  if (idx !== -1) {
+    items[idx].password_set = true
+    await setLocalData('admin_users', items)
+  }
+}
+
+export async function findAdminByEmail(email: string): Promise<AdminUser | null> {
+  const items = await getAdminUsers()
+  return items.find((a) => a.email.toLowerCase() === email.toLowerCase()) || null
 }
 
 export async function getAllMedia(): Promise<MemoryMedia[]> {
