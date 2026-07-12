@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Bebas_Neue, Montserrat } from "next/font/google"
 import "./globals.css"
+import AuthRedirect from "@/components/AuthRedirect"
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-heading",
@@ -55,6 +56,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${bebasNeue.variable} ${montserrat.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-gsc-black text-gsc-white font-sans antialiased">
+        <AuthRedirect />
         {children}
       </body>
     </html>

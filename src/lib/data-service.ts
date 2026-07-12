@@ -1,6 +1,13 @@
 import { supabase } from './supabase'
 import { compressImage } from './compress-image'
 import { getItem, setItem } from './storage'
+
+export async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password)
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
 import type {
   Edition,
   MemoryMedia,
@@ -526,6 +533,31 @@ export async function markAdminPasswordSet(id: string): Promise<void> {
     items[idx].password_set = true
     await setLocalData('admin_users', items)
   }
+}
+
+export async function setAdminPassword(id: string, password: string): Promise<void> {
+  const hash = await hashPassword(password)
+  if (SUPABASE_CONFIGURED) {
+    try {
+      await supabase.from('admin_users').update({ password_hash: hash, password_set: true }).eq('id', id)
+    } catch (e) {
+      console.warn('Supabase update admin password error:', e)
+    }
+  }
+  const items = await getLocalData<AdminUser>('admin_users')
+  const idx = items.findIndex((a) => a.id === id)
+  if (idx !== -1) {
+    items[idx].password_hash = hash
+    items[idx].password_set = true
+    await setLocalData('admin_users', items)
+  }
+}
+
+export async function verifyAdminPassword(email: string, password: string): Promise<boolean> {
+  const admin = await findAdminByEmail(email)
+  if (!admin || !admin.password_set || !admin.password_hash) return false
+  const hash = await hashPassword(password)
+  return hash === admin.password_hash
 }
 
 export async function findAdminByEmail(email: string): Promise<AdminUser | null> {

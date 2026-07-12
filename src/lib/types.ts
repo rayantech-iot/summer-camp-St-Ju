@@ -84,5 +84,6 @@ export interface AdminUser {
   id: string
   email: string
   password_set: boolean
+  password_hash?: string
   created_at: string
 }

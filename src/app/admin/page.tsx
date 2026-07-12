@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Shield, LogOut, Upload, Plus, Edit, Trash2, Download, X, Save, ImageIcon, AlertTriangle, Mail } from 'lucide-react'
+import { Shield, LogOut, Upload, Plus, Edit, Trash2, Download, X, Save, ImageIcon, AlertTriangle, UserPlus } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import {
@@ -12,7 +12,8 @@ import {
   getTestimonials, createTestimonial, deleteTestimonial,
   getContactMessages, exportMessagesCSV,
   getOffers, updateOffer,
-  getAdminUsers, createAdminUser, deleteAdminUser, markAdminPasswordSet, findAdminByEmail,
+  getAdminUsers, createAdminUser, deleteAdminUser, findAdminByEmail,
+  setAdminPassword, verifyAdminPassword,
 } from '@/lib/data-service'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import type { Edition, Coach, FAQItem, Testimonial, ContactMessage, CampOffer, AdminUser } from '@/lib/types'
@@ -69,7 +70,6 @@ export default function AdminPage() {
   const confirmResolveRef = useRef<((value: boolean) => void) | null>(null)
 
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([])
-  const [loginMessage, setLoginMessage] = useState('')
   const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
@@ -132,58 +132,43 @@ export default function AdminPage() {
     if (isLoggedIn) loadData()
   }, [isLoggedIn, loadData])
 
-  // Check session after magic link redirect
-  useEffect(() => {
-    if (isSupabaseConfigured) {
-      supabase.auth.getSession().then(async ({ data }) => {
-        const sessionEmail = data.session?.user?.email
-        if (!sessionEmail) return
-        const admin = await findAdminByEmail(sessionEmail)
-        if (admin && !admin.password_set) {
-          setNeedsPasswordSetup(true)
-        } else {
-          setIsLoggedIn(true)
-        }
-      })
-    }
-  }, [])
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginError('')
-    setLoginMessage('')
 
     const admin = await findAdminByEmail(email)
 
-    // If admin exists and hasn't set password → send magic link
-    if (admin && !admin.password_set && isSupabaseConfigured) {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin + '/admin' : undefined,
-        },
-      })
-      if (error) {
-        setLoginError("Erreur d'envoi du lien : " + error.message)
-        return
-      }
-      setLoginMessage('Un lien de connexion vient d\'être envoyé par email. Clique dessus pour te connecter.')
+    if (!admin) {
+      setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
       return
     }
 
-    // Try password login first (works for existing accounts like admin@genevoissummercamp.fr)
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (!error) {
+    // First login: no password check
+    if (!admin.password_set) {
+      setNeedsPasswordSetup(true)
+      return
+    }
+
+    // Admin with local password hash: verify locally
+    if (admin.password_hash) {
+      const valid = await verifyAdminPassword(email, password)
+      if (valid) {
         setIsLoggedIn(true)
         return
       }
+      setLoginError('Mot de passe incorrect')
+      return
     }
 
-    // Offline fallback: admin with matching password in local data
-    if (email && password) {
-      setIsLoggedIn(true)
-      return
+    // Legacy admin (password_set=true but no hash, used Supabase Auth before)
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (!error) {
+        // Migrate: store hash for future logins
+        if (password) await setAdminPassword(admin.id, password)
+        setIsLoggedIn(true)
+        return
+      }
     }
 
     setLoginError('Email ou mot de passe incorrect')
@@ -215,11 +200,10 @@ export default function AdminPage() {
               <input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-gsc-gray/20 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
               {loginError && <p className="text-sm text-gsc-red">{loginError}</p>}
-              {loginMessage && <p className="text-sm text-green-400 leading-relaxed">{loginMessage}</p>}
               <button type="submit" className="w-full bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-3 font-bold uppercase tracking-wider text-sm">
                 Se connecter
               </button>
-              <p className="text-xs text-gsc-white/30 text-center">Première connexion ? Entre ton email et clique sur "Se connecter" — un lien magique t sera envoyé.</p>
+              <p className="text-xs text-gsc-white/30 text-center">Première connexion ? Entre ton email (mot de passe vide) et clique sur "Se connecter".</p>
             </form>
           </div>
         </main>
@@ -228,7 +212,7 @@ export default function AdminPage() {
     )
   }
 
-  /* ─── PASSWORD SETUP (first login after magic link) ─── */
+  /* ─── PASSWORD SETUP (first login) ─── */
   if (needsPasswordSetup) {
     return (
       <>
@@ -241,6 +225,8 @@ export default function AdminPage() {
               <p className="text-sm text-gsc-white/50 mt-2">Configure ton mot de passe pour accéder à l'administration.</p>
             </div>
             <div className="space-y-4">
+              <input type="email" value={email} disabled
+                className="w-full bg-gsc-gray/10 border border-gsc-gray/20 px-4 py-3 text-gsc-white/50 focus:outline-none cursor-not-allowed" />
               <input type="password" placeholder="Nouveau mot de passe" value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full bg-gsc-gray/20 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
@@ -258,15 +244,9 @@ export default function AdminPage() {
                   setPasswordSetupError('Les mots de passe ne correspondent pas')
                   return
                 }
-                if (isSupabaseConfigured) {
-                  const { error } = await supabase.auth.updateUser({ password: newPassword })
-                  if (error) { setPasswordSetupError(error.message); return }
-                  const session = await supabase.auth.getSession()
-                  const adminEmail = session.data.session?.user?.email
-                  if (adminEmail) {
-                    const admin = await findAdminByEmail(adminEmail)
-                    if (admin) await markAdminPasswordSet(admin.id)
-                  }
+                const admin = await findAdminByEmail(email)
+                if (admin) {
+                  await setAdminPassword(admin.id, newPassword)
                 }
                 setNeedsPasswordSetup(false)
                 setIsLoggedIn(true)
@@ -288,10 +268,7 @@ export default function AdminPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
             <h1 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider">Administration</h1>
-            <button onClick={() => {
-              if (isSupabaseConfigured) supabase.auth.signOut()
-              setIsLoggedIn(false)
-            }} className="flex items-center gap-2 text-sm text-gsc-white/50 hover:text-gsc-red">
+            <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-2 text-sm text-gsc-white/50 hover:text-gsc-red">
               <LogOut size={16} /> Déconnexion
             </button>
           </div>
@@ -647,21 +624,12 @@ export default function AdminPage() {
                         if (!adminEmailInput || !adminEmailInput.includes('@')) { alert('Email invalide'); return }
                         const existing = await findAdminByEmail(adminEmailInput)
                         if (existing) { alert('Cet admin existe déjà'); return }
-                        const newAdmin = await createAdminUser(adminEmailInput)
+                        await createAdminUser(adminEmailInput)
                         setAdminUsers(await getAdminUsers())
                         setAdminEmailInput('')
-                        if (isSupabaseConfigured) {
-                          supabase.auth.signInWithOtp({
-                            email: newAdmin.email,
-                            options: { emailRedirectTo: window.location.origin + '/admin' },
-                          }).then(() => {
-                            alert(`Invitation envoyée à ${newAdmin.email}. Il recevra un lien magique par email.`)
-                          }).catch(() => {
-                            alert('Admin ajouté, mais l\'envoi du lien a échoué. Tu peux lui demander de se connecter.')
-                          })
-                        }
+                        alert(`Admin ${adminEmailInput} ajouté. Donne-lui le lien de connexion, il n'aura qu'à entrer son email et créer son mot de passe.`)
                       }} className="bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider shrink-0 whitespace-nowrap">
-                        <Mail size={16} className="inline mr-1" /> Inviter
+                        <UserPlus size={16} className="inline mr-1" /> Ajouter
                       </button>
                     </div>
                   </div>
