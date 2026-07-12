@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { X, ChevronLeft, ChevronRight, Loader, Camera, Play } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { X, ChevronLeft, ChevronRight, Loader, Camera, Play, ArrowLeft } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
@@ -35,6 +36,27 @@ export default function MemoriesPage() {
   const currentEdition = editions.find((e) => e.id === activeEdition)
   const currentMedia = mediaMap[activeEdition] || []
 
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (lightboxIndex === null) return
+    if (e.key === 'Escape') setLightboxIndex(null)
+    if (e.key === 'ArrowLeft') {
+      setLightboxIndex(lightboxIndex === 0 ? currentMedia.length - 1 : lightboxIndex - 1)
+    }
+    if (e.key === 'ArrowRight') {
+      setLightboxIndex(lightboxIndex === currentMedia.length - 1 ? 0 : lightboxIndex + 1)
+    }
+  }, [lightboxIndex, currentMedia.length])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
+
+  const getCoverImage = (editionId: string) => {
+    const media = mediaMap[editionId] || []
+    return media.find((m) => m.type === 'image') || media[0] || null
+  }
+
   return (
     <>
       <Header />
@@ -65,98 +87,121 @@ export default function MemoriesPage() {
               </div>
             ) : (
               <>
-                {/* Éditions tabs */}
-                <div className="flex flex-wrap gap-3 mb-16 justify-center">
+                {/* Album covers grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-16">
                   {editions.map((ed) => {
+                    const cover = getCoverImage(ed.id)
                     const count = mediaMap[ed.id]?.length || 0
                     const isActive = activeEdition === ed.id
                     return (
                       <button
                         key={ed.id}
                         onClick={() => setActiveEdition(ed.id)}
-                        className={`group relative px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all ${
+                        className={`group relative aspect-[4/5] overflow-hidden text-left transition-all duration-500 ${
                           isActive
-                            ? 'bg-gsc-red text-white shadow-lg shadow-gsc-red/20'
-                            : 'bg-gsc-gray/20 text-gsc-white/50 border border-gsc-gray/30 hover:border-gsc-red/40 hover:text-gsc-white'
+                            ? 'ring-2 ring-gsc-red ring-offset-2 ring-offset-gsc-black shadow-lg shadow-gsc-red/20'
+                            : 'ring-1 ring-gsc-gray/30 hover:ring-gsc-red/50'
                         }`}
                       >
-                        <span>{ed.title || `${ed.year} ${ed.type === 'basket' ? 'Basket' : 'Multisport'}`}</span>
-                        {count > 0 && (
-                          <span className={`ml-2 text-xs ${isActive ? 'text-white/60' : 'text-gsc-white/30'}`}>
-                            {count}
-                          </span>
+                        {cover ? (
+                          <img
+                            src={cover.url}
+                            alt=""
+                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gsc-gray/30 flex items-center justify-center">
+                            <Camera size={24} className="text-gsc-white/10" />
+                          </div>
                         )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute top-2 right-2">
+                          <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 ${
+                            ed.type === 'basket' ? 'bg-gsc-red' : 'bg-gsc-orange'
+                          } text-white`}>
+                            {ed.type === 'basket' ? 'BASKET' : 'MULTI'}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                          <span className="font-heading text-2xl sm:text-3xl text-gsc-white tracking-wider leading-none block">
+                            {ed.year}
+                          </span>
+                          {count > 0 && (
+                            <span className="text-[10px] text-gsc-white/40 mt-1 block">
+                              {count} {count > 1 ? 'photos' : 'photo'}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     )
                   })}
                 </div>
 
-                {/* Album header */}
-                {currentEdition && (
-                  <div className="mb-12 text-center">
-                    <div className="w-16 h-1 bg-gsc-red mx-auto mb-6" />
-                    <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider">
-                      {currentEdition.title}
-                    </h2>
-                    <p className="text-sm text-gsc-white/40 mt-3">
-                      {currentEdition.year} - {currentEdition.type === 'basket' ? 'Camp Basket' : 'Multisport'}
-                      {currentMedia.length > 0 && (
-                        <span className="ml-2">· {currentMedia.length} {currentMedia.length > 1 ? 'photos' : 'photo'}</span>
-                      )}
-                    </p>
-                  </div>
-                )}
+                {/* Active album */}
+                {currentEdition && currentMedia.length > 0 && (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeEdition}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      {/* Album header */}
+                      <div className="mb-10 text-center">
+                        <div className="w-16 h-1 bg-gsc-red mx-auto mb-6" />
+                        <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl text-gsc-white tracking-wider">
+                          {currentEdition.title}
+                        </h2>
+                        <p className="text-sm text-gsc-white/40 mt-3">
+                          {currentEdition.year} - {currentEdition.type === 'basket' ? 'Camp Basket' : 'Multisport'}
+                          <span className="ml-2">· {currentMedia.length} {currentMedia.length > 1 ? 'photos' : 'photo'}</span>
+                        </p>
+                      </div>
 
-                {/* Gallery grid */}
-                {currentMedia.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="w-20 h-20 bg-gsc-gray/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Camera size={28} className="text-gsc-white/20" />
-                    </div>
-                    <p className="text-gsc-white/30 text-sm">
-                      Aucune photo dans cette édition pour le moment.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {currentMedia.map((media, idx) => (
-                      <button
-                        key={media.id}
-                        onClick={() => setLightboxIndex(idx)}
-                        className="group aspect-square bg-gsc-gray/30 overflow-hidden relative"
-                      >
-                        {media.url ? (
-                          media.type === 'image' ? (
-                            <img
-                              src={media.url}
-                              alt={media.alt || ''}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full relative">
-                              <img
-                                src={media.thumbnail_url || media.url}
-                                alt=""
-                                className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
-                                loading="lazy"
-                              />
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-14 h-14 rounded-full bg-gsc-red/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                  <Play size={22} className="text-white ml-0.5" />
+                      {/* Gallery grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                        {currentMedia.map((media, idx) => (
+                          <button
+                            key={media.id}
+                            onClick={() => setLightboxIndex(idx)}
+                            className="group aspect-square bg-gsc-gray/30 overflow-hidden relative"
+                          >
+                            {media.url ? (
+                              media.type === 'image' ? (
+                                <img
+                                  src={media.url}
+                                  alt={media.alt || ''}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full relative">
+                                  <img
+                                    src={media.thumbnail_url || media.url}
+                                    alt=""
+                                    className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
+                                    loading="lazy"
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-14 h-14 rounded-full bg-gsc-red/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                      <Play size={22} className="text-white ml-0.5" />
+                                    </div>
+                                  </div>
                                 </div>
+                              )
+                            ) : (
+                              <div className="w-full h-full bg-gsc-gray/40 flex items-center justify-center text-gsc-white/10 font-heading text-4xl">
+                                ?
                               </div>
-                            </div>
-                          )
-                        ) : (
-                          <div className="w-full h-full bg-gsc-gray/40 flex items-center justify-center text-gsc-white/10 font-heading text-4xl">
-                            ?
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
-                  </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
                 )}
               </>
             )}

@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Star, Users, Clock, Shield } from 'lucide-react'
+import { ArrowRight, Star, Users, Clock, Shield, Camera } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
 import InfiniteCoachCarousel from '@/components/InfiniteCoachCarousel'
 import { getCoaches, getTestimonials, getEditions, getAllMedia, getOffers } from '@/lib/data-service'
-import type { Coach, Testimonial, MemoryMedia, CampOffer } from '@/lib/types'
+import type { Coach, Testimonial, Edition, MemoryMedia, CampOffer } from '@/lib/types'
 
 const stats = [
   { value: '3', label: 'Années d\'existence', icon: Clock },
@@ -45,7 +45,7 @@ const whyCards = [
 export default function Home() {
   const [dynamicCoaches, setDynamicCoaches] = useState<Coach[]>([])
   const [dynamicTestimonials, setDynamicTestimonials] = useState<Testimonial[]>([])
-  const [previewMedia, setPreviewMedia] = useState<MemoryMedia[]>([])
+  const [editionPreviews, setEditionPreviews] = useState<{edition: Edition; cover: MemoryMedia | null; count: number}[]>([])
   const [offers, setOffers] = useState<CampOffer[]>([])
   const basketOffer = offers.find((o) => o.type === 'basket')
   const multiOffer = offers.find((o) => o.type === 'multisport')
@@ -61,7 +61,17 @@ export default function Home() {
       ])
       setDynamicCoaches(cos)
       setDynamicTestimonials(tms)
-      setPreviewMedia(allMedia.slice(0, 4))
+      const grouped: Record<string, MemoryMedia[]> = {}
+      for (const m of allMedia) {
+        if (!grouped[m.edition_id]) grouped[m.edition_id] = []
+        grouped[m.edition_id].push(m)
+      }
+      const previews = eds.map(ed => ({
+        edition: ed,
+        cover: (grouped[ed.id] || []).find(m => m.type === 'image') || (grouped[ed.id] || [])[0] || null,
+        count: (grouped[ed.id] || []).length,
+      })).reverse()
+      setEditionPreviews(previews)
       setOffers(offs)
     }
     load()
@@ -266,39 +276,74 @@ export default function Home() {
           </div>
         </AnimatedSection>
 
-        {/* Memories preview */}
+        {/* Memories - albums by edition */}
         <AnimatedSection className="py-24 px-4" delay={0.1}>
           <div className="max-w-6xl mx-auto">
-            <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-16">
+            <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-4">
               Memories
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {previewMedia.length > 0 ? (
-                previewMedia.map((media) => (
-                  <div
-                    key={media.id}
-                    className="aspect-square bg-gsc-gray/30 overflow-hidden"
+            <p className="text-center text-gsc-white/40 text-sm mb-16 max-w-xl mx-auto">
+              Chaque édition, un album. Plonge dans les souvenirs.
+            </p>
+            {editionPreviews.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                {editionPreviews.map((preview) => (
+                  <Link
+                    key={preview.edition.id}
+                    href="/memories"
+                    className="group relative aspect-[3/4] overflow-hidden bg-gsc-gray/30 block"
                   >
-                    {media.type === 'image' ? (
-                      <img src={media.url} alt={media.alt || ''} className="w-full h-full object-cover" loading="lazy" />
+                    {preview.cover ? (
+                      <img
+                        src={preview.cover.url}
+                        alt=""
+                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                        loading="lazy"
+                      />
                     ) : (
-                      <div className="w-full h-full bg-gsc-gray/40 flex items-center justify-center text-gsc-white/20 font-heading text-4xl">
-                        ▶
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Camera size={48} className="text-gsc-white/10" />
                       </div>
                     )}
-                  </div>
-                ))
-              ) : (
-                [1, 2, 3, 4].map((i) => (
-                  <div key={i} className="aspect-square bg-gsc-gray/30 overflow-hidden">
-                    <div className="w-full h-full bg-gsc-gray/40 flex items-center justify-center text-gsc-white/10 font-heading text-4xl">
-                      {i}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute top-4 right-4">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 ${
+                        preview.edition.type === 'basket'
+                          ? 'bg-gsc-red text-white'
+                          : 'bg-gsc-orange text-white'
+                      }`}>
+                        {preview.edition.type === 'basket' ? 'BASKET' : 'MULTISPORT'}
+                      </span>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className="text-center mt-10">
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="font-heading text-6xl sm:text-7xl text-gsc-white tracking-wider leading-none">
+                        {preview.edition.year}
+                      </h3>
+                      {preview.edition.title && (
+                        <p className="text-sm text-gsc-white/60 mt-2 font-medium line-clamp-2">
+                          {preview.edition.title}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-3">
+                        <Camera size={12} className="text-gsc-white/40" />
+                        <span className="text-xs text-gsc-white/40">
+                          {preview.count} {preview.count > 1 ? 'photos' : 'photo'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-1 bg-gsc-red scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                    <div className="absolute inset-0 bg-gsc-red/0 group-hover:bg-gsc-red/5 transition-colors duration-500" />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <Camera size={48} className="text-gsc-white/10 mx-auto mb-4" />
+                <p className="text-gsc-white/30 font-heading text-3xl">Aucun souvenir pour le moment</p>
+                <p className="text-gsc-white/20 text-sm mt-4">Les photos arrivent bientôt !</p>
+              </div>
+            )}
+            <div className="text-center mt-12">
               <Link
                 href="/memories"
                 className="inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider hover:gap-3 transition-all"
