@@ -1,4 +1,6 @@
 import { supabase } from './supabase'
+import { compressImage } from './compress-image'
+import { getItem, setItem } from './storage'
 import type {
   Edition,
   MemoryMedia,
@@ -11,24 +13,19 @@ import type {
 } from './types'
 import { coaches as fallbackCoaches, testimonials as fallbackTestimonials, faqItems as fallbackFAQ } from './data'
 
-const STORAGE_KEY = 'gsc_data'
 const SUPABASE_CONFIGURED = !!(
   process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-function getLocalData<T>(key: string): T[] {
+async function getLocalData<T>(key: string): Promise<T[]> {
   if (typeof window === 'undefined') return []
-  try {
-    const raw = localStorage.getItem(`${STORAGE_KEY}_${key}`)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
+  const data = await getItem<T[]>(key)
+  return data ?? []
 }
 
-function setLocalData<T>(key: string, data: T[]) {
+async function setLocalData<T>(key: string, data: T[]) {
   if (typeof window === 'undefined') return
-  localStorage.setItem(`${STORAGE_KEY}_${key}`, JSON.stringify(data))
+  await setItem(key, data)
 }
 
 function generateId(): string {
@@ -38,12 +35,12 @@ function generateId(): string {
 // ─── Editions ───
 
 export async function getEditions(): Promise<Edition[]> {
-  const local = getLocalData<Edition>('editions')
+  const local = await getLocalData<Edition>('editions')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('editions').select('*').order('year', { ascending: false })
     if (data && data.length > 0) {
-      setLocalData('editions', data)
+      await setLocalData('editions', data)
       return data
     }
   }
@@ -56,16 +53,16 @@ export async function createEdition(edition: Omit<Edition, 'id'>): Promise<Editi
     try {
       const { data } = await supabase.from('editions').insert(newEdition).select().single()
       if (data) {
-        const items = [...getLocalData<Edition>('editions'), data]
-        setLocalData('editions', items)
+        const items = [...await getLocalData<Edition>('editions'), data]
+        await setLocalData('editions', items)
         return data
       }
     } catch (e) {
-      console.warn('Supabase create edition error, using localStorage:', e)
+      console.warn('Supabase create edition error, using local storage:', e)
     }
   }
-  const items = [...getLocalData<Edition>('editions'), newEdition]
-  setLocalData('editions', items)
+  const items = [...await getLocalData<Edition>('editions'), newEdition]
+  await setLocalData('editions', items)
   return newEdition
 }
 
@@ -78,56 +75,61 @@ export async function deleteEdition(id: string): Promise<void> {
       console.warn('Supabase delete edition error:', e)
     }
   }
-  const items = getLocalData<Edition>('editions').filter((e) => e.id !== id)
-  setLocalData('editions', items)
+  const items = (await getLocalData<Edition>('editions')).filter((e) => e.id !== id)
+  await setLocalData('editions', items)
 }
 
 // ─── Memories / Media ───
 
 export async function getMediaByEdition(editionId: string): Promise<MemoryMedia[]> {
-  const local = getLocalData<MemoryMedia>('media').filter((m) => m.edition_id === editionId)
-  if (local.length > 0) return local
+  let supabaseData: MemoryMedia[] = []
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase
       .from('memory_media')
       .select('*')
       .eq('edition_id', editionId)
       .order('created_at', { ascending: false })
-    if (data) {
-      const current = getLocalData<MemoryMedia>('media')
-      const existing = new Set(current.map((m) => m.id))
-      const merged = [...current, ...data.filter((m) => !existing.has(m.id))]
-      setLocalData('media', merged)
-      return data
-    }
+    if (data) supabaseData = data
   }
+
+  const allMedia = await getLocalData<MemoryMedia>('media')
+  const local = allMedia.filter((m) => m.edition_id === editionId)
+
+  if (supabaseData.length > 0) {
+    const existingIds = new Set(supabaseData.map((m) => m.id))
+    const merged = [...supabaseData, ...local.filter((m) => !existingIds.has(m.id))]
+    const allExisting = new Set(allMedia.map((m) => m.id))
+    const updatedAll = [...allMedia, ...supabaseData.filter((m) => !allExisting.has(m.id))]
+    await setLocalData('media', updatedAll)
+    return merged
+  }
+
   return local
 }
 
 export async function uploadMedia(editionId: string, file: File): Promise<MemoryMedia> {
-  const id = generateId()
-  const ext = file.name.split('.').pop()
-  const type = file.type.startsWith('video/') ? 'video' : 'image'
+  let processedFile = file
+  if (file.type.startsWith('image/') && file.size > 50_000) {
+    processedFile = await compressImage(file)
+  }
 
+  const id = generateId()
+  const type = processedFile.type.startsWith('video/') ? 'video' : 'image'
   const b64 = await new Promise<string>((resolve) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(processedFile)
   })
+
   const media: MemoryMedia = { id, edition_id: editionId, url: b64, type, created_at: new Date().toISOString() }
-  const items = [...getLocalData<MemoryMedia>('media'), media]
-  setLocalData('media', items)
+  const items = [...await getLocalData<MemoryMedia>('media'), media]
+  await setLocalData('media', items)
 
   if (SUPABASE_CONFIGURED) {
-    const fileName = `${editionId}/${id}.${ext}`
-    supabase.storage.from('memories').upload(fileName, file)
-      .then(async ({ data }) => {
-        if (data) {
-          const { data: urlData } = supabase.storage.from('memories').getPublicUrl(fileName)
-          if (urlData) await supabase.from('memory_media').insert({ ...media, url: urlData.publicUrl })
-        }
-      })
-      .catch(() => {})
+    ;(async () => {
+      const { error } = await supabase.from('memory_media').insert(media)
+      if (error) console.warn('Supabase insert error:', error.message)
+    })()
   }
 
   return media
@@ -142,14 +144,14 @@ export async function deleteMedia(id: string): Promise<void> {
       console.warn('Supabase delete media error:', e)
     }
   }
-  const items = getLocalData<MemoryMedia>('media').filter((m) => m.id !== id)
-  setLocalData('media', items)
+  const items = (await getLocalData<MemoryMedia>('media')).filter((m) => m.id !== id)
+  await setLocalData('media', items)
 }
 
 // ─── Coachs ───
 
 export async function getCoaches(): Promise<Coach[]> {
-  const local = getLocalData<Coach>('coaches')
+  const local = await getLocalData<Coach>('coaches')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('coaches').select('*').order('order', { ascending: true })
@@ -160,7 +162,7 @@ export async function getCoaches(): Promise<Coach[]> {
         if (!existingIds.has(fb.id)) merged.push(fb)
       }
       merged.sort((a, b) => a.order - b.order)
-      setLocalData('coaches', merged)
+      await setLocalData('coaches', merged)
       return merged
     }
   }
@@ -173,16 +175,16 @@ export async function createCoach(coach: Omit<Coach, 'id'>): Promise<Coach> {
     try {
       const { data } = await supabase.from('coaches').insert(newCoach).select().single()
       if (data) {
-        const items = [...getLocalData<Coach>('coaches'), data]
-        setLocalData('coaches', items)
+        const items = [...await getLocalData<Coach>('coaches'), data]
+        await setLocalData('coaches', items)
         return data
       }
     } catch (e) {
-      console.warn('Supabase create coach error, using localStorage:', e)
+      console.warn('Supabase create coach error, using local storage:', e)
     }
   }
-  const items = [...getLocalData<Coach>('coaches'), newCoach]
-  setLocalData('coaches', items)
+  const items = [...await getLocalData<Coach>('coaches'), newCoach]
+  await setLocalData('coaches', items)
   return newCoach
 }
 
@@ -191,22 +193,22 @@ export async function updateCoach(id: string, data: Partial<Coach>): Promise<Coa
     try {
       const { data: updated } = await supabase.from('coaches').update(data).eq('id', id).select().single()
       if (updated) {
-        const items = getLocalData<Coach>('coaches')
+        const items = await getLocalData<Coach>('coaches')
         const idx = items.findIndex((c) => c.id === id)
         if (idx !== -1) items[idx] = { ...items[idx], ...updated }
         else items.push(updated)
-        setLocalData('coaches', items)
+        await setLocalData('coaches', items)
         return updated
       }
     } catch (e) {
-      console.warn('Supabase update coach error, using localStorage:', e)
+      console.warn('Supabase update coach error, using local storage:', e)
     }
   }
-  const items = getLocalData<Coach>('coaches')
+  const items = await getLocalData<Coach>('coaches')
   const idx = items.findIndex((c) => c.id === id)
   if (idx !== -1) {
     items[idx] = { ...items[idx], ...data }
-    setLocalData('coaches', items)
+    await setLocalData('coaches', items)
     return items[idx]
   }
   throw new Error('Coach not found')
@@ -221,19 +223,19 @@ export async function deleteCoach(id: string): Promise<void> {
       console.warn('Supabase delete coach error:', e)
     }
   }
-  const items = getLocalData<Coach>('coaches').filter((c) => c.id !== id)
-  setLocalData('coaches', items)
+  const items = (await getLocalData<Coach>('coaches')).filter((c) => c.id !== id)
+  await setLocalData('coaches', items)
 }
 
 // ─── Testimonials ───
 
 export async function getTestimonials(): Promise<Testimonial[]> {
-  const local = getLocalData<Testimonial>('testimonials')
+  const local = await getLocalData<Testimonial>('testimonials')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false })
     if (data && data.length > 0) {
-      setLocalData('testimonials', data)
+      await setLocalData('testimonials', data)
       return data
     }
   }
@@ -246,16 +248,16 @@ export async function createTestimonial(t: Omit<Testimonial, 'id'>): Promise<Tes
     try {
       const { data } = await supabase.from('testimonials').insert(newItem).select().single()
       if (data) {
-        const items = [...getLocalData<Testimonial>('testimonials'), data]
-        setLocalData('testimonials', items)
+        const items = [...await getLocalData<Testimonial>('testimonials'), data]
+        await setLocalData('testimonials', items)
         return data
       }
     } catch (e) {
-      console.warn('Supabase create testimonial error, using localStorage:', e)
+      console.warn('Supabase create testimonial error, using local storage:', e)
     }
   }
-  const items = [...getLocalData<Testimonial>('testimonials'), newItem]
-  setLocalData('testimonials', items)
+  const items = [...await getLocalData<Testimonial>('testimonials'), newItem]
+  await setLocalData('testimonials', items)
   return newItem
 }
 
@@ -268,19 +270,19 @@ export async function deleteTestimonial(id: string): Promise<void> {
       console.warn('Supabase delete testimonial error:', e)
     }
   }
-  const items = getLocalData<Testimonial>('testimonials').filter((t) => t.id !== id)
-  setLocalData('testimonials', items)
+  const items = (await getLocalData<Testimonial>('testimonials')).filter((t) => t.id !== id)
+  await setLocalData('testimonials', items)
 }
 
 // ─── FAQ ───
 
 export async function getFAQItems(): Promise<FAQItem[]> {
-  const local = getLocalData<FAQItem>('faq')
+  const local = await getLocalData<FAQItem>('faq')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('faq_items').select('*').order('order', { ascending: true })
     if (data && data.length > 0) {
-      setLocalData('faq', data)
+      await setLocalData('faq', data)
       return data
     }
   }
@@ -293,16 +295,16 @@ export async function createFAQItem(item: Omit<FAQItem, 'id'>): Promise<FAQItem>
     try {
       const { data } = await supabase.from('faq_items').insert(newItem).select().single()
       if (data) {
-        const items = [...getLocalData<FAQItem>('faq'), data]
-        setLocalData('faq', items)
+        const items = [...await getLocalData<FAQItem>('faq'), data]
+        await setLocalData('faq', items)
         return data
       }
     } catch (e) {
-      console.warn('Supabase create FAQ error, using localStorage:', e)
+      console.warn('Supabase create FAQ error, using local storage:', e)
     }
   }
-  const items = [...getLocalData<FAQItem>('faq'), newItem]
-  setLocalData('faq', items)
+  const items = [...await getLocalData<FAQItem>('faq'), newItem]
+  await setLocalData('faq', items)
   return newItem
 }
 
@@ -311,22 +313,22 @@ export async function updateFAQItem(id: string, data: Partial<FAQItem>): Promise
     try {
       const { data: updated } = await supabase.from('faq_items').update(data).eq('id', id).select().single()
       if (updated) {
-        const items = getLocalData<FAQItem>('faq')
+        const items = await getLocalData<FAQItem>('faq')
         const idx = items.findIndex((f) => f.id === id)
         if (idx !== -1) items[idx] = { ...items[idx], ...updated }
         else items.push(updated)
-        setLocalData('faq', items)
+        await setLocalData('faq', items)
         return updated
       }
     } catch (e) {
-      console.warn('Supabase update FAQ error, using localStorage:', e)
+      console.warn('Supabase update FAQ error, using local storage:', e)
     }
   }
-  const items = getLocalData<FAQItem>('faq')
+  const items = await getLocalData<FAQItem>('faq')
   const idx = items.findIndex((f) => f.id === id)
   if (idx !== -1) {
     items[idx] = { ...items[idx], ...data }
-    setLocalData('faq', items)
+    await setLocalData('faq', items)
     return items[idx]
   }
   throw new Error('FAQ item not found')
@@ -341,19 +343,19 @@ export async function deleteFAQItem(id: string): Promise<void> {
       console.warn('Supabase delete FAQ error:', e)
     }
   }
-  const items = getLocalData<FAQItem>('faq').filter((f) => f.id !== id)
-  setLocalData('faq', items)
+  const items = (await getLocalData<FAQItem>('faq')).filter((f) => f.id !== id)
+  await setLocalData('faq', items)
 }
 
 // ─── Offers ───
 
 export async function getOffers(): Promise<CampOffer[]> {
-  const local = getLocalData<CampOffer>('offers')
+  const local = await getLocalData<CampOffer>('offers')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('offers').select('*')
     if (data && data.length > 0) {
-      setLocalData('offers', data)
+      await setLocalData('offers', data)
       return data
     }
   }
@@ -365,22 +367,22 @@ export async function updateOffer(id: string, data: Partial<CampOffer>): Promise
     try {
       const { data: updated } = await supabase.from('offers').update(data).eq('id', id).select().single()
       if (updated) {
-        const items = getLocalData<CampOffer>('offers')
+        const items = await getLocalData<CampOffer>('offers')
         const idx = items.findIndex((o) => o.id === id)
         if (idx !== -1) items[idx] = { ...items[idx], ...updated }
         else items.push(updated)
-        setLocalData('offers', items)
+        await setLocalData('offers', items)
         return updated
       }
     } catch (e) {
-      console.warn('Supabase update offer error, using localStorage:', e)
+      console.warn('Supabase update offer error, using local storage:', e)
     }
   }
-  const items = getLocalData<CampOffer>('offers')
+  const items = await getLocalData<CampOffer>('offers')
   const idx = items.findIndex((o) => o.id === id)
   if (idx !== -1) {
     items[idx] = { ...items[idx], ...data }
-    setLocalData('offers', items)
+    await setLocalData('offers', items)
     return items[idx]
   }
   throw new Error('Offer not found')
@@ -389,12 +391,12 @@ export async function updateOffer(id: string, data: Partial<CampOffer>): Promise
 // ─── Inscriptions ───
 
 export async function getInscriptions(): Promise<Inscription[]> {
-  const local = getLocalData<Inscription>('inscriptions')
+  const local = await getLocalData<Inscription>('inscriptions')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('inscriptions').select('*').order('created_at', { ascending: false })
     if (data) {
-      setLocalData('inscriptions', data)
+      await setLocalData('inscriptions', data)
       return data
     }
   }
@@ -407,9 +409,9 @@ export async function createInscription(inscription: Omit<Inscription, 'id'>): P
     const { data } = await supabase.from('inscriptions').insert(newItem).select().single()
     if (data) return data
   }
-  const items = getLocalData<Inscription>('inscriptions')
+  const items = await getLocalData<Inscription>('inscriptions')
   items.push(newItem)
-  setLocalData('inscriptions', items)
+  await setLocalData('inscriptions', items)
   return newItem
 }
 
@@ -425,12 +427,12 @@ export function exportInscriptionsCSV(inscriptions: Inscription[]): string {
 // ─── Contact Messages ───
 
 export async function getContactMessages(): Promise<ContactMessage[]> {
-  const local = getLocalData<ContactMessage>('messages')
+  const local = await getLocalData<ContactMessage>('messages')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false })
     if (data) {
-      setLocalData('messages', data)
+      await setLocalData('messages', data)
       return data
     }
   }
@@ -443,9 +445,9 @@ export async function createContactMessage(msg: Omit<ContactMessage, 'id'>): Pro
     const { data } = await supabase.from('contact_messages').insert(newItem).select().single()
     if (data) return data
   }
-  const items = getLocalData<ContactMessage>('messages')
+  const items = await getLocalData<ContactMessage>('messages')
   items.push(newItem)
-  setLocalData('messages', items)
+  await setLocalData('messages', items)
   return newItem
 }
 
@@ -463,12 +465,12 @@ export async function getEditionById(id: string): Promise<Edition | null> {
 }
 
 export async function getAllMedia(): Promise<MemoryMedia[]> {
-  const local = getLocalData<MemoryMedia>('media')
+  const local = await getLocalData<MemoryMedia>('media')
   if (local.length > 0) return local
   if (SUPABASE_CONFIGURED) {
     const { data } = await supabase.from('memory_media').select('*').order('created_at', { ascending: false })
     if (data) {
-      setLocalData('media', data)
+      await setLocalData('media', data)
       return data
     }
   }

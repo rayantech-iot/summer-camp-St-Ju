@@ -237,15 +237,24 @@ export default function AdminPage() {
                                        alert('Maximum 20 fichiers à la fois')
                                        return
                                      }
+                                     const valid = Array.from(files).filter(f => f.size <= 20 * 1024 * 1024)
+                                     const oversize = files.length - valid.length
+                                     if (oversize > 0) alert(`${oversize} fichier(s) ignorés ( > 20 Mo)`)
+                                     if (valid.length === 0) { e.target.value = ''; return }
                                      setUploading(ed.id)
-                                     try {
-                                       for (const f of Array.from(files)) {
+                                     let errors = 0
+                                     for (const f of valid) {
+                                       try {
                                          await uploadMedia(ed.id, f)
+                                       } catch (err) {
+                                         console.error('Upload error:', f.name, err)
+                                         errors++
                                        }
-                                     } catch (err) {
-                                       console.error('Upload error:', err)
                                      }
                                      setUploading(null)
+                                     if (errors > 0) {
+                                       alert(`${errors} fichier(s) sur ${valid.length} n'ont pas pu être importés.`)
+                                     }
                                      const updated = await getMediaByEdition(ed.id)
                                      setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
                                      e.target.value = ''
@@ -661,7 +670,11 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
       // Upload files in background, close dialog immediately
       onDone()
       for (const f of files) {
-        await uploadMedia(edition.id, f)
+        try {
+          await uploadMedia(edition.id, f)
+        } catch (err) {
+          console.error('Upload error:', f.name, err)
+        }
       }
     } catch (err) {
       console.error('Edition save error:', err)
@@ -676,7 +689,10 @@ function NewEditionDialog({ onDone }: { onDone: () => void }) {
       alert('Maximum 20 images')
       return
     }
-    setFiles(selected)
+    const valid = selected.filter(f => f.size <= 20 * 1024 * 1024)
+    const oversize = selected.length - valid.length
+    if (oversize > 0) alert(`${oversize} fichier(s) trop volumineux (> 20 Mo) ont été ignorés`)
+    setFiles(valid)
     e.target.value = ''
   }
 
