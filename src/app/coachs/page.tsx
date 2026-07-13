@@ -43,7 +43,7 @@ export default function CoachsPage() {
                     <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">D</div>
                   )}
                   <div className="absolute top-4 left-4 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                    {t('coachs.badge.organizer')}
+                    DIRECTEUR DU CAMP
                   </div>
                 </div>
                 <div>
@@ -56,10 +56,7 @@ export default function CoachsPage() {
                     {dodzi.name}
                   </h2>
                   <p className="text-gsc-red font-bold uppercase text-sm tracking-wider mt-3">
-                    Éducateur Sportif Responsable BCSJ
-                  </p>
-                  <p className="text-gsc-white/50 text-sm mt-1">
-                    {dodzi.role}
+                    Éducateur Sportif
                   </p>
                   <div className="w-12 h-0.5 bg-gsc-red mt-6 mb-6" />
                   <p className="text-gsc-white/70 leading-relaxed">{dodzi.bio}</p>
