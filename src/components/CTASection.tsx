@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface Props {
   title: string
@@ -12,11 +15,12 @@ interface Props {
 export default function CTASection({
   title,
   subtitle,
-  primaryLabel = 'Je m\'inscris',
+  primaryLabel,
   primaryHref = '/inscription',
   secondaryLabel,
   secondaryHref,
 }: Props) {
+  const { t } = useLanguage()
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-gsc-black via-gsc-red/10 to-gsc-black" />
@@ -34,7 +38,7 @@ export default function CTASection({
             href={primaryHref}
             className="bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-4 font-bold uppercase tracking-wider text-sm transition-all hover:scale-105 inline-block"
           >
-            {primaryLabel}
+            {primaryLabel || t('cta.defaultLabel')}
           </Link>
           {secondaryLabel && secondaryHref && (
             <Link

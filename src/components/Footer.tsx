@@ -45,7 +45,7 @@ export default function Footer() {
           <div>
             <h3 className="font-heading text-lg text-gsc-white tracking-wider mb-4">{t('footer.contactTitle')}</h3>
             <ul className="space-y-2 text-sm text-gsc-white/60">
-              <li>Dodzi +33 6 58 15 29 27</li>
+              <li>{t('footer.contactPhone')}</li>
               <li>{t('footer.location')}</li>
               <li>{t('footer.region')}</li>
               <li>{t('footer.distance')}</li>

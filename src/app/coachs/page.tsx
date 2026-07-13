@@ -43,7 +43,7 @@ export default function CoachsPage() {
                     <div className="w-full h-full bg-gsc-gray/50 flex items-center justify-center text-gsc-white/10 font-heading text-8xl">D</div>
                   )}
                   <div className="absolute top-4 left-4 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                    DIRECTEUR DU CAMP
+                    {t('coachs.dodzi.badge')}
                   </div>
                 </div>
                 <div>
@@ -56,7 +56,7 @@ export default function CoachsPage() {
                     {dodzi.name}
                   </h2>
                   <p className="text-gsc-red font-bold uppercase text-sm tracking-wider mt-3">
-                    Éducateur Sportif
+                    {t('coachs.dodzi.title')}
                   </p>
                   <div className="w-12 h-0.5 bg-gsc-red mt-6 mb-6" />
                   <p className="text-gsc-white/70 leading-relaxed">{dodzi.bio}</p>
@@ -100,10 +100,10 @@ export default function CoachsPage() {
                     {mike.name}
                   </h2>
                   <p className="text-gsc-red font-bold uppercase text-sm tracking-wider mt-3">
-                    Ex-entraîneur de Victor Wembanyama
+                    {t('coachs.mike.title')}
                   </p>
                   <p className="text-gsc-white/50 text-sm mt-1">
-                    Directeur du centre de formation Nanterre 92 (Pro A)
+                    {t('coachs.mike.role')}
                   </p>
                   <div className="w-12 h-0.5 bg-gsc-red mt-6 mb-6" />
                   <p className="text-gsc-white/70 leading-relaxed">{mike.bio}</p>

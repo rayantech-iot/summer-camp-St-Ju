@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { X, AlertTriangle } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface ConfirmOptions {
   title: string
@@ -26,6 +27,7 @@ export function confirm(options: ConfirmOptions): Promise<boolean> {
 export default function ConfirmDialogGlobal() {
   const [open, setOpen] = useState(false)
   const [options, setOptions] = useState<ConfirmOptions>({ title: '', message: '' })
+  const { t } = useLanguage()
 
   const trigger = useCallback(() => {
     setOptions({ ...confirmOptions })
@@ -74,7 +76,7 @@ export default function ConfirmDialogGlobal() {
             onClick={handleCancel}
             className="flex-1 border border-gsc-gray/40 text-gsc-white/70 hover:text-gsc-white hover:border-gsc-gray/30 px-4 py-3 text-sm font-bold uppercase tracking-wider transition-all"
           >
-            {options.cancelLabel || 'Annuler'}
+            {options.cancelLabel || t('confirmDialog.cancel')}
           </button>
           <button
             onClick={handleConfirm}
@@ -82,7 +84,7 @@ export default function ConfirmDialogGlobal() {
               isDanger ? 'bg-gsc-red hover:bg-gsc-red/90' : 'bg-gsc-orange hover:bg-gsc-orange/90'
             }`}
           >
-            {options.confirmLabel || 'Confirmer'}
+            {options.confirmLabel || t('confirmDialog.confirm')}
           </button>
         </div>
       </div>

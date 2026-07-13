@@ -100,6 +100,7 @@ const fr: Translations = {
   'footer.cgv': 'CGV',
   'footer.privacy': 'Politique de confidentialité',
   'footer.rights': 'Tous droits réservés.',
+  'footer.contactPhone': 'Dodzi +33 6 58 15 29 27',
 
   // CTA section (default)
   'cta.defaultLabel': "Je m'inscris",
@@ -214,6 +215,10 @@ const fr: Translations = {
   'coachs.cta.title': "Prêt à t'entraîner avec les meilleurs\u00a0?",
   'coachs.cta.subtitle': "Rejoins-nous cet été et progresse aux côtés de coachs d'exception.",
   'coachs.cta.register': "Je m'inscris",
+  'coachs.dodzi.badge': 'DIRECTEUR DU CAMP',
+  'coachs.dodzi.title': 'Éducateur Sportif',
+  'coachs.mike.title': 'Ex-entraîneur de Victor Wembanyama',
+  'coachs.mike.role': 'Directeur du centre de formation Nanterre 92 (Pro A)',
 
   // Témoignages page
   'testimonialsPage.hero.title': 'Témoignages',
@@ -255,6 +260,8 @@ const fr: Translations = {
   'contact.form.message': 'Message *',
   'contact.form.sending': 'Envoi...',
   'contact.form.send': 'Envoyer',
+  'contact.info.dodzi': 'Dodzi',
+  'contact.info.email': 'contact@genevoissummercamp.fr',
 
   // Inscription page
   'inscription.hero.title': 'Inscription',
@@ -275,6 +282,8 @@ const fr: Translations = {
   'common.multisport': 'Multisport',
   'common.loading': 'Chargement...',
   'common.viewAll': 'Voir tout',
+  'confirmDialog.cancel': 'Annuler',
+  'confirmDialog.confirm': 'Confirmer',
 }
 
 const en: Translations = {
@@ -375,6 +384,7 @@ const en: Translations = {
   'footer.cgv': 'Terms of sale',
   'footer.privacy': 'Privacy policy',
   'footer.rights': 'All rights reserved.',
+  'footer.contactPhone': 'Dodzi +33 6 58 15 29 27',
 
   // CTA section (default)
   'cta.defaultLabel': 'Register now',
@@ -489,6 +499,10 @@ const en: Translations = {
   'coachs.cta.title': "Ready to train with the best?",
   'coachs.cta.subtitle': "Join us this summer and improve alongside exceptional coaches.",
   'coachs.cta.register': 'Register now',
+  'coachs.dodzi.badge': 'CAMP DIRECTOR',
+  'coachs.dodzi.title': 'Sports Educator',
+  'coachs.mike.title': 'Former coach of Victor Wembanyama',
+  'coachs.mike.role': 'Director of Nanterre 92 training center (Pro A)',
 
   // Témoignages page
   'testimonialsPage.hero.title': 'Testimonials',
@@ -530,6 +544,8 @@ const en: Translations = {
   'contact.form.message': 'Message *',
   'contact.form.sending': 'Sending...',
   'contact.form.send': 'Send',
+  'contact.info.dodzi': 'Dodzi',
+  'contact.info.email': 'contact@genevoissummercamp.fr',
 
   // Inscription page
   'inscription.hero.title': 'Register',
@@ -550,6 +566,8 @@ const en: Translations = {
   'common.multisport': 'Multisport',
   'common.loading': 'Loading...',
   'common.viewAll': 'View all',
+  'confirmDialog.cancel': 'Cancel',
+  'confirmDialog.confirm': 'Confirm',
 }
 
 export const translations: Record<Lang, Translations> = { fr, en }
