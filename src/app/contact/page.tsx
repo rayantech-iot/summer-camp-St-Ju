@@ -94,7 +94,7 @@ export default function ContactPage() {
                     {t('contact.social.instagram')}
                   </a>
                   <a
-                    href="https://facebook.com/genevoissummercamp"
+                    href="https://www.facebook.com/profile.php?id=61579220395188"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"

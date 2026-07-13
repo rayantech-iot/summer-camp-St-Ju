@@ -63,6 +63,14 @@ export default function Footer() {
               >
                 <ExternalLink size={16} /> Instagram
               </a>
+              <a
+                href="https://www.facebook.com/profile.php?id=61579220395188"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
+              >
+                <ExternalLink size={16} /> Facebook
+              </a>
             </div>
             <div className="mt-6 space-y-1">
               <Link href="/mentions-legales" className="block text-xs text-gsc-white/40 hover:text-gsc-red transition-colors">
