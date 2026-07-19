@@ -7,8 +7,8 @@ import dynamic from 'next/dynamic'
 import { ArrowRight, Check } from 'lucide-react'
 import Header from '@/components/Header'
 import AnimatedSection from '@/components/AnimatedSection'
-import { getOffers } from '@/lib/data-service'
-import type { CampOffer } from '@/lib/types'
+import { getOffers, getSiteConfig } from '@/lib/data-service'
+import type { CampOffer, SiteConfig } from '@/lib/types'
 import { coaches } from '@/lib/data'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -28,10 +28,15 @@ const includedKeys = [
 export default function CampBasketPage() {
   const { t } = useLanguage()
   const [offers, setOffers] = useState<CampOffer[]>([])
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ sessions: [] })
   const basketOffer = offers.find((o) => o.type === 'basket')
+  const basketSessions = siteConfig.sessions.filter(s => s.basket_dates)
 
   useEffect(() => {
-    getOffers().then(setOffers)
+    Promise.all([getOffers(), getSiteConfig()]).then(([offers, config]) => {
+      setOffers(offers)
+      setSiteConfig(config)
+    })
   }, [])
   return (
     <>
@@ -69,14 +74,16 @@ export default function CampBasketPage() {
               </Link>
             </div>
             <div className="space-y-4">
-              <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
-                <h3 className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.session1')}</h3>
-                <p className="text-sm text-gsc-white/50 mt-1">{t('campBasket.session1Label')}</p>
-              </div>
-              <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
-                <h3 className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.session2')}</h3>
-                <p className="text-sm text-gsc-white/50 mt-1">{t('campBasket.session2Label')}</p>
-              </div>
+              {basketSessions.length > 0 ? basketSessions.map((s, i) => (
+                <div key={i} className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
+                  <h3 className="font-heading text-lg text-gsc-white tracking-wider">{s.basket_dates}</h3>
+                  <p className="text-sm text-gsc-white/50 mt-1">{t('campBasket.sessionLabel')} {i + 1}</p>
+                </div>
+              )) : (
+                <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
+                  <p className="text-sm text-gsc-white/40">{t('common.loading')}</p>
+                </div>
+              )}
             </div>
           </div>
         </AnimatedSection>
@@ -87,21 +94,27 @@ export default function CampBasketPage() {
               <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-8">
                 {t('campBasket.pricing.title')}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30">
-                  <div className="font-heading text-2xl text-gsc-white tracking-wider">{t('campBasket.pricing.externat')}</div>
+                  <div className="font-heading text-xl text-gsc-white tracking-wider">{t('campBasket.pricing.externat')}</div>
+                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.externatSansRepas')}</p>
                   <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_externat || 300}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
-                  <p className="text-xs text-gsc-white/40 mt-4">{t('campBasket.pricing.externatDesc')}</p>
                 </div>
                 <div className="bg-gsc-gray/30 p-8 border border-gsc-red/30 relative">
                   <div className="absolute -top-3 -right-3 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
                     {t('campBasket.pricing.recommended')}
                   </div>
-                  <div className="font-heading text-2xl text-gsc-white tracking-wider">{t('campBasket.pricing.internat')}</div>
+                  <div className="font-heading text-xl text-gsc-white tracking-wider">{t('campBasket.pricing.externat')}</div>
+                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.externatAvecRepas')}</p>
+                  <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_externat_avec_repas || 350}€</div>
+                  <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
+                </div>
+                <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30">
+                  <div className="font-heading text-xl text-gsc-white tracking-wider">{t('campBasket.pricing.internat')}</div>
+                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.internatDesc')}</p>
                   <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_internat || 490}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
-                  <p className="text-xs text-gsc-white/40 mt-4">{t('campBasket.pricing.internatDesc')}</p>
                 </div>
               </div>
             </div>

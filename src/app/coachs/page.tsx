@@ -100,10 +100,10 @@ export default function CoachsPage() {
                     {mike.name}
                   </h2>
                   <p className="text-gsc-red font-bold uppercase text-sm tracking-wider mt-3">
-                    {t('coachs.mike.title')}
+                    {t('coachs.michael.title')}
                   </p>
                   <p className="text-gsc-white/50 text-sm mt-1">
-                    {t('coachs.mike.role')}
+                    {t('coachs.michael.role')}
                   </p>
                   <div className="w-12 h-0.5 bg-gsc-red mt-6 mb-6" />
                   <p className="text-gsc-white/70 leading-relaxed">{mike.bio}</p>

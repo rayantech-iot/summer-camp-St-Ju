@@ -6,8 +6,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import CTASection from '@/components/CTASection'
-import { getOffers } from '@/lib/data-service'
-import type { CampOffer } from '@/lib/types'
+import { getOffers, getSiteConfig } from '@/lib/data-service'
+import type { CampOffer, SiteConfig } from '@/lib/types'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const activityKeys = [
@@ -17,6 +17,7 @@ const activityKeys = [
   'multisport.offered.bike',
   'multisport.offered.team',
   'multisport.offered.games',
+  'multisport.offered.more',
 ]
 
 const includedKeys = [
@@ -31,10 +32,15 @@ const includedKeys = [
 export default function MultisportPage() {
   const { t } = useLanguage()
   const [offers, setOffers] = useState<CampOffer[]>([])
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ sessions: [] })
   const multiOffer = offers.find((o) => o.type === 'multisport')
+  const multiSessions = siteConfig.sessions.filter(s => s.multisport_dates)
 
   useEffect(() => {
-    getOffers().then(setOffers)
+    Promise.all([getOffers(), getSiteConfig()]).then(([offers, config]) => {
+      setOffers(offers)
+      setSiteConfig(config)
+    })
   }, [])
   return (
     <>
@@ -66,14 +72,16 @@ export default function MultisportPage() {
               </p>
             </div>
             <div className="space-y-4">
-              <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
-                <h3 className="font-heading text-lg text-gsc-white tracking-wider">{t('multisport.session1')}</h3>
-                <p className="text-sm text-gsc-white/50 mt-1">{t('multisport.session1Label')}</p>
-              </div>
-              <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
-                <h3 className="font-heading text-lg text-gsc-white tracking-wider">{t('multisport.session2')}</h3>
-                <p className="text-sm text-gsc-white/50 mt-1">{t('multisport.session2Label')}</p>
-              </div>
+              {multiSessions.length > 0 ? multiSessions.map((s, i) => (
+                <div key={i} className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
+                  <h3 className="font-heading text-lg text-gsc-white tracking-wider">{s.multisport_dates}</h3>
+                  <p className="text-sm text-gsc-white/50 mt-1">{t('multisport.sessionLabel')} {i + 1}</p>
+                </div>
+              )) : (
+                <div className="bg-gsc-gray/20 p-6 border border-gsc-gray/30">
+                  <p className="text-sm text-gsc-white/40">{t('common.loading')}</p>
+                </div>
+              )}
             </div>
           </div>
         </AnimatedSection>
@@ -97,10 +105,22 @@ export default function MultisportPage() {
               <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-8">
                 {t('multisport.pricing.title')}
               </h2>
-              <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30 mb-6">
-                <div className="font-heading text-2xl text-gsc-white tracking-wider">{t('multisport.pricing.externat')}</div>
-                <div className="font-heading text-5xl text-gsc-red mt-4">{multiOffer?.price_externat || 300}€</div>
-                <p className="text-sm text-gsc-white/50 mt-2">{t('multisport.pricing.perWeek')}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30">
+                  <div className="font-heading text-xl text-gsc-white tracking-wider">{t('multisport.pricing.externat')}</div>
+                  <p className="text-xs text-gsc-white/40 mt-1">{t('multisport.pricing.externatSansRepas')}</p>
+                  <div className="font-heading text-5xl text-gsc-red mt-4">{multiOffer?.price_externat || 300}€</div>
+                  <p className="text-sm text-gsc-white/50 mt-2">{t('multisport.pricing.perWeek')}</p>
+                </div>
+                <div className="bg-gsc-gray/30 p-8 border border-gsc-red/30 relative">
+                  <div className="absolute -top-3 -right-3 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
+                    {t('campBasket.pricing.recommended')}
+                  </div>
+                  <div className="font-heading text-xl text-gsc-white tracking-wider">{t('multisport.pricing.externat')}</div>
+                  <p className="text-xs text-gsc-white/40 mt-1">{t('multisport.pricing.externatAvecRepas')}</p>
+                  <div className="font-heading text-5xl text-gsc-red mt-4">{multiOffer?.price_externat_avec_repas || 350}€</div>
+                  <p className="text-sm text-gsc-white/50 mt-2">{t('multisport.pricing.perWeek')}</p>
+                </div>
               </div>
               <ul className="space-y-3">
                 {includedKeys.map((key) => (

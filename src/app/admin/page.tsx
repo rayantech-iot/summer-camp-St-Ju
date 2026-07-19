@@ -545,6 +545,7 @@ export default function AdminPage() {
                               const updated = await updateOffer(draft.id, {
                                 lieu: draft.lieu,
                                 price_externat: draft.price_externat,
+                                price_externat_avec_repas: draft.price_externat_avec_repas,
                                 price_internat: draft.type === 'basket' ? draft.price_internat : undefined,
                               })
                               setOffers((prev) => prev.map((o) => o.id === updated.id ? updated : o))
@@ -570,25 +571,50 @@ export default function AdminPage() {
                           <h3 className="font-heading text-xl text-gsc-white tracking-wider mb-4">
                             {offer.type === 'basket' ? 'Camp Basket' : 'Multisport'}
                           </h3>
-                          <div className="space-y-3 text-sm">
+                          <div className="space-y-4 text-sm">
                             <div>
-                              <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Lieu</label>
+                              <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Lieu(x)</label>
                               <input value={offer.lieu}
                                 onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, lieu: e.target.value } : o))}
                                 className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red" />
                             </div>
-                            <div>
-                              <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Prix externat (€)</label>
-                              <input type="number" value={offer.price_externat}
-                                onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_externat: Number(e.target.value) } : o))}
-                                className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red" />
+
+                            <div className="border border-gsc-gray/20 p-4">
+                              <p className="text-gsc-white/50 text-xs uppercase tracking-wider mb-3 font-bold">Externat — Sans repas</p>
+                              <p className="text-gsc-white/30 text-[10px] mb-2">Le jeune apporte son déjeuner et son goûter</p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-gsc-white/50 text-xs">Prix :</span>
+                                <input type="number" value={offer.price_externat}
+                                  onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_externat: Number(e.target.value) } : o))}
+                                  className="w-24 bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white focus:outline-none focus:border-gsc-red" />
+                                <span className="text-gsc-white/40 text-xs">€/semaine</span>
+                              </div>
                             </div>
+
+                            <div className="border border-gsc-red/30 bg-gsc-red/5 p-4">
+                              <p className="text-gsc-orange text-xs uppercase tracking-wider mb-3 font-bold">✓ Externat — Avec repas (Recommandé)</p>
+                              <p className="text-gsc-white/30 text-[10px] mb-2">Déjeuner et goûter fournis par le camp</p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-gsc-white/50 text-xs">Prix :</span>
+                                <input type="number" value={offer.price_externat_avec_repas || ''}
+                                  onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_externat_avec_repas: Number(e.target.value) } : o))}
+                                  className="w-24 bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white focus:outline-none focus:border-gsc-red" />
+                                <span className="text-gsc-white/40 text-xs">€/semaine</span>
+                              </div>
+                            </div>
+
                             {offer.type === 'basket' && (
-                              <div>
-                                <label className="text-gsc-white/40 text-xs uppercase tracking-wider">Prix internat (€)</label>
-                                <input type="number" value={offer.price_internat || ''}
-                                  onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_internat: Number(e.target.value) } : o))}
-                                  className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white mt-1 focus:outline-none focus:border-gsc-red" />
+                              <div className="border border-gsc-gray/20 p-4">
+                                <p className="text-gsc-white/50 text-xs uppercase tracking-wider mb-3 font-bold">Internat — Pension complète</p>
+                                <p className="text-gsc-white/30 text-[10px] mb-2">Hébergement + tous les repas (petit-déjeuner, déjeuner, dîner)</p>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gsc-white/50 text-xs">Prix :</span>
+                                  <input type="number" value={offer.price_internat || ''}
+                                    onChange={(e) => setOfferDrafts((prev) => prev.map((o) => o.id === offer.id ? { ...o, price_internat: Number(e.target.value) } : o))}
+                                    className="w-24 bg-gsc-black/50 border border-gsc-gray/30 px-3 py-2 text-gsc-white focus:outline-none focus:border-gsc-red" />
+                                  <span className="text-gsc-white/40 text-xs">€/semaine</span>
+                                </div>
+                                <p className="text-gsc-white/20 text-[10px] mt-2 italic">Disponible uniquement pour le Camp Basket</p>
                               </div>
                             )}
                           </div>

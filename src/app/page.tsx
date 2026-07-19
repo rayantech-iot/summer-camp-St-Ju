@@ -212,8 +212,8 @@ export default function Home() {
                     {t('offers.basket.desc')}
                   </p>
                   <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
-                    <span>U11-U16</span>
-                    <span>Valleiry</span>
+                    <span>U11-U17</span>
+                    <span>Valleiry / Vulbens</span>
                     <span>{t('offers.basket.from')} {basketOffer?.price_externat || 300}€</span>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
@@ -228,8 +228,8 @@ export default function Home() {
                     {t('offers.multi.desc')}
                   </p>
                   <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
-                    <span>U11-U16</span>
-                    <span>Vulbens</span>
+                    <span>6-10 ans</span>
+                    <span>Valleiry / Vulbens</span>
                     <span>{multiOffer?.price_externat || 300}€</span>
                   </div>
                   <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">

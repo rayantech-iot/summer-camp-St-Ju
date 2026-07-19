@@ -28,6 +28,7 @@ export default function Footer() {
                 { href: '/coachs', key: 'footer.coaches' },
                 { href: '/memories', key: 'footer.memories' },
                 { href: '/faq', key: 'footer.faq' },
+                { href: '/us-edition', key: 'nav.usEdition' },
                 { href: '/inscription', key: 'footer.register' },
               ].map((link) => (
                 <li key={link.href}>

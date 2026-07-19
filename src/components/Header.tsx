@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/', key: 'nav.home' },
   { href: '/camp-basket', key: 'nav.campBasket' },
   { href: '/multisport', key: 'nav.multisport' },
+  { href: '/us-edition', key: 'nav.usEdition' },
   { href: '/coachs', key: 'nav.coaches' },
   { href: '/programme', key: 'nav.programme' },
   { href: '/memories', key: 'nav.memories' },

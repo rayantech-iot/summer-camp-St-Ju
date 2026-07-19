@@ -14,9 +14,9 @@ export const coaches: Coach[] = [
   },
   {
     id: 'mike-alard',
-    name: 'Mike Alard',
+    name: 'Michael Alard',
     role: 'Directeur technique Centre de formation Nanterre 92 (Pro A)',
-    bio: 'Ancien entraîneur de Victor Wembanyama, Mike Alard est aujourd\'hui directeur du centre de formation de la JSF Nanterre 92, club de Pro A. Son expertise du haut niveau et sa capacité à faire progresser les jeunes talents en font la pierre angulaire du Genevois Summer Camp.',
+    bio: 'Ancien entraîneur de Victor Wembanyama, Michael Alard est aujourd\'hui directeur du centre de formation de la JSF Nanterre 92, club de Pro A. Son expertise du haut niveau et sa capacité à faire progresser les jeunes talents en font la pierre angulaire du Genevois Summer Camp.',
     diplomas: ['DEJEPS'],
     citation: 'Ce qui fait la différence, ce n\'est pas le talent brut, c\'est la rigueur quotidienne et l\'envie d\'apprendre.',
     image_url: '/images/coach-mike.jpg',
@@ -204,6 +204,5 @@ export const timelineSteps = [
   { time: '12h00', label: 'Repas', icon: 'utensils' },
   { time: '14h00', label: 'Technique individuelle', icon: 'target' },
   { time: '16h00', label: 'Matchs', icon: 'trophy' },
-  { time: '17h00', label: 'Intervention joueur pro', icon: 'star' },
-  { time: '18h00', label: 'Fin de journée', icon: 'check' },
+  { time: '17h00', label: 'Fin de journée', icon: 'check' },
 ]

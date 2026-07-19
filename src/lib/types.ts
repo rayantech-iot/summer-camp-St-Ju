@@ -74,6 +74,7 @@ export interface CampOffer {
   type: 'basket' | 'multisport'
   dates: string[]
   price_externat: number
+  price_externat_avec_repas?: number
   price_internat?: number
   lieu: string
   public: string
