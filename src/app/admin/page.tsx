@@ -158,40 +158,44 @@ export default function AdminPage() {
     setLoginError('')
     if (!email) { setLoginError('Entre ton email'); return }
 
-    const admin = await findAdminByEmail(email)
+    try {
+      const admin = await findAdminByEmail(email)
 
-    if (!admin) {
-      if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
-        const created = await createAdminUser(email)
+      if (!admin) {
+        if (email.toLowerCase() === 'admin@genevoissummercamp.fr') {
+          const created = await createAdminUser(email)
+          setNeedsPasswordSetup(true)
+          return
+        }
+        setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
+        return
+      }
+
+      if (!admin.password_set) {
         setNeedsPasswordSetup(true)
         return
       }
-      setLoginError('Email non trouvé. Seuls les administrateurs invités peuvent se connecter.')
-      return
-    }
 
-    if (!admin.password_set) {
-      setNeedsPasswordSetup(true)
-      return
-    }
-
-    if (admin.password_hash) {
-      const valid = await verifyAdminPassword(email, password)
-      if (valid) { setIsLoggedIn(true); return }
-      setLoginError('Mot de passe incorrect')
-      return
-    }
-
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (!error) {
-        if (password) await setAdminPassword(admin.id, password)
-        setIsLoggedIn(true)
+      if (admin.password_hash) {
+        const valid = await verifyAdminPassword(email, password)
+        if (valid) { setIsLoggedIn(true); return }
+        setLoginError('Mot de passe incorrect')
         return
       }
-    }
 
-    setLoginError('Email ou mot de passe incorrect')
+      if (isSupabaseConfigured) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (!error) {
+          if (password) await setAdminPassword(admin.id, password)
+          setIsLoggedIn(true)
+          return
+        }
+      }
+
+      setLoginError('Email ou mot de passe incorrect')
+    } catch (e) {
+      setLoginError('Erreur de connexion : ' + (e instanceof Error ? e.message : 'problème réseau'))
+    }
   }
 
   const downloadCSV = (csv: string, filename: string) => {
@@ -234,12 +238,16 @@ export default function AdminPage() {
                   setPasswordSetupError('Les mots de passe ne correspondent pas')
                   return
                 }
-                const admin = await findAdminByEmail(email)
-                if (admin) {
-                  await setAdminPassword(admin.id, newPassword)
+                try {
+                  const admin = await findAdminByEmail(email)
+                  if (admin) {
+                    await setAdminPassword(admin.id, newPassword)
+                  }
+                  setNeedsPasswordSetup(false)
+                  setIsLoggedIn(true)
+                } catch (e) {
+                  setPasswordSetupError('Erreur : ' + (e instanceof Error ? e.message : 'problème réseau'))
                 }
-                setNeedsPasswordSetup(false)
-                setIsLoggedIn(true)
               }} className="w-full bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-3 font-bold uppercase tracking-wider text-sm">
                 Enregistrer le mot de passe
               </button>
@@ -642,12 +650,16 @@ export default function AdminPage() {
                       <button onClick={async () => {
                         console.log('adminEmailInput value:', JSON.stringify(adminEmailInput))
                         if (!adminEmailInput || !adminEmailInput.includes('@')) { alert('Email invalide: ' + adminEmailInput); return }
-                        const existing = await findAdminByEmail(adminEmailInput)
-                        if (existing) { alert('Cet admin existe déjà'); return }
-                        await createAdminUser(adminEmailInput)
-                        setAdminUsers(await getAdminUsers())
-                        setAdminEmailInput('')
-                        alert(`Admin ${adminEmailInput} ajouté. Donne-lui le lien de connexion, il n'aura qu'à entrer son email et créer son mot de passe.`)
+                        try {
+                          const existing = await findAdminByEmail(adminEmailInput)
+                          if (existing) { alert('Cet admin existe déjà'); return }
+                          await createAdminUser(adminEmailInput)
+                          setAdminUsers(await getAdminUsers())
+                          setAdminEmailInput('')
+                          alert(`Admin ${adminEmailInput} ajouté. Donne-lui le lien de connexion, il n'aura qu'à entrer son email et créer son mot de passe.`)
+                        } catch (e) {
+                          alert("Erreur : " + (e instanceof Error ? e.message : 'problème réseau'))
+                        }
                       }} className="bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider shrink-0 whitespace-nowrap">
                         <UserPlus size={16} className="inline mr-1" /> Ajouter
                       </button>
@@ -666,8 +678,12 @@ export default function AdminPage() {
                         <button onClick={async () => {
                           const ok = await askConfirm('Supprimer admin', `Supprimer l'accès de ${a.email} ?`)
                           if (!ok) return
-                          await deleteAdminUser(a.id)
-                          setAdminUsers(await getAdminUsers())
+                          try {
+                            await deleteAdminUser(a.id)
+                            setAdminUsers(await getAdminUsers())
+                          } catch (e) {
+                            alert("Erreur : " + (e instanceof Error ? e.message : 'problème réseau'))
+                          }
                         }} className="text-gsc-white/40 hover:text-gsc-red transition-colors">
                           <Trash2 size={16} />
                         </button>

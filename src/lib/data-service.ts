@@ -516,63 +516,37 @@ export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
   return config
 }
 
-// ─── Admin Users ───
+// ─── Admin Users (Supabase only) ───
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
-  const local = await getLocalData<AdminUser>('admin_users')
-  let server: AdminUser[] = []
   if (SUPABASE_CONFIGURED) {
-    const { data } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false })
-    if (data) server = data
+    const { data, error } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false })
+    if (error) throw new Error('Erreur de chargement des administrateurs : ' + error.message)
+    return data || []
   }
-  // Merge: local wins (has latest password_set/password_hash), Supabase fills gaps
-  const merged: AdminUser[] = []
-  const seen = new Set<string>()
-  for (const a of local) {
-    merged.push(a)
-    seen.add(a.id)
-    // Sync local → Supabase if missing on server
-    if (SUPABASE_CONFIGURED && !server.find((s) => s.id === a.id)) {
-      try { await supabase.from('admin_users').upsert(a) } catch { /* ignore */ }
-    }
-  }
-  for (const a of server) {
-    if (!seen.has(a.id)) {
-      merged.push(a)
-      seen.add(a.id)
-    }
-  }
-  await setLocalData('admin_users', merged)
-  return merged
+  // Fallback local-only quand Supabase n'est pas configuré
+  return getLocalData<AdminUser>('admin_users')
 }
 
 export async function createAdminUser(email: string): Promise<AdminUser> {
   const newItem: AdminUser = { id: generateId(), email, password_set: false, created_at: new Date().toISOString() }
   if (SUPABASE_CONFIGURED) {
-    try {
-      const { data } = await supabase.from('admin_users').insert(newItem).select().single()
-      if (data) {
-        const items = [...await getLocalData<AdminUser>('admin_users'), data]
-        await setLocalData('admin_users', items)
-        return data
-      }
-    } catch (e) {
-      console.warn('Supabase create admin error, using local storage:', e)
-    }
+    const { data, error } = await supabase.from('admin_users').insert(newItem).select().single()
+    if (error) throw new Error("Erreur de création de l'administrateur : " + error.message)
+    return data
   }
-  const items = [...await getLocalData<AdminUser>('admin_users'), newItem]
+  const existing = await getLocalData<AdminUser>('admin_users')
+  const filtered = existing.filter((a) => a.email.toLowerCase() !== email.toLowerCase())
+  const items = [...filtered, newItem]
   await setLocalData('admin_users', items)
   return newItem
 }
 
 export async function deleteAdminUser(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    try {
-      const { error } = await supabase.from('admin_users').delete().eq('id', id)
-      if (error) console.warn('Supabase delete admin:', error.message)
-    } catch (e) {
-      console.warn('Supabase delete admin error:', e)
-    }
+    const { error } = await supabase.from('admin_users').delete().eq('id', id)
+    if (error) throw new Error("Erreur de suppression de l'administrateur : " + error.message)
+    return
   }
   const items = (await getLocalData<AdminUser>('admin_users')).filter((a) => a.id !== id)
   await setLocalData('admin_users', items)
@@ -580,36 +554,25 @@ export async function deleteAdminUser(id: string): Promise<void> {
 
 export async function markAdminPasswordSet(id: string): Promise<void> {
   if (SUPABASE_CONFIGURED) {
-    try {
-      await supabase.from('admin_users').update({ password_set: true }).eq('id', id)
-    } catch (e) {
-      console.warn('Supabase update admin error:', e)
-    }
+    const { error } = await supabase.from('admin_users').update({ password_set: true }).eq('id', id)
+    if (error) throw new Error("Erreur de mise à jour de l'administrateur : " + error.message)
+    return
   }
   const items = await getLocalData<AdminUser>('admin_users')
   const idx = items.findIndex((a) => a.id === id)
-  if (idx !== -1) {
-    items[idx].password_set = true
-    await setLocalData('admin_users', items)
-  }
+  if (idx !== -1) { items[idx].password_set = true; await setLocalData('admin_users', items) }
 }
 
 export async function setAdminPassword(id: string, password: string): Promise<void> {
   const hash = await hashPassword(password)
   if (SUPABASE_CONFIGURED) {
-    try {
-      await supabase.from('admin_users').update({ password_hash: hash, password_set: true }).eq('id', id)
-    } catch (e) {
-      console.warn('Supabase update admin password error:', e)
-    }
+    const { error } = await supabase.from('admin_users').update({ password_hash: hash, password_set: true }).eq('id', id)
+    if (error) throw new Error("Erreur de définition du mot de passe : " + error.message)
+    return
   }
   const items = await getLocalData<AdminUser>('admin_users')
   const idx = items.findIndex((a) => a.id === id)
-  if (idx !== -1) {
-    items[idx].password_hash = hash
-    items[idx].password_set = true
-    await setLocalData('admin_users', items)
-  }
+  if (idx !== -1) { items[idx].password_hash = hash; items[idx].password_set = true; await setLocalData('admin_users', items) }
 }
 
 export async function verifyAdminPassword(email: string, password: string): Promise<boolean> {
