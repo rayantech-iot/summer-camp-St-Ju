@@ -204,37 +204,68 @@ export default function Home() {
             <h2 className="font-heading text-4xl sm:text-5xl text-gsc-white tracking-wider text-center mb-16">
               {t('offers.title')}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Link href="/camp-basket" className="group block">
-                <div className="bg-gsc-gray/20 p-8 sm:p-12 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full">
-                  <h3 className="font-heading text-3xl text-gsc-white tracking-wider">{t('offers.basket.title')}</h3>
-                  <p className="mt-4 text-gsc-white/60 text-sm leading-relaxed">
+                <div className="bg-gsc-gray/20 p-8 sm:p-10 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full flex flex-col">
+                  <h3 className="font-heading text-2xl text-gsc-white tracking-wider">{t('offers.basket.title')}</h3>
+                  <p className="mt-3 text-gsc-white/60 text-sm leading-relaxed flex-1">
                     {t('offers.basket.desc')}
                   </p>
-                  <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
-                    <span>U11-U17</span>
-                    <span>Valleiry / Vulbens</span>
-                    <span>{t('offers.basket.from')} {basketOffer?.price_externat || 300}€</span>
+                  <div className="mt-6 space-y-2 text-xs">
+                    <div className="flex justify-between items-center border-b border-gsc-gray/30 pb-1.5">
+                      <span className="text-gsc-white/40">{t('campBasket.pricing.externatSansRepas')}</span>
+                      <span className="text-gsc-white font-bold">{basketOffer?.price_externat || 300}€</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-gsc-gray/30 pb-1.5">
+                      <span className="text-gsc-white/40">{t('campBasket.pricing.externatAvecRepas')}</span>
+                      <span className="text-gsc-white font-bold">{basketOffer?.price_externat_avec_repas || 350}€</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-gsc-red/30 pb-1.5">
+                      <span className="text-gsc-orange text-[10px] font-bold uppercase">{t('campBasket.pricing.recommended')}</span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-gsc-white/40 text-[10px]">{t('campBasket.pricing.internat')}</span>
+                        <span className="text-gsc-white font-bold">{basketOffer?.price_internat || 490}€</span>
+                      </span>
+                    </div>
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
+                  <span className="mt-4 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
                     {t('offers.basket.cta')} <ArrowRight size={14} />
                   </span>
                 </div>
               </Link>
               <Link href="/multisport" className="group block">
-                <div className="bg-gsc-gray/20 p-8 sm:p-12 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full">
-                  <h3 className="font-heading text-3xl text-gsc-white tracking-wider">{t('offers.multi.title')}</h3>
-                  <p className="mt-4 text-gsc-white/60 text-sm leading-relaxed">
+                <div className="bg-gsc-gray/20 p-8 sm:p-10 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full flex flex-col">
+                  <h3 className="font-heading text-2xl text-gsc-white tracking-wider">{t('offers.multi.title')}</h3>
+                  <p className="mt-3 text-gsc-white/60 text-sm leading-relaxed flex-1">
                     {t('offers.multi.desc')}
                   </p>
-                  <div className="mt-6 flex flex-wrap gap-4 text-xs text-gsc-white/40">
-                    <span>6-10 ans</span>
-                    <span>Valleiry / Vulbens</span>
-                    <span>{multiOffer?.price_externat || 300}€</span>
+                  <div className="mt-6 space-y-2 text-xs">
+                    <div className="flex justify-between items-center border-b border-gsc-gray/30 pb-1.5">
+                      <span className="text-gsc-white/40">{t('multisport.pricing.externatSansRepas')}</span>
+                      <span className="text-gsc-white font-bold">{multiOffer?.price_externat || 300}€</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-gsc-orange/30 pb-1.5">
+                      <span className="text-gsc-white/40">{t('multisport.pricing.externatAvecRepas')}</span>
+                      <span className="text-gsc-white font-bold">{multiOffer?.price_externat_avec_repas || 350}€</span>
+                    </div>
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
+                  <span className="mt-4 inline-flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
                     {t('offers.multi.cta')} <ArrowRight size={14} />
                   </span>
+                </div>
+              </Link>
+              <Link href="/contact" className="group block">
+                <div className="bg-gsc-gray/20 p-8 sm:p-10 border border-gsc-gray/30 group-hover:border-gsc-red/50 transition-all h-full flex flex-col">
+                  <h3 className="font-heading text-2xl text-gsc-white tracking-wider">{t('offers.coach.title')}</h3>
+                  <p className="mt-3 text-gsc-white/60 text-sm leading-relaxed flex-1">
+                    {t('offers.coach.desc')}
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-2 text-xs text-gsc-white/40">
+                    <span className="border border-gsc-gray/40 px-2.5 py-1">{t('offers.coach.perDay')}</span>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2 text-gsc-red font-bold uppercase text-sm tracking-wider group-hover:gap-3 transition-all">
+                    {t('offers.coach.contact')} <ArrowRight size={14} />
+                  </div>
                 </div>
               </Link>
             </div>

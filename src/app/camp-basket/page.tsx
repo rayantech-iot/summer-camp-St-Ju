@@ -101,16 +101,16 @@ export default function CampBasketPage() {
                   <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_externat || 300}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
-                <div className="bg-gsc-gray/30 p-8 border border-gsc-red/30 relative">
-                  <div className="absolute -top-3 -right-3 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                    {t('campBasket.pricing.recommended')}
-                  </div>
+                <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30">
                   <div className="font-heading text-xl text-gsc-white tracking-wider">{t('campBasket.pricing.externat')}</div>
                   <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.externatAvecRepas')}</p>
                   <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_externat_avec_repas || 350}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
-                <div className="bg-gsc-gray/30 p-8 border border-gsc-gray/30">
+                <div className="bg-gsc-gray/30 p-8 border border-gsc-red/30 relative">
+                  <div className="absolute -top-3 -right-3 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
+                    {t('campBasket.pricing.recommended')}
+                  </div>
                   <div className="font-heading text-xl text-gsc-white tracking-wider">{t('campBasket.pricing.internat')}</div>
                   <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.internatDesc')}</p>
                   <div className="font-heading text-5xl text-gsc-red mt-4">{basketOffer?.price_internat || 490}€</div>

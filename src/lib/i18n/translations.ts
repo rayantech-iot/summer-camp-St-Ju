@@ -13,7 +13,7 @@ const fr: Translations = {
   'nav.faq': 'FAQ',
   'nav.contact': 'Contact',
   'nav.register': "Je m'inscris",
-  'nav.usEdition': 'US EDITION',
+  'nav.usEdition': 'U.S EDITION',
   'nav.menu': 'Menu',
 
   // Hero
@@ -54,6 +54,10 @@ const fr: Translations = {
   'offers.multi.title': 'Multisport',
   'offers.multi.desc': 'Futsal, VTT, tennis de table, sports collectifs, jeux de groupe — encadrement BPJEPS/BAFA.',
   'offers.multi.cta': 'Découvrir',
+  'offers.coach.title': 'Coach Individuel',
+  'offers.coach.desc': 'Une séance individuelle d\'une heure chaque jour avec un coach professionnel pour un accompagnement personnalisé et une progression accélérée.',
+  'offers.coach.contact': 'Nous contacter',
+  'offers.coach.perDay': '1h/jour • Sur mesure',
 
   // Coaching section
   'coaching.title': "L'encadrement",
@@ -278,7 +282,7 @@ const fr: Translations = {
   'upcoming.title': 'Éditions à venir',
   'upcoming.basket': 'Camp Basket',
   'upcoming.multisport': 'Multisport',
-  'usEdition.hero.title': 'US EDITION',
+  'usEdition.hero.title': 'U.S EDITION',
   'usEdition.hero.subtitle': 'Une expérience basket unique aux États-Unis — à venir.',
   'usEdition.comingSoon': 'COMING SOON',
   'usEdition.desc': "Le Genevois Summer Camp prépare une édition exceptionnelle aux États-Unis. Une immersion totale dans l'univers du basketball américain, entre camps d'entraînement, visites de campus universitaires et découverte de la culture NBA. Plus d'informations à venir.",
@@ -339,6 +343,10 @@ const en: Translations = {
   'offers.multi.title': 'Multisport',
   'offers.multi.desc': 'Futsal, mountain biking, table tennis, team sports, group games — BAFA certified.',
   'offers.multi.cta': 'Discover',
+  'offers.coach.title': 'Personal Coaching',
+  'offers.coach.desc': 'A one-hour individual session every day with a professional coach for personalized guidance and accelerated progress.',
+  'offers.coach.contact': 'Contact us',
+  'offers.coach.perDay': '1h/day • Tailored program',
 
   // Coaching section
   'coaching.title': 'Our coaches',
