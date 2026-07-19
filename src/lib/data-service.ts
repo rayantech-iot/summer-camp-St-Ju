@@ -476,8 +476,7 @@ export async function getEditionById(id: string): Promise<Edition | null> {
 // ─── Site Config ───
 
 const DEFAULT_CONFIG: SiteConfig = {
-  upcoming_basket_dates: '',
-  upcoming_multisport_dates: '',
+  sessions: [{ basket_dates: '', multisport_dates: '' }],
 }
 
 export async function getSiteConfig(): Promise<SiteConfig> {

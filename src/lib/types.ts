@@ -88,7 +88,11 @@ export interface AdminUser {
   created_at: string
 }
 
+export interface SiteSession {
+  basket_dates: string
+  multisport_dates: string
+}
+
 export interface SiteConfig {
-  upcoming_basket_dates: string
-  upcoming_multisport_dates: string
+  sessions: SiteSession[]
 }

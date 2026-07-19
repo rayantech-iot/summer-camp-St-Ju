@@ -86,7 +86,7 @@ export default function AdminPage() {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
   const [passwordSetupError, setPasswordSetupError] = useState('')
   const [adminEmailInput, setAdminEmailInput] = useState('')
-  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ upcoming_basket_dates: '', upcoming_multisport_dates: '' })
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ sessions: [{ basket_dates: '', multisport_dates: '' }] })
   const [configSavedMessage, setConfigSavedMessage] = useState('')
   const [savingConfig, setSavingConfig] = useState(false)
 
@@ -704,23 +704,44 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
-                    <h3 className="font-heading text-xl text-gsc-white tracking-wider mb-4">Éditions à venir</h3>
-                    <p className="text-xs text-gsc-white/40 mb-6">Les dates saisies ci-dessous s'afficheront sur la page d'accueil.</p>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-1">Camp Basket — dates</label>
-                        <input value={siteConfig.upcoming_basket_dates}
-                          onChange={(e) => setSiteConfig((prev) => ({ ...prev, upcoming_basket_dates: e.target.value }))}
-                          placeholder="ex: 4-11 juillet 2026"
-                          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-1">Multisport — dates</label>
-                        <input value={siteConfig.upcoming_multisport_dates}
-                          onChange={(e) => setSiteConfig((prev) => ({ ...prev, upcoming_multisport_dates: e.target.value }))}
-                          placeholder="ex: 6-13 juillet 2026"
-                          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
-                      </div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="font-heading text-xl text-gsc-white tracking-wider">Sessions à venir</h3>
+                      {siteConfig.sessions.length < 4 && (
+                        <button onClick={() => setSiteConfig((prev) => ({ ...prev, sessions: [...prev.sessions, { basket_dates: '', multisport_dates: '' }] }))}
+                          className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-4 py-2 text-sm font-bold uppercase tracking-wider">
+                          <Plus size={16} /> Ajouter une session
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-gsc-white/40 mb-6">Les dates saisies s'afficheront sur la page d'accueil. Jusqu'à 4 sessions max.</p>
+                    <div className="space-y-6">
+                      {siteConfig.sessions.map((session, idx) => (
+                        <div key={idx} className="bg-gsc-black/50 p-4 border border-gsc-gray/30">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-heading text-lg text-gsc-white tracking-wider">Session {idx + 1}</h4>
+                            {siteConfig.sessions.length > 1 && (
+                              <button onClick={() => setSiteConfig((prev) => ({ ...prev, sessions: prev.sessions.filter((_, i) => i !== idx) }))}
+                                className="text-gsc-red text-xs hover:underline">Supprimer</button>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-1">Camp Basket — dates</label>
+                              <input value={session.basket_dates}
+                                onChange={(e) => setSiteConfig((prev) => ({ ...prev, sessions: prev.sessions.map((s, i) => i === idx ? { ...s, basket_dates: e.target.value } : s) }))}
+                                placeholder="ex: 4-11 juillet 2026"
+                                className="w-full bg-gsc-gray/30 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-1">Multisport — dates</label>
+                              <input value={session.multisport_dates}
+                                onChange={(e) => setSiteConfig((prev) => ({ ...prev, sessions: prev.sessions.map((s, i) => i === idx ? { ...s, multisport_dates: e.target.value } : s) }))}
+                                placeholder="ex: 6-13 juillet 2026"
+                                className="w-full bg-gsc-gray/30 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

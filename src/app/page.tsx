@@ -36,7 +36,7 @@ export default function Home() {
   const [dynamicTestimonials, setDynamicTestimonials] = useState<Testimonial[]>([])
   const [editionPreviews, setEditionPreviews] = useState<{edition: Edition; cover: MemoryMedia | null; count: number}[]>([])
   const [offers, setOffers] = useState<CampOffer[]>([])
-  const [upcomingConfig, setUpcomingConfig] = useState<SiteConfig>({ upcoming_basket_dates: '', upcoming_multisport_dates: '' })
+  const [upcomingConfig, setUpcomingConfig] = useState<SiteConfig>({ sessions: [{ basket_dates: '', multisport_dates: '' }] })
   const basketOffer = offers.find((o) => o.type === 'basket')
   const multiOffer = offers.find((o) => o.type === 'multisport')
 
@@ -121,26 +121,41 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Éditions à venir */}
-        {(upcomingConfig.upcoming_basket_dates || upcomingConfig.upcoming_multisport_dates) && (
+        {/* Sessions à venir */}
+        {upcomingConfig.sessions.some(s => s.basket_dates || s.multisport_dates) && (
           <AnimatedSection className="py-16 px-4 bg-gsc-gray/20">
             <div className="max-w-5xl mx-auto text-center">
               <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-10">
                 {t('upcoming.title')}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {upcomingConfig.upcoming_basket_dates && (
-                  <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
-                    <p className="font-heading text-xl text-gsc-red tracking-wider">{t('upcoming.basket')}</p>
-                    <p className="text-gsc-white/70 mt-2">{upcomingConfig.upcoming_basket_dates}</p>
-                  </div>
-                )}
-                {upcomingConfig.upcoming_multisport_dates && (
-                  <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
-                    <p className="font-heading text-xl text-gsc-orange tracking-wider">{t('upcoming.multisport')}</p>
-                    <p className="text-gsc-white/70 mt-2">{upcomingConfig.upcoming_multisport_dates}</p>
-                  </div>
-                )}
+              <div className="space-y-6">
+                {upcomingConfig.sessions.map((session, idx) => {
+                  const hasBasket = !!session.basket_dates
+                  const hasMulti = !!session.multisport_dates
+                  if (!hasBasket && !hasMulti) return null
+                  const cols = hasBasket && hasMulti ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'
+                  return (
+                    <div key={idx}>
+                      {upcomingConfig.sessions.length > 1 && (
+                        <p className="font-heading text-lg text-gsc-white/50 tracking-wider mb-3">Session {idx + 1}</p>
+                      )}
+                      <div className={`grid grid-cols-1 ${cols} gap-4`}>
+                        {hasBasket && (
+                          <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+                            <p className="font-heading text-xl text-gsc-red tracking-wider">{t('upcoming.basket')}</p>
+                            <p className="text-gsc-white/70 mt-2">{session.basket_dates}</p>
+                          </div>
+                        )}
+                        {hasMulti && (
+                          <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+                            <p className="font-heading text-xl text-gsc-orange tracking-wider">{t('upcoming.multisport')}</p>
+                            <p className="text-gsc-white/70 mt-2">{session.multisport_dates}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </AnimatedSection>
