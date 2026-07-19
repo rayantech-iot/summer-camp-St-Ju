@@ -79,7 +79,7 @@ export default function Home() {
         {/* Hero */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           <Image
-            src="/images/hero-bg.png"
+            src="/images/hero-bg.jpg"
             alt=""
             fill
             className="object-cover"
