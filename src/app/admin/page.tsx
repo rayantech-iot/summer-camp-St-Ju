@@ -709,9 +709,14 @@ export default function AdminPage() {
                         onClick={async () => {
                           setSavingConfig(true)
                           setConfigSavedMessage('')
-                          await saveSiteConfig(siteConfig)
-                          setConfigSavedMessage('Config enregistrée ✓')
-                          setTimeout(() => setConfigSavedMessage(''), 3000)
+                          try {
+                            await saveSiteConfig(siteConfig)
+                            setConfigSavedMessage('Config enregistrée ✓')
+                            setTimeout(() => setConfigSavedMessage(''), 3000)
+                          } catch (e) {
+                            setConfigSavedMessage('Erreur : ' + (e instanceof Error ? e.message : 'problème réseau'))
+                            setTimeout(() => setConfigSavedMessage(''), 5000)
+                          }
                           setSavingConfig(false)
                         }}
                         className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider disabled:opacity-50">

@@ -379,9 +379,9 @@ const DEFAULT_CONFIG: SiteConfig = {
 
 export async function getSiteConfig(): Promise<SiteConfig> {
   if (SUPABASE_CONFIGURED) {
-    const { data, error } = await supabase.from('site_config').select('*').maybeSingle()
+    const { data, error } = await supabase.from('site_config').select('sessions').maybeSingle()
     if (error) throw new Error("Erreur de chargement de la configuration : " + error.message)
-    if (data) return { ...DEFAULT_CONFIG, ...data }
+    if (data) return { sessions: data.sessions || DEFAULT_CONFIG.sessions }
     return DEFAULT_CONFIG
   }
   if (typeof window === 'undefined') return DEFAULT_CONFIG
@@ -394,13 +394,14 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 
 export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
   if (SUPABASE_CONFIGURED) {
+    const payload = { sessions: config.sessions }
     const { data: existing, error: selErr } = await supabase.from('site_config').select('id').maybeSingle()
     if (selErr) throw new Error("Erreur de sauvegarde de la configuration : " + selErr.message)
     if (existing) {
-      const { error } = await supabase.from('site_config').update(config).eq('id', existing.id)
+      const { error } = await supabase.from('site_config').update(payload).eq('id', existing.id)
       if (error) throw new Error("Erreur de sauvegarde de la configuration : " + error.message)
     } else {
-      const { error } = await supabase.from('site_config').insert(config)
+      const { error } = await supabase.from('site_config').insert(payload)
       if (error) throw new Error("Erreur de sauvegarde de la configuration : " + error.message)
     }
     return config
