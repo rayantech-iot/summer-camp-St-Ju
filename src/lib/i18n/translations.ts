@@ -282,6 +282,9 @@ const fr: Translations = {
   'common.multisport': 'Multisport',
   'common.loading': 'Chargement...',
   'common.viewAll': 'Voir tout',
+  'upcoming.title': 'Éditions à venir',
+  'upcoming.basket': 'Camp Basket',
+  'upcoming.multisport': 'Multisport',
   'confirmDialog.cancel': 'Annuler',
   'confirmDialog.confirm': 'Confirmer',
 }
@@ -566,6 +569,9 @@ const en: Translations = {
   'common.multisport': 'Multisport',
   'common.loading': 'Loading...',
   'common.viewAll': 'View all',
+  'upcoming.title': 'Upcoming Editions',
+  'upcoming.basket': 'Basket Camp',
+  'upcoming.multisport': 'Multisport',
   'confirmDialog.cancel': 'Cancel',
   'confirmDialog.confirm': 'Confirm',
 }

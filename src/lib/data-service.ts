@@ -18,6 +18,7 @@ import type {
   Inscription,
   ContactMessage,
   AdminUser,
+  SiteConfig,
 } from './types'
 import { coaches as fallbackCoaches, testimonials as fallbackTestimonials, faqItems as fallbackFAQ } from './data'
 
@@ -470,6 +471,50 @@ export function exportMessagesCSV(messages: ContactMessage[]): string {
 export async function getEditionById(id: string): Promise<Edition | null> {
   const editions = await getEditions()
   return editions.find((e) => e.id === id) || null
+}
+
+// ─── Site Config ───
+
+const DEFAULT_CONFIG: SiteConfig = {
+  upcoming_basket_dates: '',
+  upcoming_multisport_dates: '',
+}
+
+export async function getSiteConfig(): Promise<SiteConfig> {
+  if (typeof window === 'undefined') return DEFAULT_CONFIG
+  try {
+    const stored = localStorage.getItem('gsc_site_config')
+    if (stored) return { ...DEFAULT_CONFIG, ...JSON.parse(stored) }
+  } catch {}
+  if (SUPABASE_CONFIGURED) {
+    try {
+      const { data } = await supabase.from('site_config').select('*').single()
+      if (data) {
+        localStorage.setItem('gsc_site_config', JSON.stringify(data))
+        return { ...DEFAULT_CONFIG, ...data }
+      }
+    } catch {}
+  }
+  return DEFAULT_CONFIG
+}
+
+export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('gsc_site_config', JSON.stringify(config))
+  }
+  if (SUPABASE_CONFIGURED) {
+    try {
+      const { data: existing } = await supabase.from('site_config').select('id').single()
+      if (existing) {
+        await supabase.from('site_config').update(config).eq('id', existing.id)
+      } else {
+        await supabase.from('site_config').insert(config)
+      }
+    } catch (e) {
+      console.warn('Supabase save config error:', e)
+    }
+  }
+  return config
 }
 
 // ─── Admin Users ───

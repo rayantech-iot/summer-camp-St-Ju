@@ -126,7 +126,7 @@ export default function CoachsPage() {
         <AnimatedSection className="py-20 bg-gsc-gray/20 px-4" delay={0.15}>
           <div className="max-w-5xl mx-auto">
             {others.map((coach, i) => (
-              <div key={coach.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? '' : ''}`}>
+              <div key={coach.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20 pb-8 border-b border-gsc-gray/10 last:border-0 last:mb-0 last:pb-0 ${i % 2 === 1 ? '' : ''}`}>
                 <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
                   <div className="aspect-[3/4] bg-gsc-gray/30 overflow-hidden relative">
                     {coach.image_url ? (

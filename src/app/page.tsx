@@ -13,8 +13,8 @@ const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
 const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
 const InfiniteCoachCarousel = dynamic(() => import('@/components/InfiniteCoachCarousel'), { ssr: false })
 import { useLanguage } from '@/contexts/LanguageContext'
-import { getCoaches, getTestimonials, getEditions, getAllMedia, getOffers } from '@/lib/data-service'
-import type { Coach, Testimonial, Edition, MemoryMedia, CampOffer } from '@/lib/types'
+import { getCoaches, getTestimonials, getEditions, getAllMedia, getOffers, getSiteConfig } from '@/lib/data-service'
+import type { Coach, Testimonial, Edition, MemoryMedia, CampOffer, SiteConfig } from '@/lib/types'
 
 const stats: { value: string; labelKey: string; icon: any }[] = [
   { value: '3', labelKey: 'stats.years', icon: Clock },
@@ -36,17 +36,19 @@ export default function Home() {
   const [dynamicTestimonials, setDynamicTestimonials] = useState<Testimonial[]>([])
   const [editionPreviews, setEditionPreviews] = useState<{edition: Edition; cover: MemoryMedia | null; count: number}[]>([])
   const [offers, setOffers] = useState<CampOffer[]>([])
+  const [upcomingConfig, setUpcomingConfig] = useState<SiteConfig>({ upcoming_basket_dates: '', upcoming_multisport_dates: '' })
   const basketOffer = offers.find((o) => o.type === 'basket')
   const multiOffer = offers.find((o) => o.type === 'multisport')
 
   useEffect(() => {
     const load = async () => {
-      const [cos, tms, eds, allMedia, offs] = await Promise.all([
+      const [cos, tms, eds, allMedia, offs, config] = await Promise.all([
         getCoaches(),
         getTestimonials(),
         getEditions(),
         getAllMedia(),
         getOffers(),
+        getSiteConfig(),
       ])
       setDynamicCoaches(cos)
       setDynamicTestimonials(tms)
@@ -62,6 +64,7 @@ export default function Home() {
       })).reverse()
       setEditionPreviews(previews)
       setOffers(offs)
+      setUpcomingConfig(config)
     }
     load()
   }, [])
@@ -117,6 +120,31 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
+
+        {/* Éditions à venir */}
+        {(upcomingConfig.upcoming_basket_dates || upcomingConfig.upcoming_multisport_dates) && (
+          <AnimatedSection className="py-16 px-4 bg-gsc-gray/20">
+            <div className="max-w-5xl mx-auto text-center">
+              <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-10">
+                {t('upcoming.title')}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {upcomingConfig.upcoming_basket_dates && (
+                  <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+                    <p className="font-heading text-xl text-gsc-red tracking-wider">{t('upcoming.basket')}</p>
+                    <p className="text-gsc-white/70 mt-2">{upcomingConfig.upcoming_basket_dates}</p>
+                  </div>
+                )}
+                {upcomingConfig.upcoming_multisport_dates && (
+                  <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+                    <p className="font-heading text-xl text-gsc-orange tracking-wider">{t('upcoming.multisport')}</p>
+                    <p className="text-gsc-white/70 mt-2">{upcomingConfig.upcoming_multisport_dates}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </AnimatedSection>
+        )}
 
         {/* Notre histoire */}
         <AnimatedSection className="py-24 sm:py-32 px-4">

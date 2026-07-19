@@ -87,3 +87,8 @@ export interface AdminUser {
   password_hash?: string
   created_at: string
 }
+
+export interface SiteConfig {
+  upcoming_basket_dates: string
+  upcoming_multisport_dates: string
+}

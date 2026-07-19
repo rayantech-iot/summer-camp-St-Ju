@@ -14,11 +14,12 @@ import {
   getOffers, updateOffer,
   getAdminUsers, createAdminUser, deleteAdminUser, findAdminByEmail,
   setAdminPassword, verifyAdminPassword,
+  getSiteConfig, saveSiteConfig,
 } from '@/lib/data-service'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
-import type { Edition, Coach, FAQItem, Testimonial, ContactMessage, CampOffer, AdminUser } from '@/lib/types'
+import type { Edition, Coach, FAQItem, Testimonial, ContactMessage, CampOffer, AdminUser, SiteConfig } from '@/lib/types'
 
-type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'messages' | 'admins'
+type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'messages' | 'admins' | 'config'
 
 const tabs: { id: AdminTab; label: string }[] = [
   { id: 'editions', label: 'Memories' },
@@ -28,6 +29,7 @@ const tabs: { id: AdminTab; label: string }[] = [
   { id: 'offres', label: 'Offres' },
   { id: 'messages', label: 'Messages' },
   { id: 'admins', label: 'Admins' },
+  { id: 'config', label: 'Config' },
 ]
 
 function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
@@ -84,6 +86,9 @@ export default function AdminPage() {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
   const [passwordSetupError, setPasswordSetupError] = useState('')
   const [adminEmailInput, setAdminEmailInput] = useState('')
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>({ upcoming_basket_dates: '', upcoming_multisport_dates: '' })
+  const [configSavedMessage, setConfigSavedMessage] = useState('')
+  const [savingConfig, setSavingConfig] = useState(false)
 
   const askConfirm = useCallback((title: string, message: string): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -108,7 +113,7 @@ export default function AdminPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [eds, cos, faq, tms, msgs, offs, admins] = await Promise.all([
+      const [eds, cos, faq, tms, msgs, offs, admins, config] = await Promise.all([
         getEditions(),
         getCoaches(),
         getFAQItems(),
@@ -116,6 +121,7 @@ export default function AdminPage() {
         getContactMessages(),
         getOffers(),
         getAdminUsers(),
+        getSiteConfig(),
       ])
       setEditions(eds)
       setCoaches(cos)
@@ -125,6 +131,7 @@ export default function AdminPage() {
       setOffers(offs)
       setOfferDrafts(offs.map((o) => ({ ...o })))
       setAdminUsers(admins)
+      setSiteConfig(config)
 
       const mm: Record<string, any[]> = {}
       for (const ed of eds) {
@@ -669,6 +676,52 @@ export default function AdminPage() {
                     {adminUsers.length === 0 && (
                       <p className="text-gsc-white/40 text-sm">Aucun administrateur pour le moment.</p>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* ─── CONFIG ─── */}
+              {activeTab === 'config' && (
+                <div>
+                  <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                    <h2 className="font-heading text-2xl text-gsc-white tracking-wider">Configuration du site</h2>
+                    <div className="flex items-center gap-3">
+                      {configSavedMessage && (
+                        <span className="text-green-400 text-sm font-bold animate-pulse">{configSavedMessage}</span>
+                      )}
+                      <button disabled={savingConfig}
+                        onClick={async () => {
+                          setSavingConfig(true)
+                          setConfigSavedMessage('')
+                          await saveSiteConfig(siteConfig)
+                          setConfigSavedMessage('Config enregistrée ✓')
+                          setTimeout(() => setConfigSavedMessage(''), 3000)
+                          setSavingConfig(false)
+                        }}
+                        className="flex items-center gap-2 bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider disabled:opacity-50">
+                        <Save size={16} /> {savingConfig ? 'Enregistrement…' : 'Enregistrer'}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+                    <h3 className="font-heading text-xl text-gsc-white tracking-wider mb-4">Éditions à venir</h3>
+                    <p className="text-xs text-gsc-white/40 mb-6">Les dates saisies ci-dessous s'afficheront sur la page d'accueil.</p>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-1">Camp Basket — dates</label>
+                        <input value={siteConfig.upcoming_basket_dates}
+                          onChange={(e) => setSiteConfig((prev) => ({ ...prev, upcoming_basket_dates: e.target.value }))}
+                          placeholder="ex: 4-11 juillet 2026"
+                          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gsc-white/40 uppercase tracking-wider mb-1">Multisport — dates</label>
+                        <input value={siteConfig.upcoming_multisport_dates}
+                          onChange={(e) => setSiteConfig((prev) => ({ ...prev, upcoming_multisport_dates: e.target.value }))}
+                          placeholder="ex: 6-13 juillet 2026"
+                          className="w-full bg-gsc-black/50 border border-gsc-gray/30 px-4 py-3 text-gsc-white placeholder:text-gsc-white/30 focus:outline-none focus:border-gsc-red" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
