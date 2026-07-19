@@ -101,14 +101,6 @@ export default function ContactPage() {
                   >
                     {t('contact.social.facebook')}
                   </a>
-                  <a
-                    href="https://tiktok.com/@genevoissummercamp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
-                  >
-                    {t('contact.social.tiktok')}
-                  </a>
                 </div>
               </div>
 
