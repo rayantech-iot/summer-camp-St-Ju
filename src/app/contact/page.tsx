@@ -106,7 +106,7 @@ export default function ContactPage() {
 
               {/* Map links */}
               <div className="mt-10 space-y-4">
-                <a href="https://maps.app.goo.gl/8wRhytYebvAtraRV8?g_st=aw" target="_blank" rel="noopener noreferrer"
+                <a href="https://maps.app.goo.gl/RCB1mWT72UaPwjD5A?g_st=aw" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-gsc-gray/20 p-4 border border-gsc-gray/30 hover:border-gsc-red/50 transition-colors group">
                   <MapPin className="text-gsc-red shrink-0" size={20} />
                   <div>
@@ -114,12 +114,12 @@ export default function ContactPage() {
                     <p className="text-xs text-gsc-white/50">Ouvrir dans Google Maps</p>
                   </div>
                 </a>
-                <a href="https://maps.app.goo.gl/RCB1mWT72UaPwjD5A?g_st=aw" target="_blank" rel="noopener noreferrer"
+                <a href="https://maps.app.goo.gl/8wRhytYebvAtraRV8?g_st=aw" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-gsc-gray/20 p-4 border border-gsc-gray/30 hover:border-gsc-red/50 transition-colors group">
                   <MapPin className="text-gsc-red shrink-0" size={20} />
                   <div>
                     <p className="text-sm font-bold text-gsc-white group-hover:text-gsc-red transition-colors">Gymnase — Vulbens</p>
-                    <p className="text-xs text-gsc-white/50">Ouvrir dans Google Maps</p>
+                    <p className="text-xs text-gsc-white/50">Gymnase du collège de Vulbens</p>
                   </div>
                 </a>
               </div>
