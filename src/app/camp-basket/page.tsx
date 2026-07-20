@@ -120,7 +120,7 @@ export default function CampBasketPage() {
                   <div className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.pricing.coaching')}</div>
                   <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.coachingDesc')}</p>
                   <div className="font-heading text-4xl text-gsc-red mt-4">{t('campBasket.pricing.coachingPrice')}</div>
-                  <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.coachingPerWeek')}</p>
+                  <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
               </div>
             </div>
