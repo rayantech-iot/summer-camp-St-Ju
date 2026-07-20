@@ -37,7 +37,7 @@ export const coaches: Coach[] = [
   {
     id: 'baptiste-nivet',
     name: 'Baptiste Nivet',
-    role: 'éducateur sportif',
+    role: 'Éducateur Sportif',
     bio: 'Entraîneur au BCSJ, Baptiste Nivet allie compétences techniques et pédagogie pour permettre à chaque jeune de progresser à son rythme.',
     diplomas: ['DETB', 'BPJEPS'],
     citation: 'Je place l\'exigence et la rigueur au cœur de mon coaching, pour faire progresser chaque joueur et chaque collectif, selon les ambitions de chacun.',
