@@ -864,7 +864,7 @@ export default function AdminPage() {
       {/* New Testimonial */}
       <Dialog open={dialog.type === 'new-testimonial'} onClose={() => setDialog({ open: false, type: '' })} title="Ajouter un témoignage">
         <Form onSubmit={async (data) => {
-          await createTestimonial({ ...data as any, created_at: new Date().toISOString() })
+          await createTestimonial({ author: data.author, role: data.role as 'parent' | 'jeune' | 'coach', content: data.content, rating: Number(data.rating), created_at: new Date().toISOString() })
           setTestimonials(await getTestimonials())
           setDialog({ open: false, type: '' })
         }}>
@@ -1134,15 +1134,22 @@ function CoachForm({ coach, onDone }: { coach?: Coach; onDone: () => void }) {
 function Form({ children, onSubmit, initialData }: { children: React.ReactNode; onSubmit: (data: Record<string, string>) => Promise<void>; initialData?: Record<string, string> }) {
   const [saving, setSaving] = useState(false)
   const [done, setDone] = useState(false)
+  const [error, setError] = useState('')
   const [values, setValues] = useState<Record<string, string>>(initialData || {})
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-    await onSubmit(values)
-    setSaving(false)
-    setDone(true)
-    setTimeout(() => setDone(false), 2000)
+    setError('')
+    try {
+      await onSubmit(values)
+      setSaving(false)
+      setDone(true)
+      setTimeout(() => setDone(false), 2000)
+    } catch (err: any) {
+      setSaving(false)
+      setError(err?.message || 'Une erreur est survenue')
+    }
   }
 
   const setValue = (name: string, value: string) => {
@@ -1164,6 +1171,7 @@ function Form({ children, onSubmit, initialData }: { children: React.ReactNode; 
         }
         return child
       }) : children}
+      {error && <p className="text-red-400 text-xs">{error}</p>}
       <button type="submit" disabled={saving}
         className="w-full bg-gsc-red hover:bg-gsc-red/90 disabled:opacity-50 text-white px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all">
         {saving ? 'Enregistrement...' : done ? <span className="flex items-center justify-center gap-2"><Save size={16} /> Enregistré</span> : 'Enregistrer'}
