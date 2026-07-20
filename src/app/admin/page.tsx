@@ -1159,12 +1159,22 @@ function Form({ children, onSubmit, initialData }: { children: React.ReactNode; 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {Array.isArray(children) ? (children as React.ReactElement[]).map((child) => {
-        if (child.type === FormInput || child.type === FormSelect) {
+        if (child.type === FormInput) {
           return (
             <child.type
               key={(child.props as any).name}
               {...(child.props as any)}
               value={values[(child.props as any).name] || ''}
+              onChange={(val: string) => setValue((child.props as any).name, val)}
+            />
+          )
+        }
+        if (child.type === FormSelect) {
+          return (
+            <child.type
+              key={(child.props as any).name}
+              {...(child.props as any)}
+              value={values[(child.props as any).name]}
               onChange={(val: string) => setValue((child.props as any).name, val)}
             />
           )
