@@ -48,7 +48,7 @@ export const coaches: Coach[] = [
   {
     id: 'jean-podevin',
     name: 'Jean Podevin',
-    role: 'Entraîneur de sélection',
+    role: 'Éducateur Sportif',
     bio: 'Fort d\'une expérience en sélection et en club, Jean Podevin apporte une vision tactique et collective du jeu, indispensable à la formation des jeunes joueurs.',
     diplomas: ['BPJEPS'],
     citation: 'Le collectif élève le niveau de chacun. Apprendre à jouer ensemble, c\'est apprendre à gagner ensemble.',
