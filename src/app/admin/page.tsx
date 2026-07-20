@@ -1135,7 +1135,17 @@ function Form({ children, onSubmit, initialData }: { children: React.ReactNode; 
   const [saving, setSaving] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
-  const [values, setValues] = useState<Record<string, string>>(initialData || {})
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    if (initialData) return initialData
+    const defaults: Record<string, string> = {}
+    const arr = Array.isArray(children) ? children : [children]
+    arr.forEach((child: any) => {
+      if (child?.type === FormSelect) {
+        defaults[child.props.name] = child.props.options?.[0]?.value || ''
+      }
+    })
+    return defaults
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -1174,7 +1184,7 @@ function Form({ children, onSubmit, initialData }: { children: React.ReactNode; 
             <child.type
               key={(child.props as any).name}
               {...(child.props as any)}
-              value={values[(child.props as any).name]}
+              value={values[(child.props as any).name] ?? ''}
               onChange={(val: string) => setValue((child.props as any).name, val)}
             />
           )
