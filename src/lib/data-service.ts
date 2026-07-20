@@ -90,6 +90,33 @@ export async function getMediaByEdition(editionId: string): Promise<MemoryMedia[
   return allMedia.filter((m) => m.edition_id === editionId)
 }
 
+function generateVideoThumbnail(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video')
+    video.preload = 'metadata'
+    video.muted = true
+    video.playsInline = true
+    video.onloadeddata = () => {
+      video.currentTime = 0.5
+    }
+    video.onseeked = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(video, 0, 0)
+      canvas.toBlob((blob) => {
+        if (!blob) { reject(new Error('Échec génération vignette')); return }
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.readAsDataURL(blob)
+      }, 'image/jpeg', 0.7)
+    }
+    video.onerror = () => reject(new Error('Erreur chargement vidéo pour vignette'))
+    video.src = URL.createObjectURL(file)
+  })
+}
+
 export async function uploadMedia(editionId: string, file: File): Promise<MemoryMedia> {
   let processedFile = file
   if (file.type.startsWith('image/') && file.size > 50_000) {
@@ -98,13 +125,21 @@ export async function uploadMedia(editionId: string, file: File): Promise<Memory
 
   const id = generateId()
   const type = processedFile.type.startsWith('video/') ? 'video' : 'image'
+
+  let thumbnail_url: string | undefined
+  if (type === 'video') {
+    try {
+      thumbnail_url = await generateVideoThumbnail(processedFile)
+    } catch { /* fallback: pas de vignette */ }
+  }
+
   const b64 = await new Promise<string>((resolve) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result as string)
     reader.readAsDataURL(processedFile)
   })
 
-  const media: MemoryMedia = { id, edition_id: editionId, url: b64, type, created_at: new Date().toISOString() }
+  const media: MemoryMedia = { id, edition_id: editionId, url: b64, type, created_at: new Date().toISOString(), thumbnail_url }
 
   if (SUPABASE_CONFIGURED) {
     const { data, error } = await supabase.from('memory_media').insert(media).select().single()
