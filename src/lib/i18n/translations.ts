@@ -55,9 +55,9 @@ const fr: Translations = {
   'offers.multi.desc': 'Futsal, VTT, tennis de table, sports collectifs, jeux de groupe — encadrement BPJEPS/BAFA.',
   'offers.multi.cta': 'Découvrir',
   'offers.coach.title': 'Coach Individuel',
-  'offers.coach.desc': 'Une séance individuelle d\'une heure chaque jour avec un coach professionnel pour un accompagnement personnalisé et une progression accélérée.',
+  'offers.coach.desc': '3h d\'entraînement individuel durant la semaine avec un coach pour travailler ou améliorer votre technique.',
   'offers.coach.contact': 'Nous contacter',
-  'offers.coach.perDay': '1h/jour • Sur mesure',
+  'offers.coach.perDay': '550€ • 3h/semaine',
 
   // Coaching section
   'coaching.title': "L'encadrement",
@@ -344,9 +344,9 @@ const en: Translations = {
   'offers.multi.desc': 'Futsal, mountain biking, table tennis, team sports, group games — BAFA certified.',
   'offers.multi.cta': 'Discover',
   'offers.coach.title': 'Personal Coaching',
-  'offers.coach.desc': 'A one-hour individual session every day with a professional coach for personalized guidance and accelerated progress.',
+  'offers.coach.desc': '3 hours of individual training during the week with a coach to work on or improve your technique.',
   'offers.coach.contact': 'Contact us',
-  'offers.coach.perDay': '1h/day • Tailored program',
+  'offers.coach.perDay': '€550 • 3h/week',
 
   // Coaching section
   'coaching.title': 'Our coaches',
