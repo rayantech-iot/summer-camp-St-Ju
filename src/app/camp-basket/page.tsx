@@ -94,31 +94,31 @@ export default function CampBasketPage() {
               <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-8">
                 {t('campBasket.pricing.title')}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-gsc-gray/30 p-5 border border-gsc-gray/30">
                   <div className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.pricing.externat')}</div>
-                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.externatSansRepas')}</p>
+                  <p className="text-xs text-gsc-white/40 mt-1 break-words">{t('campBasket.pricing.externatSansRepas')}</p>
                   <div className="font-heading text-4xl text-gsc-red mt-4">{basketOffer?.price_externat || 300}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
-                <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30">
+                <div className="bg-gsc-gray/30 p-5 border border-gsc-gray/30">
                   <div className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.pricing.externat')}</div>
-                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.externatAvecRepas')}</p>
+                  <p className="text-xs text-gsc-white/40 mt-1 break-words">{t('campBasket.pricing.externatAvecRepas')}</p>
                   <div className="font-heading text-4xl text-gsc-red mt-4">{basketOffer?.price_externat_avec_repas || 350}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
-                <div className="bg-gsc-gray/30 p-6 border border-gsc-red/30 relative">
+                <div className="bg-gsc-gray/30 p-5 border border-gsc-red/30 relative">
                   <div className="absolute -top-3 -right-3 bg-gsc-orange text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
                     {t('campBasket.pricing.recommended')}
                   </div>
                   <div className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.pricing.internat')}</div>
-                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.internatDesc')}</p>
+                  <p className="text-xs text-gsc-white/40 mt-1 break-words">{t('campBasket.pricing.internatDesc')}</p>
                   <div className="font-heading text-4xl text-gsc-red mt-4">{basketOffer?.price_internat || 490}€</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
-                <div className="bg-gsc-gray/30 p-6 border border-gsc-gray/30 flex flex-col">
+                <div className="bg-gsc-gray/30 p-5 border border-gsc-gray/30">
                   <div className="font-heading text-lg text-gsc-white tracking-wider">{t('campBasket.pricing.coaching')}</div>
-                  <p className="text-xs text-gsc-white/40 mt-1">{t('campBasket.pricing.coachingDesc')}</p>
+                  <p className="text-xs text-gsc-white/40 mt-1 break-words">{t('campBasket.pricing.coachingDesc')}</p>
                   <div className="font-heading text-4xl text-gsc-red mt-4">{t('campBasket.pricing.coachingPrice')}</div>
                   <p className="text-sm text-gsc-white/50 mt-2">{t('campBasket.pricing.perWeek')}</p>
                 </div>
