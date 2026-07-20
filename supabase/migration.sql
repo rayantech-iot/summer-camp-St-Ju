@@ -10,3 +10,7 @@ UPDATE public.offers SET lieu = 'Valleiry & Vulbens (74520)' WHERE type = 'baske
 UPDATE public.offers SET lieu = 'Valleiry & Vulbens (74520)' WHERE type = 'multisport';
 UPDATE public.offers SET public = 'U11 à U17 (11-17 ans)' WHERE type = 'basket';
 UPDATE public.offers SET public = '6-10 ans' WHERE type = 'multisport';
+
+-- 4. RLS policies pour memory_media (manquantes)
+DROP POLICY IF EXISTS "anon_all" ON public.memory_media;
+CREATE POLICY "anon_all" ON public.memory_media FOR ALL TO anon USING (true) WITH CHECK (true);

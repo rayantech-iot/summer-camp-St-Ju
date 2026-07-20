@@ -397,9 +397,13 @@ export default function AdminPage() {
                                     onClick={async () => {
                                       const ok = await askConfirm('Supprimer le média', 'Cette action est irréversible.')
                                       if (!ok) return
-                                      await deleteMedia(media.id)
-                                      const updated = await getMediaByEdition(ed.id)
-                                      setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
+                                      try {
+                                        await deleteMedia(media.id)
+                                        const updated = await getMediaByEdition(ed.id)
+                                        setMediaMap((prev) => ({ ...prev, [ed.id]: updated }))
+                                      } catch (err: any) {
+                                        alert(err?.message || 'Erreur lors de la suppression')
+                                      }
                                     }}
                                     className="absolute top-1 right-1 bg-gsc-red/80 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
                                   >
