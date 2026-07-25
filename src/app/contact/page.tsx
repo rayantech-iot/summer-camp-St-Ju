@@ -101,6 +101,14 @@ export default function ContactPage() {
                   >
                     {t('contact.social.facebook')}
                   </a>
+                  <a
+                    href="https://youtube.com/@genevoissummercamp?si=isxoqwtpIdm-Qn4q"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gsc-white/60 hover:text-gsc-red transition-colors"
+                  >
+                    YouTube
+                  </a>
                 </div>
               </div>
 
