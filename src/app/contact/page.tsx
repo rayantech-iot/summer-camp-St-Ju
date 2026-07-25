@@ -59,8 +59,8 @@ export default function ContactPage() {
                   <Phone className="text-gsc-red shrink-0 mt-1" size={20} />
                   <div>
                     <p className="font-bold text-sm text-gsc-white/80">{t('contact.info.dodzi')}</p>
-                    <a href="tel:+33658152927" className="text-sm text-gsc-white/50 hover:text-gsc-red transition-colors">
-                      +33 6 58 15 29 27
+                    <a href="tel:+33667923274" className="text-sm text-gsc-white/50 hover:text-gsc-red transition-colors">
+                      +33 6 67 92 32 74
                     </a>
                   </div>
                 </div>

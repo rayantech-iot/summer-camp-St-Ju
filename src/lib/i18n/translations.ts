@@ -105,7 +105,7 @@ const fr: Translations = {
   'footer.cgv': 'CGV',
   'footer.privacy': 'Politique de confidentialité',
   'footer.rights': 'Tous droits réservés.',
-  'footer.contactPhone': 'Dodzi +33 6 58 15 29 27',
+  'footer.contactPhone': 'Dodzi +33 6 67 92 32 74',
 
   // CTA section (default)
   'cta.defaultLabel': "Je m'inscris",
@@ -397,7 +397,7 @@ const en: Translations = {
   'footer.cgv': 'Terms of sale',
   'footer.privacy': 'Privacy policy',
   'footer.rights': 'All rights reserved.',
-  'footer.contactPhone': 'Dodzi +33 6 58 15 29 27',
+  'footer.contactPhone': 'Dodzi +33 6 67 92 32 74',
 
   // CTA section (default)
   'cta.defaultLabel': 'Register now',
