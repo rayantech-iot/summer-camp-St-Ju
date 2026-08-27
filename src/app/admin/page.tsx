@@ -15,11 +15,12 @@ import {
   getAdminUsers, createAdminUser, deleteAdminUser, findAdminByEmail,
   setAdminPassword, verifyAdminPassword,
   getSiteConfig, saveSiteConfig,
+  getUSEditionInterests,
 } from '@/lib/data-service'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
-import type { Edition, Coach, FAQItem, Testimonial, ContactMessage, CampOffer, AdminUser, SiteConfig } from '@/lib/types'
+import type { Edition, Coach, FAQItem, Testimonial, ContactMessage, CampOffer, AdminUser, SiteConfig, USEditionInterest } from '@/lib/types'
 
-type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'messages' | 'admins' | 'config'
+type AdminTab = 'editions' | 'coachs' | 'faq' | 'temoignages' | 'offres' | 'messages' | 'admins' | 'config' | 'usEdition'
 
 const tabs: { id: AdminTab; label: string }[] = [
   { id: 'editions', label: 'Memories' },
@@ -30,6 +31,7 @@ const tabs: { id: AdminTab; label: string }[] = [
   { id: 'messages', label: 'Messages' },
   { id: 'admins', label: 'Admins' },
   { id: 'config', label: 'Config' },
+  { id: 'usEdition', label: 'US Edition' },
 ]
 
 function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
@@ -89,6 +91,7 @@ export default function AdminPage() {
   const [siteConfig, setSiteConfig] = useState<SiteConfig>({ sessions: [{ basket_dates: '', multisport_dates: '' }] })
   const [configSavedMessage, setConfigSavedMessage] = useState('')
   const [savingConfig, setSavingConfig] = useState(false)
+  const [usEditionInterests, setUSEditionInterests] = useState<USEditionInterest[]>([])
 
   const askConfirm = useCallback((title: string, message: string): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -113,7 +116,7 @@ export default function AdminPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [eds, cos, faq, tms, msgs, offs, admins, config] = await Promise.all([
+      const [eds, cos, faq, tms, msgs, offs, admins, config, usInterests] = await Promise.all([
         getEditions(),
         getCoaches(),
         getFAQItems(),
@@ -122,6 +125,7 @@ export default function AdminPage() {
         getOffers(),
         getAdminUsers(),
         getSiteConfig(),
+        getUSEditionInterests(),
       ])
       setEditions(eds)
       setCoaches(cos)
@@ -132,6 +136,7 @@ export default function AdminPage() {
       setOfferDrafts(offs.map((o) => ({ ...o })))
       setAdminUsers(admins)
       setSiteConfig(config)
+      setUSEditionInterests(usInterests)
 
       const mm: Record<string, any[]> = {}
       for (const ed of eds) {
@@ -795,6 +800,47 @@ export default function AdminPage() {
                       ))}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'usEdition' && (
+                <div>
+                  <h2 className="font-heading text-2xl text-gsc-white tracking-wider mb-6">🇺🇸 US Edition — Inscriptions d'intérêt</h2>
+                  <p className="text-sm text-gsc-white/50 mb-6">{usEditionInterests.length} personne{usEditionInterests.length !== 1 ? 's' : ''} inscrite{usEditionInterests.length !== 1 ? 's' : ''}</p>
+                  {usEditionInterests.length === 0 ? (
+                    <div className="text-gsc-white/30 text-center py-16 border border-gsc-gray/30 bg-gsc-gray/10">
+                      Aucune inscription pour le moment.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gsc-gray/30 text-gsc-white/40 uppercase text-xs tracking-wider">
+                            <th className="text-left py-3 px-3">Date</th>
+                            <th className="text-left py-3 px-3">Parent</th>
+                            <th className="text-left py-3 px-3">Jeune</th>
+                            <th className="text-left py-3 px-3">Âge</th>
+                            <th className="text-left py-3 px-3">Email</th>
+                            <th className="text-left py-3 px-3">Téléphone</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {usEditionInterests.map((interest) => (
+                            <tr key={interest.id} className="border-b border-gsc-gray/20 hover:bg-gsc-gray/10 text-gsc-white/80">
+                              <td className="py-3 px-3 text-xs text-gsc-white/40 whitespace-nowrap">
+                                {new Date(interest.created_at).toLocaleDateString('fr-FR')}
+                              </td>
+                              <td className="py-3 px-3 font-medium">{interest.parent_name}</td>
+                              <td className="py-3 px-3">{interest.child_first_name}</td>
+                              <td className="py-3 px-3">{interest.child_age} ans</td>
+                              <td className="py-3 px-3">{interest.email}</td>
+                              <td className="py-3 px-3">{interest.phone}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

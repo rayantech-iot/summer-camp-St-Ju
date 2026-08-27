@@ -97,3 +97,13 @@ export interface SiteSession {
 export interface SiteConfig {
   sessions: SiteSession[]
 }
+
+export interface USEditionInterest {
+  id: string
+  parent_name: string
+  child_first_name: string
+  child_age: number
+  email: string
+  phone: string
+  created_at: string
+}

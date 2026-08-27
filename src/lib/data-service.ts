@@ -19,6 +19,7 @@ import type {
   ContactMessage,
   AdminUser,
   SiteConfig,
+  USEditionInterest,
 } from './types'
 import { coaches as fallbackCoaches, testimonials as fallbackTestimonials, faqItems as fallbackFAQ } from './data'
 
@@ -516,4 +517,39 @@ export async function verifyAdminPassword(email: string, password: string): Prom
 export async function findAdminByEmail(email: string): Promise<AdminUser | null> {
   const items = await getAdminUsers()
   return items.find((a) => a.email.toLowerCase() === email.toLowerCase()) || null
+}
+
+// ─── US EDITION INTERESTS ──────────────────────────────────────
+
+export async function createUSEditionInterest(data: {
+  parent_name: string
+  child_first_name: string
+  child_age: number
+  email: string
+  phone: string
+}): Promise<USEditionInterest> {
+  if (SUPABASE_CONFIGURED) {
+    const { error } = await supabase.from('us_edition_interests').insert({
+      parent_name: data.parent_name,
+      child_first_name: data.child_first_name,
+      child_age: data.child_age,
+      email: data.email,
+      phone: data.phone,
+    })
+    if (error) throw new Error("Erreur d'inscription US Edition : " + error.message)
+    return { id: '', ...data, created_at: new Date().toISOString() }
+  }
+  throw new Error('Supabase non configuré — enregistrement impossible.')
+}
+
+export async function getUSEditionInterests(): Promise<USEditionInterest[]> {
+  if (SUPABASE_CONFIGURED) {
+    const { data, error } = await supabase
+      .from('us_edition_interests')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) throw new Error('Erreur de chargement US Edition : ' + error.message)
+    return (data || []) as USEditionInterest[]
+  }
+  return []
 }

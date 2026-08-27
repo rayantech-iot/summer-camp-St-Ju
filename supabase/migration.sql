@@ -14,3 +14,20 @@ UPDATE public.offers SET public = '6-10 ans' WHERE type = 'multisport';
 -- 4. RLS policies pour memory_media (manquantes)
 DROP POLICY IF EXISTS "anon_all" ON public.memory_media;
 CREATE POLICY "anon_all" ON public.memory_media FOR ALL TO anon USING (true) WITH CHECK (true);
+
+-- 5. Table us_edition_interests
+CREATE TABLE IF NOT EXISTS public.us_edition_interests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  parent_name TEXT NOT NULL,
+  child_first_name TEXT NOT NULL,
+  child_age INTEGER NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+DROP POLICY IF EXISTS "anon_insert" ON public.us_edition_interests;
+CREATE POLICY "anon_insert" ON public.us_edition_interests FOR INSERT TO anon WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_select" ON public.us_edition_interests;
+CREATE POLICY "anon_select" ON public.us_edition_interests FOR SELECT TO anon USING (true);
