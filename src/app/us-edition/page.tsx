@@ -133,8 +133,7 @@ export default function USEditionPage() {
             <AnimatedSection>
               <a
                 href="/brochure-us-edition-2027.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
+                download="Brochure US Edition 2027.pdf"
                 className="inline-flex items-center gap-3 border-2 border-gsc-red text-gsc-white hover:bg-gsc-red hover:text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider text-sm transition-all duration-300"
               >
                 <Download size={18} />
