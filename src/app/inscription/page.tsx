@@ -8,6 +8,7 @@ import AnimatedSection from '@/components/AnimatedSection'
 import { getOffers, getSiteConfig } from '@/lib/data-service'
 import type { CampOffer, SiteConfig } from '@/lib/types'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { HELLOASSO_BASKET } from '@/lib/helloasso'
 
 export default function InscriptionPage() {
   const { t } = useLanguage()
@@ -43,7 +44,7 @@ export default function InscriptionPage() {
 
         <AnimatedSection className="py-20 px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="bg-gsc-gray/20 p-8 border border-gsc-gray/30 flex flex-col">
                 <h3 className="font-heading text-2xl text-gsc-white tracking-wider">{t('inscription.basket.title')}</h3>
                 <p className="text-sm text-gsc-white/60 mt-3">
@@ -55,6 +56,15 @@ export default function InscriptionPage() {
                   <p className="text-gsc-white font-bold text-base">{t('campBasket.pricing.externatAvecRepas')} — {basketOffer?.price_externat_avec_repas || 350}€</p>
                   <p className="text-gsc-white font-bold text-base">{t('campBasket.pricing.internatDesc')} — {basketOffer?.price_internat || 490}€</p>
                 </div>
+                <a
+                  href={HELLOASSO_BASKET}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-auto inline-flex items-center justify-center gap-3 bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-4 font-bold uppercase tracking-wider text-sm transition-all"
+                >
+                  {t('inscription.cta')} <ExternalLink size={18} />
+                </a>
+                <p className="text-sm text-gsc-white/40 mt-4 text-center">{t('inscription.helloasso')}</p>
               </div>
               <div className="bg-gsc-gray/20 p-8 border border-gsc-gray/30 flex flex-col">
                 <h3 className="font-heading text-2xl text-gsc-white tracking-wider">{t('inscription.multi.title')}</h3>
@@ -69,17 +79,6 @@ export default function InscriptionPage() {
               </div>
             </div>
 
-            <div className="text-center">
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 bg-gsc-red hover:bg-gsc-red/90 text-white px-10 py-5 font-bold uppercase tracking-wider text-lg transition-all"
-              >
-                {t('inscription.cta')} <ExternalLink size={20} />
-              </a>
-              <p className="text-sm text-gsc-white/40 mt-4">{t('inscription.helloasso')}</p>
-            </div>
           </div>
         </AnimatedSection>
       </main>

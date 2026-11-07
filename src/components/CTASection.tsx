@@ -34,12 +34,23 @@ export default function CTASection({
           </p>
         )}
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href={primaryHref}
-            className="bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-4 font-bold uppercase tracking-wider text-sm transition-all hover:scale-105 inline-block"
-          >
-            {primaryLabel || t('cta.defaultLabel')}
-          </Link>
+          {primaryHref.startsWith('http') ? (
+            <a
+              href={primaryHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-4 font-bold uppercase tracking-wider text-sm transition-all hover:scale-105 inline-block"
+            >
+              {primaryLabel || t('cta.defaultLabel')}
+            </a>
+          ) : (
+            <Link
+              href={primaryHref}
+              className="bg-gsc-red hover:bg-gsc-red/90 text-white px-8 py-4 font-bold uppercase tracking-wider text-sm transition-all hover:scale-105 inline-block"
+            >
+              {primaryLabel || t('cta.defaultLabel')}
+            </Link>
+          )}
           {secondaryLabel && secondaryHref && (
             <Link
               href={secondaryHref}

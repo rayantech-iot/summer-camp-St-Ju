@@ -11,6 +11,7 @@ import { getOffers, getSiteConfig } from '@/lib/data-service'
 import type { CampOffer, SiteConfig } from '@/lib/types'
 import { coaches } from '@/lib/data'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { HELLOASSO_BASKET } from '@/lib/helloasso'
 
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
 const CTASection = dynamic(() => import('@/components/CTASection'), { ssr: false })
@@ -192,7 +193,7 @@ export default function CampBasketPage() {
           title={t('campBasket.cta.title')}
           subtitle={t('campBasket.cta.subtitle')}
           primaryLabel={t('campBasket.cta.register')}
-          primaryHref="/inscription"
+          primaryHref={HELLOASSO_BASKET}
         />
       </main>
       <Footer />

@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, X, CheckCircle, Download } from 'lucide-react'
+import { ArrowRight, X, CheckCircle, Download, ExternalLink } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { createUSEditionInterest } from '@/lib/data-service'
+import { HELLOASSO_US_EDITION } from '@/lib/helloasso'
 
 export default function USEditionPage() {
   const { t } = useLanguage()
@@ -147,7 +148,16 @@ export default function USEditionPage() {
         <section className="py-32 px-6">
           <div className="max-w-2xl mx-auto text-center">
             <AnimatedSection>
-              <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-5">
+              <a
+                href={HELLOASSO_US_EDITION}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 bg-gsc-red hover:bg-gsc-red/90 text-white px-12 py-5 font-bold uppercase tracking-wider text-sm transition-all hover:scale-[1.02]"
+              >
+                {t('inscription.cta')} <ExternalLink size={16} />
+              </a>
+              <p className="text-sm text-gsc-white/40 mt-4">{t('inscription.helloasso')}</p>
+              <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-5 mt-20">
                 {t('usEdition.cta')}
               </h2>
               <p className="text-gsc-white/40 mb-12 max-w-md mx-auto text-sm leading-relaxed">
@@ -155,7 +165,7 @@ export default function USEditionPage() {
               </p>
               <button
                 onClick={() => { setShowForm(true); setSubmitted(false); setError(''); setForm({ parent_name: '', child_first_name: '', child_age: '', email: '', phone: '' }) }}
-                className="inline-flex items-center gap-3 bg-gsc-red hover:bg-gsc-red/90 text-white px-12 py-5 font-bold uppercase tracking-wider text-sm transition-all hover:scale-[1.02]"
+                className="inline-flex items-center gap-3 border border-gsc-white/30 hover:border-gsc-white/60 text-gsc-white px-12 py-5 font-bold uppercase tracking-wider text-sm transition-all"
               >
                 {t('usEdition.cta')} <ArrowRight size={16} />
               </button>
