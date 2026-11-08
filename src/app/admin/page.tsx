@@ -31,7 +31,7 @@ const tabs: { id: AdminTab; label: string }[] = [
   { id: 'messages', label: 'Messages' },
   { id: 'admins', label: 'Admins' },
   { id: 'config', label: 'Config' },
-  { id: 'usEdition', label: 'US Experience' },
+  { id: 'usEdition', label: 'USA Experience' },
 ]
 
 function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
@@ -805,7 +805,7 @@ export default function AdminPage() {
 
               {activeTab === 'usEdition' && (
                 <div>
-                  <h2 className="font-heading text-2xl text-gsc-white tracking-wider mb-6">🇺🇸 US Experience — Inscriptions d'intérêt</h2>
+                  <h2 className="font-heading text-2xl text-gsc-white tracking-wider mb-6">🇺🇸 USA Experience — Inscriptions d'intérêt</h2>
                   <p className="text-sm text-gsc-white/50 mb-6">{usEditionInterests.length} personne{usEditionInterests.length !== 1 ? 's' : ''} inscrite{usEditionInterests.length !== 1 ? 's' : ''}</p>
                   {usEditionInterests.length === 0 ? (
                     <div className="text-gsc-white/30 text-center py-16 border border-gsc-gray/30 bg-gsc-gray/10">

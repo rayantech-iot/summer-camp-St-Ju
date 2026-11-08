@@ -13,7 +13,7 @@ const fr: Translations = {
   'nav.faq': 'FAQ',
   'nav.contact': 'Contact',
   'nav.register': "Je m'inscris",
-  'nav.usEdition': 'US EXPERIENCE',
+  'nav.usEdition': 'USA EXPERIENCE',
   'nav.menu': 'Menu',
 
   // Hero
@@ -285,7 +285,7 @@ const fr: Translations = {
   'upcoming.title': 'Éditions à venir',
   'upcoming.basket': 'Camp Basket',
   'upcoming.multisport': 'Multisport',
-  'usEdition.hero.title': 'US EXPERIENCE',
+  'usEdition.hero.title': 'USA EXPERIENCE',
   'usEdition.hero.subtitle': 'Chicago — Basket & Immersion Anglaise',
   'usEdition.comingSoon': 'COMING SOON 2027',
   'usEdition.narrative.title': 'Un été inoubliable à Chicago',
@@ -331,7 +331,7 @@ const en: Translations = {
   'nav.contact': 'Contact',
   'nav.register': 'Register now',
   'nav.menu': 'Menu',
-  'nav.usEdition': 'US EXPERIENCE',
+  'nav.usEdition': 'USA EXPERIENCE',
 
   // Hero
   'hero.title1': 'GENEVOIS',
@@ -602,7 +602,7 @@ const en: Translations = {
   'upcoming.title': 'Upcoming Editions',
   'upcoming.basket': 'Basket Camp',
   'upcoming.multisport': 'Multisport',
-  'usEdition.hero.title': 'US EXPERIENCE',
+  'usEdition.hero.title': 'USA EXPERIENCE',
   'usEdition.hero.subtitle': 'Chicago — Basketball & English Immersion',
   'usEdition.comingSoon': 'COMING SOON 2027',
   'usEdition.narrative.title': 'An unforgettable summer in Chicago',
