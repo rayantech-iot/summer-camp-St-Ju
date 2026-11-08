@@ -13,7 +13,7 @@ const fr: Translations = {
   'nav.faq': 'FAQ',
   'nav.contact': 'Contact',
   'nav.register': "Je m'inscris",
-  'nav.usEdition': 'U.S EDITION',
+  'nav.usEdition': 'US EXPERIENCE',
   'nav.menu': 'Menu',
 
   // Hero
@@ -285,7 +285,7 @@ const fr: Translations = {
   'upcoming.title': 'Éditions à venir',
   'upcoming.basket': 'Camp Basket',
   'upcoming.multisport': 'Multisport',
-  'usEdition.hero.title': 'ÉDITION USA 2027',
+  'usEdition.hero.title': 'US EXPERIENCE',
   'usEdition.hero.subtitle': 'Chicago — Basket & Immersion Anglaise',
   'usEdition.comingSoon': 'COMING SOON 2027',
   'usEdition.narrative.title': 'Un été inoubliable à Chicago',
@@ -301,7 +301,7 @@ const fr: Translations = {
   'usEdition.features.training': 'Entraînements encadrés sur place',
   'usEdition.features.meet': 'Rencontres avec des jeunes américains',
   'usEdition.features.departure': 'Départs depuis Genève et Paris',
-  'usEdition.features.price': 'Tarif : à venir',
+  'usEdition.features.price': 'Tarif : 2990€',
   'usEdition.cta': 'Je souhaite être informé en priorité',
   'usEdition.cta.sub': 'Inscrivez-vous sur la liste d\'intérêt pour recevoir en premier toutes les informations pratiques, les dates et les tarifs.',
   'usEdition.brochure': 'Télécharger la brochure',
@@ -331,7 +331,7 @@ const en: Translations = {
   'nav.contact': 'Contact',
   'nav.register': 'Register now',
   'nav.menu': 'Menu',
-  'nav.usEdition': 'US EDITION',
+  'nav.usEdition': 'US EXPERIENCE',
 
   // Hero
   'hero.title1': 'GENEVOIS',
@@ -602,7 +602,7 @@ const en: Translations = {
   'upcoming.title': 'Upcoming Editions',
   'upcoming.basket': 'Basket Camp',
   'upcoming.multisport': 'Multisport',
-  'usEdition.hero.title': 'USA EDITION 2027',
+  'usEdition.hero.title': 'US EXPERIENCE',
   'usEdition.hero.subtitle': 'Chicago — Basketball & English Immersion',
   'usEdition.comingSoon': 'COMING SOON 2027',
   'usEdition.narrative.title': 'An unforgettable summer in Chicago',
@@ -618,7 +618,7 @@ const en: Translations = {
   'usEdition.features.training': 'Coached training sessions on site',
   'usEdition.features.meet': 'Meet American peers',
   'usEdition.features.departure': 'Departures from Geneva and Paris',
-  'usEdition.features.price': 'Price: TBA',
+  'usEdition.features.price': 'Price: 2990€',
   'usEdition.cta': 'I want to be notified first',
   'usEdition.cta.sub': 'Join the interest list to receive all practical information, dates, and pricing as soon as they are available.',
   'usEdition.brochure': 'Download the brochure',
