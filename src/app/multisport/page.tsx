@@ -9,6 +9,7 @@ import CTASection from '@/components/CTASection'
 import { getOffers, getSiteConfig } from '@/lib/data-service'
 import type { CampOffer, SiteConfig } from '@/lib/types'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { HELLOASSO_BASKET } from '@/lib/helloasso'
 
 const activityKeys = [
   'multisport.offered.basket',
@@ -160,7 +161,7 @@ export default function MultisportPage() {
           title={t('multisport.cta.title')}
           subtitle={t('multisport.cta.subtitle')}
           primaryLabel={t('multisport.cta.register')}
-          primaryHref="/inscription"
+          primaryHref={HELLOASSO_BASKET}
         />
       </main>
       <Footer />

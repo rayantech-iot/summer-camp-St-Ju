@@ -76,6 +76,15 @@ export default function InscriptionPage() {
                   <p className="text-gsc-white font-bold text-base">{t('multisport.pricing.externatSansRepas')} — {multiOffer?.price_externat || 300}€</p>
                   <p className="text-gsc-white font-bold text-base">{t('multisport.pricing.externatAvecRepas')} — {multiOffer?.price_externat_avec_repas || 350}€</p>
                 </div>
+                <a
+                  href={HELLOASSO_BASKET}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-auto inline-flex items-center justify-center gap-3 bg-gsc-red hover:bg-gsc-red/90 text-white px-6 py-4 font-bold uppercase tracking-wider text-sm transition-all"
+                >
+                  {t('inscription.cta')} <ExternalLink size={18} />
+                </a>
+                <p className="text-sm text-gsc-white/40 mt-4 text-center">{t('inscription.helloasso')}</p>
               </div>
             </div>
 
