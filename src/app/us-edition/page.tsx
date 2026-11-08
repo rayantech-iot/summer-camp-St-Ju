@@ -1,52 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowRight, X, CheckCircle, Download, ExternalLink } from 'lucide-react'
+import { Download, ExternalLink } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import AnimatedSection from '@/components/AnimatedSection'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { createUSEditionInterest } from '@/lib/data-service'
 import { HELLOASSO_US_EDITION } from '@/lib/helloasso'
 
 export default function USEditionPage() {
   const { t } = useLanguage()
-  const [showForm, setShowForm] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
-
-  const [form, setForm] = useState({
-    parent_name: '',
-    child_first_name: '',
-    child_age: '',
-    email: '',
-    phone: '',
-  })
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    if (!form.parent_name || !form.child_first_name || !form.child_age || !form.email || !form.phone) {
-      setError(t('usEdition.form.required'))
-      return
-    }
-    setSubmitting(true)
-    try {
-      await createUSEditionInterest({
-        parent_name: form.parent_name,
-        child_first_name: form.child_first_name,
-        child_age: Number(form.child_age),
-        email: form.email,
-        phone: form.phone,
-      })
-      setSubmitted(true)
-    } catch (err) {
-      setError(t('usEdition.form.error'))
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   return (
     <>
@@ -157,87 +119,11 @@ export default function USEditionPage() {
                 {t('inscription.cta')} <ExternalLink size={16} />
               </a>
               <p className="text-sm text-gsc-white/40 mt-4">{t('inscription.helloasso')}</p>
-              <h2 className="font-heading text-3xl sm:text-4xl text-gsc-white tracking-wider mb-5 mt-20">
-                {t('usEdition.cta')}
-              </h2>
-              <p className="text-gsc-white/40 mb-12 max-w-md mx-auto text-sm leading-relaxed">
-                {t('usEdition.cta.sub')}
-              </p>
-              <button
-                onClick={() => { setShowForm(true); setSubmitted(false); setError(''); setForm({ parent_name: '', child_first_name: '', child_age: '', email: '', phone: '' }) }}
-                className="inline-flex items-center gap-3 border border-gsc-white/30 hover:border-gsc-white/60 text-gsc-white px-12 py-5 font-bold uppercase tracking-wider text-sm transition-all"
-              >
-                {t('usEdition.cta')} <ArrowRight size={16} />
-              </button>
             </AnimatedSection>
           </div>
         </section>
       </main>
       <Footer />
-
-      {/* POPUP FORM */}
-      {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowForm(false)} />
-          <div className="relative bg-gsc-gray/90 border border-gsc-red/30 w-full max-w-lg p-8 rounded-sm max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setShowForm(false)} className="absolute top-4 right-4 text-gsc-white/50 hover:text-gsc-white">
-              <X size={24} />
-            </button>
-
-            {submitted ? (
-              <div className="text-center py-10">
-                <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
-                <p className="text-gsc-white font-heading text-xl tracking-wider">{t('usEdition.form.success')}</p>
-                <button onClick={() => setShowForm(false)} className="mt-8 text-gsc-red hover:text-gsc-red/80 text-sm uppercase tracking-wider font-bold">
-                  Fermer
-                </button>
-              </div>
-            ) : (
-              <>
-                <h3 className="font-heading text-2xl text-gsc-white tracking-wider mb-8 text-center">
-                  {t('usEdition.form.title')}
-                </h3>
-                {error && (
-                  <div className="bg-red-500/20 border border-red-500/50 text-red-400 text-sm px-4 py-3 mb-6 rounded-sm">
-                    {error}
-                  </div>
-                )}
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div>
-                    <label className="block text-xs font-bold text-gsc-white/60 uppercase tracking-wider mb-2">{t('usEdition.form.parent')} *</label>
-                    <input type="text" required value={form.parent_name} onChange={(e) => setForm({ ...form, parent_name: e.target.value })}
-                      className="w-full bg-gsc-black/50 border border-gsc-white/20 text-gsc-white px-4 py-3 text-sm focus:border-gsc-red focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gsc-white/60 uppercase tracking-wider mb-2">{t('usEdition.form.child')} *</label>
-                    <input type="text" required value={form.child_first_name} onChange={(e) => setForm({ ...form, child_first_name: e.target.value })}
-                      className="w-full bg-gsc-black/50 border border-gsc-white/20 text-gsc-white px-4 py-3 text-sm focus:border-gsc-red focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gsc-white/60 uppercase tracking-wider mb-2">{t('usEdition.form.age')} *</label>
-                    <input type="number" required min={10} max={18} value={form.child_age} onChange={(e) => setForm({ ...form, child_age: e.target.value })}
-                      className="w-full bg-gsc-black/50 border border-gsc-white/20 text-gsc-white px-4 py-3 text-sm focus:border-gsc-red focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gsc-white/60 uppercase tracking-wider mb-2">{t('usEdition.form.email')} *</label>
-                    <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full bg-gsc-black/50 border border-gsc-white/20 text-gsc-white px-4 py-3 text-sm focus:border-gsc-red focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gsc-white/60 uppercase tracking-wider mb-2">{t('usEdition.form.phone')} *</label>
-                    <input type="tel" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="w-full bg-gsc-black/50 border border-gsc-white/20 text-gsc-white px-4 py-3 text-sm focus:border-gsc-red focus:outline-none" />
-                  </div>
-                  <button type="submit" disabled={submitting}
-                    className="w-full bg-gsc-red hover:bg-gsc-red/90 disabled:opacity-50 text-white py-4 font-bold uppercase tracking-wider text-sm transition-all">
-                    {submitting ? '...' : t('usEdition.form.submit')}
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </>
   )
 }
